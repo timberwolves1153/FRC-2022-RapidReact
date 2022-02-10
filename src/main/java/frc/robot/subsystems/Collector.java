@@ -6,10 +6,13 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -24,6 +27,7 @@ public class Collector extends SubsystemBase {
   private DigitalInput collectorSensor;
   private DigitalInput indexerSensor;
   private DigitalInput shooterSensor;
+  private ColorSensorV3 colorSensor;
 
   /** Creates a new Collector. */
   public Collector() {
@@ -32,6 +36,7 @@ public class Collector extends SubsystemBase {
     collectorSensor = new DigitalInput(0);
     indexerSensor = new DigitalInput(1);
     shooterSensor = new DigitalInput(2);
+    colorSensor = new ColorSensorV3(Port.kOnboard);
   }
 
   public void indexerOn() {
@@ -92,6 +97,23 @@ public class Collector extends SubsystemBase {
   public boolean getIndexerSensor(){
     return indexerSensor.get();
   }
+
+  public ColorSensorV3.RawColor getRawColor(){
+    return colorSensor.getRawColor();
+  }
+
+  public int getBlue(){
+    return colorSensor.getBlue();
+  }
+
+  public int getRed(){
+    return colorSensor.getRed();
+  }
+
+  public int getGreen(){
+    return colorSensor.getGreen();
+  }
+
 
   @Override
   public void periodic() {
