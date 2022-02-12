@@ -215,7 +215,7 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    pose = odometry.update(new Rotation2d(imu.getAngle()), 
+    pose = odometry.update(Rotation2d.fromDegrees(imu.getAngle()), 
     -getLeftEncoderPosition() * 0.4788 / 23514.07407407407, 
     getRightEncoderPosition() * 0.4788 / 23514.07407407407);
 
