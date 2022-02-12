@@ -16,18 +16,23 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
  */
 public final class Constants {
     //public static final double ksVolts = 0.58612;
-    public static final double ksVolts = 0.51344;
+    //public static final double ksVolts = 0.51344;
+    public static final double ksVolts = 0.61759;
+
     //public static final double kvVoltSecondsPerMeter = 2.8094;
-    public static final double kvVoltSecondsPerMeter = 2.8269;
+    // public static final double kvVoltSecondsPerMeter = 2.8269;
+    public static final double kvVoltSecondsPerMeter = 2.5135;
     //public static final double kaVoltSecondsSquaredPerMeter = 0.11531;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.16096;
+    //public static final double kaVoltSecondsSquaredPerMeter = 0.16096;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.20389;
 
     public static final double kPDriveVel = 0.00001;
     //public static final double kPDriveVel = 2;
     public static final double kDDriveVel = 0.0005;
     //public static final double kDDriveVel = 0.0;
 
-    public static final double kTrackwidthMeters = 0.694;
+    // public static final double kTrackwidthMeters = 0.694;
+    public static final double kTrackwidthMeters = 0.635;
     public static final double kRobotLength = 0.79;
     public static final DifferentialDriveKinematics kDriveKinematics = 
         new DifferentialDriveKinematics(kTrackwidthMeters);
