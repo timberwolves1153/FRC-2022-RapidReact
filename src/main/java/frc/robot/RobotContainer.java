@@ -27,11 +27,15 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ClimbForDistance;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.TurnForDegrees;
 import frc.robot.commands.WaitCommand;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Launcher;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 /**
@@ -44,16 +48,21 @@ public class RobotContainer {
 
   //instantiates a new drive joystick with the XboxController class
   private XboxController driveStick;
+  private XboxController opStick;
 
   private JoystickButton driveB;
   private JoystickButton driveLeftBumper;
   private JoystickButton driveRightBumper;
   private JoystickButton driveX;
   private JoystickButton driveY;
-
+  private JoystickButton driveA;
+  private ClimbForDistance climbForDistance;
+  
   //Instantiates all subsystems
   private Drive drive;
-  private Collector collector;
+  //private Collector collector;
+  private Climber climber;
+  //private Launcher launcher;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -62,7 +71,9 @@ public class RobotContainer {
 
     //declares all subsystems
     drive = new Drive();
-    collector = new Collector();
+    //collector = new Collector();
+    climber = new Climber();
+    //launcher = new Launcher();
 
     
     driveLeftBumper = new JoystickButton(driveStick, XboxController.Button.kLeftBumper.value);
@@ -70,6 +81,11 @@ public class RobotContainer {
     driveX = new JoystickButton(driveStick, XboxController.Button.kX.value);
     driveY = new JoystickButton(driveStick, XboxController.Button.kY.value);
     driveB = new JoystickButton(driveStick, XboxController.Button.kB.value);
+    driveA = new JoystickButton(driveStick, XboxController.Button.kA.value);
+
+
+
+    climbForDistance = new ClimbForDistance(5, climber);
 
     
     drive.setDefaultCommand(new DefaultDrive(
@@ -88,26 +104,53 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     
-    driveLeftBumper.whenPressed(new InstantCommand(() -> collector.collectForward(), collector));
-    driveLeftBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
+   // driveLeftBumper.whenPressed(new InstantCommand(() -> collector.collectForward(), collector));
+   // driveLeftBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
 
 
-    driveRightBumper.whenPressed(new InstantCommand(() -> collector.collectReverse(), collector));
-    driveRightBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
+    // driveRightBumper.whenPressed(new InstantCommand(() -> collector.collectReverse(), collector));
+    // driveRightBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
 
 
-    driveX.whenPressed(new InstantCommand(() -> collector.set(DoubleSolenoid.Value.kForward), collector));
-    driveY.whenPressed(new InstantCommand(() -> collector.set(DoubleSolenoid.Value.kReverse), collector));
+    // driveX.whenPressed(new InstantCommand(() -> collector.set(DoubleSolenoid.Value.kForward), collector));
+    // driveY.whenPressed(new InstantCommand(() -> collector.set(DoubleSolenoid.Value.kReverse), collector));
 
 
-    driveB.whenPressed(new InstantCommand(() -> drive.resetEncoders(), drive));
+    // driveB.whenPressed(new InstantCommand(() -> drive.resetEncoders(), drive));
+
+    driveLeftBumper.whenPressed(new InstantCommand(() -> climber.winchDown()));
+    driveLeftBumper.whenReleased(new InstantCommand(() -> climber.stop()));
+
+
+
+    driveRightBumper.whenPressed(new InstantCommand(() -> climber.winchUp()));
+    driveRightBumper.whenReleased(new InstantCommand(() -> climber.stop()));
+
+    driveA.whenPressed(climbForDistance);
+    driveA.whenReleased(() -> climbForDistance.cancel());
+
+
   }
+
+  //Climber SmartDashboard
+  public void updateDashboard() {
+    SmartDashboard.putBoolean("rightWinch", climber.getRightMagnetSensorValue());
+    SmartDashboard.putBoolean("leftWinch", climber.getLeftMagnetSensorValue());
+    SmartDashboard.putNumber("rightEncoder", climber.getRightEncoder());
+    SmartDashboard.putNumber("leftEncoder", climber.getLeftEncoder());
+    SmartDashboard.putNumber("Accelerometer X", climber.getAccelerationX());
+    SmartDashboard.putNumber("Accelerometer Y", climber.getAccelerationY());
+    SmartDashboard.putNumber("Accelerometer Z", climber.getAccelerationZ());
+   }
+
+
 
   /**
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
     drive.updateShuffleboard();
+    //launcher.updateShuffleboard();
   }
 
   public Trajectory generateTrajectoryFromJSON(String trajectoryPath) throws IOException{

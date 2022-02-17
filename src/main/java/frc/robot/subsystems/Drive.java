@@ -7,14 +7,12 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.*;
-import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -48,10 +46,10 @@ public class Drive extends SubsystemBase {
 
   /** Creates a new Drive. */
   public Drive() {
-    rightMaster = new WPI_TalonFX(2);
-    rightFollower = new WPI_TalonFX(3);
     leftMaster = new WPI_TalonFX(0);
     leftFollower = new WPI_TalonFX(1);
+    rightMaster = new WPI_TalonFX(2);
+    rightFollower = new WPI_TalonFX(3);
 
     rightEncoder = new TalonFXSensorCollection(rightMaster);
     leftEncoder = new TalonFXSensorCollection(leftMaster);

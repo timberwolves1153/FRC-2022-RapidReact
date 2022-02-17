@@ -3,44 +3,131 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
 
-  private CANSparkMax winch;
-  private CANSparkMax winch2;
+  private WPI_TalonFX winchRight;
+  private WPI_TalonFX winchLeft;
 
   private DoubleSolenoid doubleSolenoid1;
-
   private DoubleSolenoid doubleSolenoid2;
+
+  private TalonFXSensorCollection rightEncoder;
+
+  private DigitalInput leftColorSensor;
+  private DigitalInput rightColorSensor;
+  private DigitalInput leftMagnetSensor;
+  private DigitalInput rightMagnetSensor;
+
+  private Accelerometer accelerometer;
+  private LinearFilter xAccelFilter; 
+  private LinearFilter yAccelFilter;
+  private LinearFilter zAccelFilter;
+
 
   /** Creates a new Climber. */
   public Climber() {
-    winch =  new CANSparkMax(4, MotorType.kBrushless);
-    winch2 =  new CANSparkMax(5, MotorType.kBrushless);
+    winchRight =  new WPI_TalonFX(5);
+    winchLeft =  new WPI_TalonFX(4);
+
     doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
     doubleSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+
+    leftColorSensor = new DigitalInput(0);
+    rightColorSensor = new DigitalInput(1);
+    leftMagnetSensor = new DigitalInput(2);
+    rightMagnetSensor = new DigitalInput(3);
+
+    
+
+    accelerometer = new BuiltInAccelerometer();
+    xAccelFilter = LinearFilter.movingAverage(10);
+    yAccelFilter = LinearFilter.movingAverage(10);
+    zAccelFilter = LinearFilter.movingAverage(10);
   }
 
-  public void configSparkParams() {
-    winch.restoreFactoryDefaults();
-    winch2.restoreFactoryDefaults();
+  public void config() {
+    winchRight.configFactoryDefault();
+    winchLeft.configFactoryDefault();
 
-    winch.setIdleMode(IdleMode.kBrake);
-    winch2.setIdleMode(IdleMode.kBrake);
+    winchRight.setNeutralMode(NeutralMode.Brake);
+    winchLeft.setNeutralMode(NeutralMode.Brake);
 
-    winch2.follow(winch, false);
+    winchLeft.follow(winchRight);
+    winchLeft.setInverted(InvertType.InvertMotorOutput);
+    winchLeft.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 100);
+    winchRight.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 100);
 
-    winch.burnFlash();
-    winch2.burnFlash();
+    winchRight.configNominalOutputForward(0, 100);
+		winchRight.configNominalOutputReverse(0, 100);
+		winchRight.configPeakOutputForward(1, 100);
+		winchRight.configPeakOutputReverse(-1, 100);
+
+
+    winchLeft.configNominalOutputForward(0, 100);
+		winchLeft.configNominalOutputReverse(0, 100);
+		winchLeft.configPeakOutputForward(1, 100);
+		winchLeft.configPeakOutputReverse(-1, 100);
+
+
+    winchRight.configAllowableClosedloopError(0, 0, 100);
+    winchLeft.configAllowableClosedloopError(0, 0, 100);
+
+
+    winchLeft.config_kF(0, 0, 100);
+		winchLeft.config_kP(0, .15, 100);
+		winchLeft.config_kI(0, 0, 100);
+		winchLeft.config_kD(0, 1, 100);
+
+
+    winchRight.config_kF(0, 0, 100);
+		winchRight.config_kP(0,.15, 100);
+		winchRight.config_kI(0, 0, 100);
+		winchRight.config_kD(0, 1, 100);
+
+  }
+
+  public boolean getRightColorSensorValue() {
+    return rightColorSensor.get();
+  }
+
+  public boolean getLeftColorSensorValue() {
+    return leftColorSensor.get();
+  }
+
+  public boolean getRightMagnetSensorValue() {
+    return rightMagnetSensor.get();
+  }
+
+  public boolean getLeftMagnetSensorValue() {
+    return leftMagnetSensor.get();
+  }
+
+  public double getAccelerationX() {
+    return xAccelFilter.calculate(accelerometer.getX());
+  }
+
+  public double getAccelerationY() {
+    return yAccelFilter.calculate(accelerometer.getY());
+  }
+
+  public double getAccelerationZ() {
+    return zAccelFilter.calculate(accelerometer.getZ());
   }
 
 
@@ -66,8 +153,23 @@ public class Climber extends SubsystemBase {
   }
 
   public void toggle(){
-    doubleSolenoid1.toggle();
-    doubleSolenoid2.toggle();
+    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff) || doubleSolenoid2.get().equals(DoubleSolenoid.Value.kOff)) {
+      doubleSolenoid1.set(DoubleSolenoid.Value.kForward);
+      doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
+    } else {
+      doubleSolenoid1.toggle();
+      doubleSolenoid2.toggle();
+    }
+  }
+
+  public void pistonReverse(){
+    doubleSolenoid1.set(DoubleSolenoid.Value.kReverse);
+    doubleSolenoid2.set(DoubleSolenoid.Value.kReverse);
+  }
+
+  public void pistonForward(){
+    doubleSolenoid1.set(DoubleSolenoid.Value.kForward);
+    doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
   }
 
   //This is a helper method that clarifies what winching up means in the context of the set method; 
@@ -78,7 +180,22 @@ public class Climber extends SubsystemBase {
 
   //Might need to be inverted depending on motor orientation
   public void winchDown() {
-    set(-0.8);
+    if (!leftMagnetSensor.get()) { 
+      resetLeftEncoders();        // true when see black tape
+      winchLeft.set(0);
+    }
+    else {
+      winchLeft.set(-0.8);
+    }
+
+    if (!rightMagnetSensor.get()) { // true when see black tape
+      resetRightEncoders();
+      winchRight.set(0);
+    }
+    else {
+      winchRight.set(-0.8);
+    }
+
   }
 
   public void winchUpRight() {
@@ -105,18 +222,54 @@ public class Climber extends SubsystemBase {
 
   //Main set method that can be called externally
   public void set(double speed) {
-    winch.set(speed);
-    winch2.set(speed);
+    winchRight.set(ControlMode.PercentOutput, speed);
+    winchLeft.set(ControlMode.PercentOutput, speed);
   }
+
   public void setRight(double speed) {
-    winch.set(speed);
+    winchRight.set(speed);
   }
+
   public void setLeft(double speed) {
-    winch2.set(speed);
+    winchLeft.set(speed);
+  }
+
+  public void resetRightEncoders(){
+    winchRight.setSelectedSensorPosition(0, 0, 100);
+   
+  }
+
+  public void resetLeftEncoders(){
+    winchLeft.setSelectedSensorPosition(0, 0, 100);
+  }
+
+  public void climbToSetPoint(int setPoint){
+    winchLeft.set(ControlMode.Position, setPoint);
+    winchRight.set(ControlMode.Position, setPoint);
+  }
+
+
+  public double getRightEncoder(){
+   return winchRight.getSelectedSensorPosition();
+  }
+  
+  public double getLeftEncoder(){
+    return winchLeft.getSelectedSensorPosition();
+  }
+
+  public double getEncoderTicksFromPosition(double distance) {
+    return (2048 * 15) / (0.5 * Math.PI) * distance;
+  }
+
+  public void setWinchPosition(double encoderTicks){
+    winchLeft.set(TalonFXControlMode.Position, encoderTicks);
+    winchRight.set(TalonFXControlMode.Position, encoderTicks);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+
 }
