@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -96,6 +97,7 @@ public class Launcher extends SubsystemBase {
     topRoller = new WPI_TalonFX(22);
 
     config();
+
   }
 
   public void config() {
@@ -133,6 +135,10 @@ public class Launcher extends SubsystemBase {
     topRoller.configNominalOutputReverse(0);
 
 
+    feeder.restoreFactoryDefaults();
+    feeder.setIdleMode(IdleMode.kBrake);
+    feeder.burnFlash();
+
   }
 
   public void updateShuffleboard() {
@@ -158,7 +164,7 @@ public class Launcher extends SubsystemBase {
   }
 
   public void feederOn(){
-    feeder.set(0.5);
+    feeder.set(-0.5);
   }
   public void feederOff(){
     feeder.set(0);
@@ -174,12 +180,12 @@ public class Launcher extends SubsystemBase {
 
   public void setLauncherForPosition() {
     if(selectedPosition.equals(ShooterPosition.LOWER_HUB)) {
-      setLauncherTop(0.47);
-      setLauncherBottom(0.47);
+      setLauncherTop(-0.23);
+      setLauncherBottom(0.23);
     }
     if(selectedPosition.equals(ShooterPosition.UPPER_HUB)) {
-      setLauncherTop(0.66);
-      setLauncherBottom(0.66);
+      setLauncherTop(-0.47);
+      setLauncherBottom(0.47);
     }
   }
 

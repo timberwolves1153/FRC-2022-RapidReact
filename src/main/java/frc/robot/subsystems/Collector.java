@@ -5,8 +5,10 @@
 package frc.robot.subsystems;
 
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -34,6 +36,18 @@ public class Collector extends SubsystemBase {
     doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 4, 5);
     moverSensor = new DigitalInput(0);
     singulatorSensor = new DigitalInput(1);
+
+    mover.restoreFactoryDefaults();
+    collect.configFactoryDefault();
+    singulator.restoreFactoryDefaults();
+
+    mover.setIdleMode(IdleMode.kBrake);
+    singulator.setIdleMode(IdleMode.kBrake);
+    collect.setNeutralMode(NeutralMode.Brake); 
+
+    mover.burnFlash();
+    singulator.burnFlash();
+
   }
 
   
@@ -62,11 +76,11 @@ public class Collector extends SubsystemBase {
   }
 
   public void singulatorIntake() {
-    singulator.set(1);
+    singulator.set(-0.5);
   }
 
   public void singulatorOutake() {
-    singulator.set(-1);
+    singulator.set(0.5);
   }
 
   public void singulatorStop() {
