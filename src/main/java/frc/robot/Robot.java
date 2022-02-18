@@ -59,13 +59,8 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    try {
-      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    } catch(IOException e) {
-      System.out.println("Could not open trajectory file.");
-    }
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     
-
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();

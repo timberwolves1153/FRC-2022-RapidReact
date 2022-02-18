@@ -43,9 +43,9 @@ public class TurnForDegrees extends CommandBase {
   @Override
   public boolean isFinished() {
     if(sign < 0) {
-      return drive.getHeading() <= startingDegrees + degrees;
-    } else {
       return drive.getHeading() >= startingDegrees + degrees;
+    } else {
+      return drive.getHeading() <= startingDegrees - degrees;
     }
   }
 }

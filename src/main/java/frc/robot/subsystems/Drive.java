@@ -8,16 +8,19 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.*;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Drive extends SubsystemBase {
   private WPI_TalonFX rightMaster;
@@ -39,6 +42,17 @@ public class Drive extends SubsystemBase {
   //private AHRS imu;
   
   private DifferentialDriveOdometry odometry;
+
+  private DifferentialDriveVoltageConstraint autoVoltageConstraint =
+  new DifferentialDriveVoltageConstraint(
+      new SimpleMotorFeedforward(
+          Constants.ksVolts,
+          Constants.kvVoltSecondsPerMeter,
+          Constants.kaVoltSecondsSquaredPerMeter),
+      Constants.kDriveKinematics,
+      10);
+
+  
 
   private Pose2d pose;
 

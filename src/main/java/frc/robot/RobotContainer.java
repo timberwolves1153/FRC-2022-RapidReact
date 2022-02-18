@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import com.revrobotics.ColorSensorV3;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -77,8 +75,20 @@ public class RobotContainer {
   private Launcher launcher;
   private ColorSensor colorSensor;
 
+  private Trajectory exampleTrajectory;
+  private Trajectory straightPathTrajectory;
+  private Trajectory manualTrajectory1;
+  private Trajectory manualTrajectory2;
+  
+  private RamseteCommand manualRamseteCommand1;
+  private RamseteCommand manualRamseteCommand2;
+  private RamseteCommand ramseteCommand;
+
+  private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
+  private String manualPath2 = "pathplanner/generatedJSON/ManualPath2.wpilib.json";
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
+  public RobotContainer(){
     //declares the drive joystick as an XboxController in port 0 on the Driver Station
     driveStick = new XboxController(0);
     opStick = new XboxController(1);
@@ -123,6 +133,7 @@ public class RobotContainer {
 
     // Configure the buttons to start new commands when they are pressed or released
     configureButtonBindings();
+    generateTrajectories();
   }
 
   /**
@@ -183,6 +194,59 @@ public class RobotContainer {
     climber.updateShuffleboard();
   }
 
+  public void generateTrajectories(){
+    var autoVoltageConstraint =
+        new DifferentialDriveVoltageConstraint(
+            new SimpleMotorFeedforward(
+                Constants.ksVolts,
+                Constants.kvVoltSecondsPerMeter,
+                Constants.kaVoltSecondsSquaredPerMeter),
+            Constants.kDriveKinematics,
+            10);
+
+    TrajectoryConfig config =
+        new TrajectoryConfig(
+                Constants.kMaxSpeedMetersPerSecond,
+                Constants.kMaxAccelerationMetersPerSecondSquared)
+            // Add kinematics to ensure max speed is actually obeyed
+            .setKinematics(Constants.kDriveKinematics)
+            // Apply the voltage constraint
+            .addConstraint(autoVoltageConstraint);
+
+    // An example trajectory to follow.  All units in meters. Creates a list of Pose2d objects that the robot tries to replicate in real life.
+    exampleTrajectory =
+        TrajectoryGenerator.generateTrajectory(
+          List.of(
+            new Pose2d(0, 0, new Rotation2d()),
+            new Pose2d(1, 0.5, new Rotation2d(Math.PI/4)),
+            new Pose2d(2, 1.0, new Rotation2d(-Math.PI/4)),
+            new Pose2d(3, 1.5, new Rotation2d(Math.PI*5/4)),
+            new Pose2d(5, 2, new Rotation2d())
+          ),
+          // Pass config
+          config);
+    
+    straightPathTrajectory = 
+      TrajectoryGenerator.generateTrajectory(
+        List.of(
+          new Pose2d(0, 0, new Rotation2d()),
+          new Pose2d(2, 0, new Rotation2d())
+        ), 
+        config);
+
+    // Creates a ramsete command, which combines all of the previous systems to create an autonomous motion profile that follows the trajectory we just created
+    try {
+      manualTrajectory1 = generateTrajectoryFromJSON(manualPath1);
+      manualTrajectory2 = generateTrajectoryFromJSON(manualPath2);
+    } catch (IOException e) {
+      System.out.println("Could not read trajectory file.");
+    }
+    manualRamseteCommand1 = generateRamseteCommandFromTrajectory(manualTrajectory1);
+    manualRamseteCommand2 = generateRamseteCommandFromTrajectory(manualTrajectory2);
+
+    ramseteCommand = generateRamseteCommandFromTrajectory(straightPathTrajectory);
+  }
+
   public Trajectory generateTrajectoryFromJSON(String trajectoryPath) throws IOException{
     Path path = Filesystem.getDeployDirectory().toPath().resolve(trajectoryPath);
     Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(path);
@@ -220,82 +284,36 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() throws IOException {
-    String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
-    String manualPath2 = "pathplanner/generatedJSON/ManualPath2.wpilib.json";
-
-    //DifferentialDriveVoltageConstraint is an object that uses a feedforward device, the DriveKinematics, and a max voltage of 10 to describe how the voltage should change based
-    //on position error. The SimpleMotorFeedforward changes the voltage while the kinematics describes how the width of the robot affects the turning of the robot. The max voltage
-    //of 10 ensures that the robot doesn't provide more than 10 volts to the motors to prevent brownouts.
-    var autoVoltageConstraint =
-        new DifferentialDriveVoltageConstraint(
-            new SimpleMotorFeedforward(
-                Constants.ksVolts,
-                Constants.kvVoltSecondsPerMeter,
-                Constants.kaVoltSecondsSquaredPerMeter),
-            Constants.kDriveKinematics,
-            10);
-
-    // Create config for trajectory; describes the max acceleration and velocity while using the voltage constraint from before to regulate the voltage and providing the trajectory
-    // with the DriveKinematics
-    TrajectoryConfig config =
-        new TrajectoryConfig(
-                Constants.kMaxSpeedMetersPerSecond,
-                Constants.kMaxAccelerationMetersPerSecondSquared)
-            // Add kinematics to ensure max speed is actually obeyed
-            .setKinematics(Constants.kDriveKinematics)
-            // Apply the voltage constraint
-            .addConstraint(autoVoltageConstraint);
-
-    // An example trajectory to follow.  All units in meters. Creates a list of Pose2d objects that the robot tries to replicate in real life.
-    Trajectory exampleTrajectory =
-        TrajectoryGenerator.generateTrajectory(
-          //Creates the list of poses that define the trajectory. Think of the poses as points on a graph that the robot will connect the dots with
-          List.of(
-            //Sets the initial pose, the one that the odometry is set to, to (0,0) with a rotation of 0. This tells the trajectory that the robot is at the "origin" 
-            //of its graph facing the positive x direction
-            new Pose2d(0, 0, new Rotation2d()),
-            //Sets the next pose to be 2 meters in front of the original pose, causing the robot to move forwards to meters.
-            new Pose2d(1, 0.5, new Rotation2d(Math.PI/4)),
-            new Pose2d(2, 1.0, new Rotation2d(-Math.PI/4)),
-            new Pose2d(3, 1.5, new Rotation2d(Math.PI*5/4)),
-            new Pose2d(5, 2, new Rotation2d())
-          ),
-          // Pass config
-          config);
-    
-    Trajectory straightPathTrajectory = 
-      TrajectoryGenerator.generateTrajectory(
-        List.of(
-          new Pose2d(0, 0, new Rotation2d()),
-          new Pose2d(2, 0, new Rotation2d())
-        ), 
-        config);
-
-    
-
-    // Creates a ramsete command, which combines all of the previous systems to create an autonomous motion profile that follows the trajectory we just created
-    Trajectory manualTrajectory1 = generateTrajectoryFromJSON(manualPath1);
-    Trajectory manualTrajectory2 = generateTrajectoryFromJSON(manualPath2);
-
-    RamseteCommand manualRamseteCommand1 = generateRamseteCommandFromTrajectory(manualTrajectory1);
-    RamseteCommand manualRamseteCommand2 = generateRamseteCommandFromTrajectory(manualTrajectory2);
-
-
-    RamseteCommand ramseteCommand = generateRamseteCommandFromTrajectory(straightPathTrajectory);
-
-    // Reset odometry to the starting pose of the trajectory.
-    drive.resetOdometry(exampleTrajectory.getInitialPose());
-
+  public Command getAutonomousCommand(){
     // Run path following command, then stop at the end.
   //return manualRamseteCommand2.andThen(() -> drive.tankDriveVolts(0, 0));
-  return new SequentialCommandGroup(
-    new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
-    manualRamseteCommand1,
-    new TurnForDegrees(110, drive),
-    new WaitCommand(0.25),
-    new InstantCommand(()-> drive.resetOdometry(manualTrajectory2.getInitialPose())),
-    manualRamseteCommand2
-  );
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(2),
+      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new TurnForDegrees(165, drive),
+      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
+      manualRamseteCommand1,
+      new TurnForDegrees(110, drive),
+      new WaitCommand(0.25),
+      new InstantCommand(()-> drive.resetOdometry(manualTrajectory2.getInitialPose())),
+      manualRamseteCommand2,
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(4),
+      new InstantCommand(() -> collector.stop(), collector),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> collector.moverOff(), collector),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(() -> collector.singulatorStop(), collector)
+    );
   }
 }
