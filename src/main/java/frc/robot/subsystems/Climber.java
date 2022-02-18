@@ -9,7 +9,6 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
@@ -17,22 +16,21 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
 
-  private WPI_TalonFX winchRight;
   private WPI_TalonFX winchLeft;
+  private WPI_TalonFX winchRight;
 
   private DoubleSolenoid doubleSolenoid1;
   private DoubleSolenoid doubleSolenoid2;
 
-  private TalonFXSensorCollection rightEncoder;
-
-  private DigitalInput leftColorSensor;
-  private DigitalInput rightColorSensor;
   private DigitalInput leftMagnetSensor;
   private DigitalInput rightMagnetSensor;
+  private DigitalInput leftLimitSwitch;
+  private DigitalInput rightLimitSwitch;
 
   private Accelerometer accelerometer;
   private LinearFilter xAccelFilter; 
@@ -42,23 +40,31 @@ public class Climber extends SubsystemBase {
 
   /** Creates a new Climber. */
   public Climber() {
-    winchRight =  new WPI_TalonFX(5);
-    winchLeft =  new WPI_TalonFX(4);
-
+    winchLeft =  new WPI_TalonFX(30);
+    winchRight =  new WPI_TalonFX(31);
+    
     doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
     doubleSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
 
-    leftColorSensor = new DigitalInput(0);
-    rightColorSensor = new DigitalInput(1);
     leftMagnetSensor = new DigitalInput(2);
     rightMagnetSensor = new DigitalInput(3);
-
-    
+    leftLimitSwitch = new DigitalInput(4);
+    rightLimitSwitch = new DigitalInput(5);
 
     accelerometer = new BuiltInAccelerometer();
     xAccelFilter = LinearFilter.movingAverage(10);
     yAccelFilter = LinearFilter.movingAverage(10);
     zAccelFilter = LinearFilter.movingAverage(10);
+  }
+
+  public void updateShuffleboard(){
+    SmartDashboard.putBoolean("rightWinch", getRightMagnetSensorValue());
+    SmartDashboard.putBoolean("leftWinch", getLeftMagnetSensorValue());
+    SmartDashboard.putNumber("rightEncoder", getRightEncoder());
+    SmartDashboard.putNumber("leftEncoder", getLeftEncoder());
+    SmartDashboard.putNumber("Accelerometer X", getAccelerationX());
+    SmartDashboard.putNumber("Accelerometer Y", getAccelerationY());
+    SmartDashboard.putNumber("Accelerometer Z", getAccelerationZ());
   }
 
   public void config() {
@@ -102,14 +108,6 @@ public class Climber extends SubsystemBase {
 
   }
 
-  public boolean getRightColorSensorValue() {
-    return rightColorSensor.get();
-  }
-
-  public boolean getLeftColorSensorValue() {
-    return leftColorSensor.get();
-  }
-
   public boolean getRightMagnetSensorValue() {
     return rightMagnetSensor.get();
   }
@@ -128,6 +126,14 @@ public class Climber extends SubsystemBase {
 
   public double getAccelerationZ() {
     return zAccelFilter.calculate(accelerometer.getZ());
+  }
+
+  public boolean getLeftLimitSwitch(){
+    return leftLimitSwitch.get();
+  }
+
+  public boolean getRightLimitSwitch(){
+    return rightLimitSwitch.get();
   }
 
 
@@ -152,7 +158,7 @@ public class Climber extends SubsystemBase {
     return doubleSolenoid2.get();
   }
 
-  public void toggle(){
+  public void toggleSolenoid(){
     if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff) || doubleSolenoid2.get().equals(DoubleSolenoid.Value.kOff)) {
       doubleSolenoid1.set(DoubleSolenoid.Value.kForward);
       doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
@@ -165,6 +171,7 @@ public class Climber extends SubsystemBase {
   public void pistonReverse(){
     doubleSolenoid1.set(DoubleSolenoid.Value.kReverse);
     doubleSolenoid2.set(DoubleSolenoid.Value.kReverse);
+
   }
 
   public void pistonForward(){

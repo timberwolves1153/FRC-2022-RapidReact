@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+import com.revrobotics.ColorSensorV3;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -29,11 +31,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ClimbForDistance;
+import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
+import frc.robot.commands.DefaultLauncher;
 import frc.robot.commands.TurnForDegrees;
 import frc.robot.commands.WaitCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.ColorSensor;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Launcher;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -56,24 +61,34 @@ public class RobotContainer {
   private JoystickButton driveX;
   private JoystickButton driveY;
   private JoystickButton driveA;
+
+  private JoystickButton opY;
+  private JoystickButton opB;
+  private JoystickButton opA;
+  private JoystickButton opLeftBumper;
+  private JoystickButton opRightBumper;
+
   private ClimbForDistance climbForDistance;
   
   //Instantiates all subsystems
   private Drive drive;
-  //private Collector collector;
+  private Collector collector;
   private Climber climber;
-  //private Launcher launcher;
+  private Launcher launcher;
+  private ColorSensor colorSensor;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     //declares the drive joystick as an XboxController in port 0 on the Driver Station
     driveStick = new XboxController(0);
+    opStick = new XboxController(1);
 
     //declares all subsystems
     drive = new Drive();
-    //collector = new Collector();
+    collector = new Collector();
     climber = new Climber();
-    //launcher = new Launcher();
+    launcher = new Launcher();
+    colorSensor = new ColorSensor();
 
     
     driveLeftBumper = new JoystickButton(driveStick, XboxController.Button.kLeftBumper.value);
@@ -83,15 +98,29 @@ public class RobotContainer {
     driveB = new JoystickButton(driveStick, XboxController.Button.kB.value);
     driveA = new JoystickButton(driveStick, XboxController.Button.kA.value);
 
+    opY = new JoystickButton(opStick, XboxController.Button.kY.value);
+    opB = new JoystickButton(opStick, XboxController.Button.kB.value);
+    opA = new JoystickButton(opStick, XboxController.Button.kA.value);
 
+    opLeftBumper = new JoystickButton(opStick, XboxController.Button.kLeftBumper.value);
+    opRightBumper = new JoystickButton(opStick, XboxController.Button.kRightBumper.value);
 
     climbForDistance = new ClimbForDistance(5, climber);
-
     
     drive.setDefaultCommand(new DefaultDrive(
       () -> driveStick.getLeftY(), 
       () -> driveStick.getRightX(), 
       drive));
+
+    launcher.setDefaultCommand(new DefaultLauncher(
+      () -> opStick.getLeftY(),
+      launcher));
+
+    collector.setDefaultCommand(new DefaultCollect(
+      () -> opStick.getLeftTriggerAxis(),
+      () -> opStick.getRightTriggerAxis(), 
+      collector));
+
     // Configure the buttons to start new commands when they are pressed or released
     configureButtonBindings();
   }
@@ -121,36 +150,37 @@ public class RobotContainer {
     driveLeftBumper.whenPressed(new InstantCommand(() -> climber.winchDown()));
     driveLeftBumper.whenReleased(new InstantCommand(() -> climber.stop()));
 
-
-
     driveRightBumper.whenPressed(new InstantCommand(() -> climber.winchUp()));
     driveRightBumper.whenReleased(new InstantCommand(() -> climber.stop()));
+
+    driveX.whenPressed(new InstantCommand(() -> climber.toggleSolenoid()));
 
     driveA.whenPressed(climbForDistance);
     driveA.whenReleased(() -> climbForDistance.cancel());
 
+    opY.whenPressed(new InstantCommand(() -> launcher.setLauncherForPosition()));
+    opY.whenReleased(new InstantCommand(() -> launcher.stop()));
 
+    opB.whenPressed(new InstantCommand(() -> launcher.feederOn()));
+    opB.whenReleased(new InstantCommand(() -> launcher.feederOff()));
+
+    opA.whenPressed(new InstantCommand(() -> collector.toggleSolenoid()));
+
+    opLeftBumper.whenPressed(new InstantCommand(() -> collector.intake()));
+    opLeftBumper.whenReleased(new InstantCommand(() -> collector.stop()));
+
+    opRightBumper.whenPressed(new InstantCommand(() -> collector.outake()));
+    opRightBumper.whenReleased(new InstantCommand(() -> collector.stop()));
   }
-
-  //Climber SmartDashboard
-  public void updateDashboard() {
-    SmartDashboard.putBoolean("rightWinch", climber.getRightMagnetSensorValue());
-    SmartDashboard.putBoolean("leftWinch", climber.getLeftMagnetSensorValue());
-    SmartDashboard.putNumber("rightEncoder", climber.getRightEncoder());
-    SmartDashboard.putNumber("leftEncoder", climber.getLeftEncoder());
-    SmartDashboard.putNumber("Accelerometer X", climber.getAccelerationX());
-    SmartDashboard.putNumber("Accelerometer Y", climber.getAccelerationY());
-    SmartDashboard.putNumber("Accelerometer Z", climber.getAccelerationZ());
-   }
-
-
 
   /**
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
     drive.updateShuffleboard();
-    //launcher.updateShuffleboard();
+    launcher.updateShuffleboard();
+    colorSensor.updateShuffleboard();
+    climber.updateShuffleboard();
   }
 
   public Trajectory generateTrajectoryFromJSON(String trajectoryPath) throws IOException{
