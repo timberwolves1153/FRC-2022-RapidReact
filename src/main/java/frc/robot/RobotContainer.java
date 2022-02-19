@@ -62,6 +62,8 @@ public class RobotContainer {
   private JoystickButton driveX;
   private JoystickButton driveY;
   private JoystickButton driveA;
+  private JoystickButton driveStart;
+  private JoystickButton driveBack;
 
   private JoystickButton opY;
   private JoystickButton opB;
@@ -89,7 +91,8 @@ public class RobotContainer {
   private RamseteCommand ramseteCommand;
 
   private SequentialCommandGroup fullAutoCommandGroup;
-  private SequentialCommandGroup partialAutoCommandGroup;
+  private SequentialCommandGroup partialAutoCommandGroupRight;
+  private SequentialCommandGroup partialAutoCommandGroupLeft;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
   private String manualPath2 = "pathplanner/generatedJSON/ManualPath2.wpilib.json";
@@ -115,6 +118,8 @@ public class RobotContainer {
     driveY = new JoystickButton(driveStick, XboxController.Button.kY.value);
     driveB = new JoystickButton(driveStick, XboxController.Button.kB.value);
     driveA = new JoystickButton(driveStick, XboxController.Button.kA.value);
+    driveStart = new JoystickButton(driveStick, XboxController.Button.kStart.value);
+    driveBack = new JoystickButton(driveStick, XboxController.Button.kBack.value);
 
     opY = new JoystickButton(opStick, XboxController.Button.kY.value);
     opB = new JoystickButton(opStick, XboxController.Button.kB.value);
@@ -175,7 +180,7 @@ public class RobotContainer {
       new InstantCommand(() -> collector.singulatorStop(), collector)
     );
     
-    partialAutoCommandGroup = new SequentialCommandGroup(
+    partialAutoCommandGroupRight = new SequentialCommandGroup(
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
@@ -183,10 +188,11 @@ public class RobotContainer {
       new InstantCommand(() -> launcher.feederOn(), launcher),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new WaitCommand(2),
-      new InstantCommand(() -> collector.intake(), collector),
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> launcher.feederOff(), launcher),
-      new TurnForDegrees(165, drive),
+      new TurnForDegrees(155, drive),
+      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
+      new InstantCommand(() -> collector.intake(), collector),
       new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(manualTrajectory1),
       new TurnForDegrees(180, drive),
@@ -205,8 +211,42 @@ public class RobotContainer {
       new InstantCommand(()-> collector.singulatorStop(), collector)
     );
 
-    autoCommandChooser.setDefaultOption("Partial Auto", partialAutoCommandGroup);
+    partialAutoCommandGroupLeft = new SequentialCommandGroup(
+      new InstantCommand(() -> System.out.println("Running Partial Auto")),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(2),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new TurnForDegrees(195, drive),
+      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
+      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
+      generateRamseteCommandFromTrajectory(manualTrajectory1),
+      new TurnForDegrees(165, drive),
+      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
+      generateRamseteCommandFromTrajectory(manualTrajectory1),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(2),
+      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(()-> collector.moverOff(), collector),
+      new InstantCommand(()-> collector.singulatorStop(), collector)
+    );
+
+
+    autoCommandChooser.setDefaultOption("Partial Auto Right", partialAutoCommandGroupRight);
+    autoCommandChooser.addOption("Partial Auto Left", partialAutoCommandGroupLeft);
     autoCommandChooser.addOption("Full Auto", fullAutoCommandGroup);
+    autoCommandChooser.addOption("Test Ramsete", generateRamseteCommandFromTrajectory(manualTrajectory1));
 
     SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
 
@@ -237,10 +277,22 @@ public class RobotContainer {
     driveRightBumper.whenPressed(new InstantCommand(() -> climber.winchUp()));
     driveRightBumper.whenReleased(new InstantCommand(() -> climber.stop()));
 
-    driveX.whenPressed(new InstantCommand(() -> climber.toggleSolenoid()));
+    driveA.whenPressed(new InstantCommand(() -> climber.toggleSolenoid()));
 
-    driveA.whenPressed(climbForDistance);
-    driveA.whenReleased(() -> climbForDistance.cancel());
+    //driveA.whenPressed(climbForDistance);
+    //driveA.whenReleased(() -> climbForDistance.cancel());
+
+    driveBack.whenPressed(new InstantCommand(() -> climber.setLeft(-0.8), climber));
+    driveBack.whenReleased(new InstantCommand(() -> climber.setLeft(0), climber));
+
+    driveStart.whenPressed(new InstantCommand(() -> climber.setRight(0.8), climber));
+    driveStart.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
+
+    driveX.whenPressed(new InstantCommand(() -> climber.setLeft(0.8), climber));
+    driveX.whenReleased(new InstantCommand(() -> climber.setLeft(0), climber));
+
+    driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.8), climber));
+    driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
 
     opY.whenPressed(new InstantCommand(() -> launcher.setLauncherForPosition()));
     opY.whenReleased(new InstantCommand(() -> launcher.stop()));

@@ -192,7 +192,7 @@ public class Climber extends SubsystemBase {
       winchLeft.set(0);
     }
     else {
-      winchLeft.set(-0.8);
+      winchLeft.set(0.8);
     }
 
     if (!rightMagnetSensor.get()) { // true when see black tape
@@ -230,7 +230,7 @@ public class Climber extends SubsystemBase {
   //Main set method that can be called externally
   public void set(double speed) {
     winchRight.set(ControlMode.PercentOutput, speed);
-    winchLeft.set(ControlMode.PercentOutput, speed);
+    winchLeft.set(ControlMode.PercentOutput, -speed);
   }
 
   public void setRight(double speed) {
