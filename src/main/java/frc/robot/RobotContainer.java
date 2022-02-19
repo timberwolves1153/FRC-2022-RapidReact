@@ -88,8 +88,8 @@ public class RobotContainer {
   private RamseteCommand manualRamseteCommand2;
   private RamseteCommand ramseteCommand;
 
-  private FullAutoCommandGroup fullAutoCommandGroup;
-  private PartialAutoCommandGroup partialAutoCommandGroup;
+  private SequentialCommandGroup fullAutoCommandGroup;
+  private SequentialCommandGroup partialAutoCommandGroup;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
   private String manualPath2 = "pathplanner/generatedJSON/ManualPath2.wpilib.json";
@@ -143,30 +143,72 @@ public class RobotContainer {
 
     // Configure the buttons to start new commands when they are pressed or released
     
-    //generateTrajectories();
+    generateTrajectories();
 
-    // fullAutoCommandGroup = new FullAutoCommandGroup(
-    //   manualRamseteCommand1Full, 
-    //   manualRamseteCommand2, 
-    //   manualTrajectory1, 
-    //   manualTrajectory2, 
-    //   launcher, 
-    //   collector, 
-    //   drive
-    // );
+    fullAutoCommandGroup = new SequentialCommandGroup(
+      new InstantCommand(() -> System.out.println("Running Full Auto")),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(2),
+      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new TurnForDegrees(165, drive),
+      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
+      generateRamseteCommandFromTrajectory(manualTrajectory1),
+      new TurnForDegrees(110, drive),
+      new WaitCommand(0.25),
+      new InstantCommand(()-> drive.resetOdometry(manualTrajectory2.getInitialPose())),
+      generateRamseteCommandFromTrajectory(manualTrajectory2),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(4),
+      new InstantCommand(() -> collector.stop(), collector),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> collector.moverOff(), collector),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(() -> collector.singulatorStop(), collector)
+    );
     
-    // partialAutoCommandGroup = new PartialAutoCommandGroup(
-    //   manualRamseteCommand1Partial,
-    //   manualTrajectory1, 
-    //   launcher, 
-    //   collector, 
-    //   drive
-    // );
+    partialAutoCommandGroup = new SequentialCommandGroup(
+      new InstantCommand(() -> System.out.println("Running Partial Auto")),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(2),
+      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new TurnForDegrees(165, drive),
+      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
+      generateRamseteCommandFromTrajectory(manualTrajectory1),
+      new TurnForDegrees(180, drive),
+      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
+      generateRamseteCommandFromTrajectory(manualTrajectory1),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(2),
+      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(()-> collector.moverOff(), collector),
+      new InstantCommand(()-> collector.singulatorStop(), collector)
+    );
 
-    // autoCommandChooser.setDefaultOption("Partial Auto", partialAutoCommandGroup);
-    // autoCommandChooser.addOption("Full Auto", fullAutoCommandGroup);
+    autoCommandChooser.setDefaultOption("Partial Auto", partialAutoCommandGroup);
+    autoCommandChooser.addOption("Full Auto", fullAutoCommandGroup);
 
-    // SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
+    SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
 
     configureButtonBindings();
   }
