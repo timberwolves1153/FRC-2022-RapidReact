@@ -35,7 +35,22 @@ public class PartialAutoCommandGroup extends SequentialCommandGroup {
       new InstantCommand(() -> launcher.feederOff(), launcher),
       new TurnForDegrees(165, drive),
       new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
-      manualRamseteCommand1
+      manualRamseteCommand1,
+      new TurnForDegrees(180, drive),
+      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
+      manualRamseteCommand1,
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(2),
+      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(()-> collector.moverOff(), collector),
+      new InstantCommand(()-> collector.singulatorStop(), collector)
+
     );
   }
 }

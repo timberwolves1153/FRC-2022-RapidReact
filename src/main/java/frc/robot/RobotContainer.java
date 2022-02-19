@@ -143,30 +143,30 @@ public class RobotContainer {
 
     // Configure the buttons to start new commands when they are pressed or released
     
-    generateTrajectories();
+    //generateTrajectories();
 
-    fullAutoCommandGroup = new FullAutoCommandGroup(
-      manualRamseteCommand1Full, 
-      manualRamseteCommand2, 
-      manualTrajectory1, 
-      manualTrajectory2, 
-      launcher, 
-      collector, 
-      drive
-    );
+    // fullAutoCommandGroup = new FullAutoCommandGroup(
+    //   manualRamseteCommand1Full, 
+    //   manualRamseteCommand2, 
+    //   manualTrajectory1, 
+    //   manualTrajectory2, 
+    //   launcher, 
+    //   collector, 
+    //   drive
+    // );
     
-    partialAutoCommandGroup = new PartialAutoCommandGroup(
-      manualRamseteCommand1Partial,
-      manualTrajectory1, 
-      launcher, 
-      collector, 
-      drive
-    );
+    // partialAutoCommandGroup = new PartialAutoCommandGroup(
+    //   manualRamseteCommand1Partial,
+    //   manualTrajectory1, 
+    //   launcher, 
+    //   collector, 
+    //   drive
+    // );
 
-    autoCommandChooser.setDefaultOption("Partial Auto", partialAutoCommandGroup);
-    autoCommandChooser.addOption("Full Auto", fullAutoCommandGroup);
+    // autoCommandChooser.setDefaultOption("Partial Auto", partialAutoCommandGroup);
+    // autoCommandChooser.addOption("Full Auto", fullAutoCommandGroup);
 
-    SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
+    // SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
 
     configureButtonBindings();
   }
@@ -185,10 +185,6 @@ public class RobotContainer {
 
     // driveRightBumper.whenPressed(new InstantCommand(() -> collector.collectReverse(), collector));
     // driveRightBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
-
-
-    // driveX.whenPressed(new InstantCommand(() -> collector.set(DoubleSolenoid.Value.kForward), collector));
-    // driveY.whenPressed(new InstantCommand(() -> collector.set(DoubleSolenoid.Value.kReverse), collector));
 
 
     // driveB.whenPressed(new InstantCommand(() -> drive.resetEncoders(), drive));
