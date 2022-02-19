@@ -21,6 +21,7 @@ import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstrai
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -32,6 +33,8 @@ import frc.robot.commands.ClimbForDistance;
 import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
+import frc.robot.commands.FullAutoCommandGroup;
+import frc.robot.commands.PartialAutoCommandGroup;
 import frc.robot.commands.TurnForDegrees;
 import frc.robot.commands.WaitCommand;
 import frc.robot.subsystems.Climber;
@@ -80,12 +83,18 @@ public class RobotContainer {
   private Trajectory manualTrajectory1;
   private Trajectory manualTrajectory2;
   
-  private RamseteCommand manualRamseteCommand1;
+  private RamseteCommand manualRamseteCommand1Full;
+  private RamseteCommand manualRamseteCommand1Partial;
   private RamseteCommand manualRamseteCommand2;
   private RamseteCommand ramseteCommand;
 
+  private FullAutoCommandGroup fullAutoCommandGroup;
+  private PartialAutoCommandGroup partialAutoCommandGroup;
+
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
   private String manualPath2 = "pathplanner/generatedJSON/ManualPath2.wpilib.json";
+
+  private SendableChooser<Command> autoCommandChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(){
@@ -100,7 +109,6 @@ public class RobotContainer {
     launcher = new Launcher();
     colorSensor = new ColorSensor();
 
-    
     driveLeftBumper = new JoystickButton(driveStick, XboxController.Button.kLeftBumper.value);
     driveRightBumper = new JoystickButton(driveStick, XboxController.Button.kRightBumper.value);
     driveX = new JoystickButton(driveStick, XboxController.Button.kX.value);
@@ -116,9 +124,11 @@ public class RobotContainer {
     opRightBumper = new JoystickButton(opStick, XboxController.Button.kRightBumper.value);
 
     climbForDistance = new ClimbForDistance(5, climber);
+
+    autoCommandChooser = new SendableChooser<Command>();
     
     drive.setDefaultCommand(new DefaultDrive(
-      () -> driveStick.getLeftY(), 
+      () -> driveStick.getLeftY(),
       () -> driveStick.getRightX(), 
       drive));
 
@@ -132,8 +142,33 @@ public class RobotContainer {
       collector));
 
     // Configure the buttons to start new commands when they are pressed or released
-    configureButtonBindings();
+    
     generateTrajectories();
+
+    fullAutoCommandGroup = new FullAutoCommandGroup(
+      manualRamseteCommand1Full, 
+      manualRamseteCommand2, 
+      manualTrajectory1, 
+      manualTrajectory2, 
+      launcher, 
+      collector, 
+      drive
+    );
+    
+    partialAutoCommandGroup = new PartialAutoCommandGroup(
+      manualRamseteCommand1Partial,
+      manualTrajectory1, 
+      launcher, 
+      collector, 
+      drive
+    );
+
+    autoCommandChooser.setDefaultOption("Partial Auto", partialAutoCommandGroup);
+    autoCommandChooser.addOption("Full Auto", fullAutoCommandGroup);
+
+    SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
+
+    configureButtonBindings();
   }
 
   /**
@@ -241,7 +276,8 @@ public class RobotContainer {
     } catch (IOException e) {
       System.out.println("Could not read trajectory file.");
     }
-    manualRamseteCommand1 = generateRamseteCommandFromTrajectory(manualTrajectory1);
+    manualRamseteCommand1Full = generateRamseteCommandFromTrajectory(manualTrajectory1);
+    manualRamseteCommand1Partial = generateRamseteCommandFromTrajectory(manualTrajectory1);
     manualRamseteCommand2 = generateRamseteCommandFromTrajectory(manualTrajectory2);
 
     ramseteCommand = generateRamseteCommandFromTrajectory(straightPathTrajectory);
@@ -287,33 +323,6 @@ public class RobotContainer {
   public Command getAutonomousCommand(){
     // Run path following command, then stop at the end.
   //return manualRamseteCommand2.andThen(() -> drive.tankDriveVolts(0, 0));
-    return new SequentialCommandGroup(
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> collector.intake(), collector),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
-      new TurnForDegrees(165, drive),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
-      manualRamseteCommand1,
-      new TurnForDegrees(110, drive),
-      new WaitCommand(0.25),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory2.getInitialPose())),
-      manualRamseteCommand2,
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(4),
-      new InstantCommand(() -> collector.stop(), collector),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> collector.moverOff(), collector),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
-      new InstantCommand(() -> collector.singulatorStop(), collector)
-    );
+    return autoCommandChooser.getSelected();
   }
 }
