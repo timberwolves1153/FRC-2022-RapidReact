@@ -139,6 +139,7 @@ public class RobotContainer {
 
     launcher.setDefaultCommand(new DefaultLauncher(
       () -> opStick.getLeftY(),
+      () -> opStick.getRightY(),
       launcher));
 
     collector.setDefaultCommand(new DefaultCollect(
@@ -294,8 +295,11 @@ public class RobotContainer {
     driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.8), climber));
     driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
 
-    opY.whenPressed(new InstantCommand(() -> launcher.setLauncherForPosition()));
-    opY.whenReleased(new InstantCommand(() -> launcher.stop()));
+    // opY.whenPressed(new InstantCommand(() -> launcher.setLauncherForPosition()));
+    // opY.whenReleased(new InstantCommand(() -> launcher.stop()));
+
+    opY.whenPressed(new InstantCommand(() -> launcher.pidOn(), launcher));
+    opY.whenReleased(new InstantCommand(() -> launcher.pidOff(), launcher));
 
     opB.whenPressed(new InstantCommand(() -> launcher.feederOn()));
     opB.whenReleased(new InstantCommand(() -> launcher.feederOff()));
@@ -313,10 +317,10 @@ public class RobotContainer {
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
-    drive.updateShuffleboard();
+    //drive.updateShuffleboard();
     launcher.updateShuffleboard();
-    colorSensor.updateShuffleboard();
-    climber.updateShuffleboard();
+    //colorSensor.updateShuffleboard();
+    //climber.updateShuffleboard();
   }
 
   public void generateTrajectories(){

@@ -12,12 +12,14 @@ import frc.robot.subsystems.Launcher;
 
 public class DefaultLauncher extends CommandBase {
   private DoubleSupplier leftYStick;
+  private DoubleSupplier rightYStick;
   private Launcher launcher;
 
   /** Creates a new DefaultShooter. */
-  public DefaultLauncher(DoubleSupplier leftYStick, Launcher launcher) {
+  public DefaultLauncher(DoubleSupplier leftYStick, DoubleSupplier rightYStick, Launcher launcher) {
     this.leftYStick = leftYStick;
     this.launcher = launcher;
+    this.rightYStick = rightYStick;
     addRequirements(launcher);
   }
 
@@ -28,6 +30,7 @@ public class DefaultLauncher extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    double launcherSpeed = rightYStick.getAsDouble();
     if(leftYStick.getAsDouble() < -0.5) {
       launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB);
       SmartDashboard.putString("Launcher Position", "Upper Hub");
@@ -36,6 +39,7 @@ public class DefaultLauncher extends CommandBase {
       launcher.setGainPreset(Launcher.ShooterPosition.LOWER_HUB);
       SmartDashboard.putString("Launcher Position", "Lower Hub");
     }
+    launcher.setLauncher(launcherSpeed, launcherSpeed);
   }
 
   // Called once the command ends or is interrupted.

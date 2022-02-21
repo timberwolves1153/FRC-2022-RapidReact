@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
@@ -13,12 +15,13 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Launcher extends SubsystemBase {
   public enum ShooterPosition {
-    LOWER_HUB(0), UPPER_HUB(1), LAUNCH_PAD(2), INVALID(3);
+    LOWER_HUB(0), UPPER_HUB(1), TARMAC_LOW(2), TARMAC_HIGH(3), INVALID(4);
 
     private int value;
     
@@ -68,19 +71,18 @@ public class Launcher extends SubsystemBase {
   private WPI_TalonFX topRoller;
   private CANSparkMax feeder;
 
-  private SparkMaxPIDController launcherPID;
-
   private boolean pidEnabled = false;
 
-  private static final double[] TOPROLLER_P = {0.0000001, 0.0000001, 0.0000001};
-  private static final double[] TOPROLLER_F = {(.6/3400), (.75/3900), (.82/4500)};
-  private static final double[] BOTTOMROLLER_P = {0.0000001, 0.0000001, 0.0000001};
-  private static final double[] BOTTOMROLLER_F = {(.6/3400), (.75/3900), (.82/4500)};
+  private static final double[] TOPROLLER_P = {0.0000001, 0.0000001, 0.0000001, 0.0000001};
+  private static final double[] TOPROLLER_F = {(1023 / 20000), (1023 / 20000), (1023 / 20000), (1023 / 20000)};
+  private static final double[] BOTTOMROLLER_P = {0.0000001, 0.0000001, 0.0000001, 0.0000001};
+  private static final double[] BOTTOMROLLER_F = {(1023 / 20000), (1023 / 20000), (1023 / 20000), (1023 / 20000)};
   private static final double[] TOPROLLER_SETPOINT = {3400, 3700, 4500};
   private static final double[] BOTTOMROLLER_SETPOINT = {3400, 3700, 4500};
   //Setpoint Values: 3400, 4100, 4500
 
-  private double p, i, d, f, setpoint;
+  private double pBottom, fBottom, setpointBottom,
+                 pTop, fTop, setpointTop;
 
   private ShooterPosition defaultPosition = ShooterPosition.LOWER_HUB;
   private ShooterPosition selectedPosition = defaultPosition;
@@ -88,8 +90,6 @@ public class Launcher extends SubsystemBase {
   private static final double MAX_OUTPUT = 1;
   private static final double MIN_OUTPUT = -1;
   
-
-
   /** Creates a new Shooter. */
   public Launcher() {
     feeder = new CANSparkMax(20, MotorType.kBrushless);
@@ -97,68 +97,71 @@ public class Launcher extends SubsystemBase {
     topRoller = new WPI_TalonFX(22);
 
     config();
-
   }
 
   public void config() {
     bottomRoller.configFactoryDefault();
+    topRoller.configFactoryDefault();
 
     bottomRoller.setNeutralMode(NeutralMode.Coast);
+    topRoller.setNeutralMode(NeutralMode.Coast);
 
     bottomRoller.setInverted(true);
+    topRoller.setInverted(true);
 
     bottomRoller.configNeutralDeadband(0.001);
+    topRoller.configNeutralDeadband(0.001);
 
     bottomRoller.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 100);
+    topRoller.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 100);
 
     bottomRoller.configPeakOutputForward(MAX_OUTPUT);
     bottomRoller.configPeakOutputReverse(MIN_OUTPUT);
-
-    bottomRoller.configNominalOutputForward(0);
-    bottomRoller.configNominalOutputReverse(0);
-
-
-    topRoller.configFactoryDefault();
-
-    topRoller.setNeutralMode(NeutralMode.Coast);
-
-    topRoller.setInverted(true);
-
-    topRoller.configNeutralDeadband(0.001);
-
-    topRoller.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 100);
-
     topRoller.configPeakOutputForward(MAX_OUTPUT);
     topRoller.configPeakOutputReverse(MIN_OUTPUT);
 
+    bottomRoller.configNominalOutputForward(0);
+    bottomRoller.configNominalOutputReverse(0);
     topRoller.configNominalOutputForward(0);
     topRoller.configNominalOutputReverse(0);
 
+    bottomRoller.config_kP(0, BOTTOMROLLER_P[selectedPosition.getPosition()], 100);
+    bottomRoller.config_kF(0, BOTTOMROLLER_F[selectedPosition.getPosition()], 100);
+    topRoller.config_kP(0, TOPROLLER_P[selectedPosition.getPosition()], 100);
+    topRoller.config_kF(0, TOPROLLER_F[selectedPosition.getPosition()], 100);
 
     feeder.restoreFactoryDefaults();
     feeder.setIdleMode(IdleMode.kBrake);
     feeder.burnFlash();
-
   }
 
   public void updateShuffleboard() {
     SmartDashboard.putNumber("Bottom Shooter Velocity", bottomRoller.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Bottom Shooter Power", bottomRoller.get());
+    SmartDashboard.putNumber("Bottom Shooter Value", bottomRoller.getSelectedSensorPosition());
     SmartDashboard.putNumber("Top Shooter Velocity", topRoller.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Top Shooter Power", topRoller.get());
+    SmartDashboard.putNumber("Top Shooter Value", topRoller.getSelectedSensorPosition());
     SmartDashboard.putNumber("Shooter Position", selectedPosition.getPosition());
 
-    double p = SmartDashboard.getNumber("Shooter P", this.p);
-    double i = SmartDashboard.getNumber("Shooter I", this.i);
-    double d = SmartDashboard.getNumber("Shooter D", this.d);
-    double f = SmartDashboard.getNumber("Shooter F", this.f);
-    double setpoint = SmartDashboard.getNumber("Shooter Setpoint", this.setpoint);
+    double pBottom = SmartDashboard.getNumber("Bottom Launcher P", this.pBottom);
+    double fBottom = SmartDashboard.getNumber("Bottom Launcher F", this.fBottom);
+    double setpointBottom = SmartDashboard.getNumber("Bottom Launcher Setpoint", this.setpointBottom);
+
+    double pTop = SmartDashboard.getNumber("Top Launcher P", this.pTop);
+    double fTop = SmartDashboard.getNumber("Top Launcher F", this.fTop);
+    double setpointTop = SmartDashboard.getNumber("Top Launcher Setpoint", this.setpointTop);
 
     SmartDashboard.putString("Shooter Position", selectedPosition.getClass().getName());
 
     // If there are any changes from Shuffleboard, update the PID Controller
-    if (this.p != p || this.i != i || this.d != d || this.f != f || this.setpoint != setpoint) {
-      setPIDGains(p, i, d, f, setpoint);
+    if (this.pBottom != pBottom || this.fBottom != fBottom || this.setpointBottom != setpointBottom) {
+      setBottomPIDGains(pBottom, fBottom, setpointBottom);
+      System.out.println("Updating Values");
+    }
+
+    if (this.pTop != pTop || this.fTop != fTop || this.setpointTop != setpointTop) {
+      setTopPIDGains(pTop, fTop, setpointTop);
       System.out.println("Updating Values");
     }
   }
@@ -171,11 +174,16 @@ public class Launcher extends SubsystemBase {
   }
 
   public void setLauncherTop(double speed){
-    topRoller.set(speed);
+    topRoller.set(TalonFXControlMode.PercentOutput, speed);
   }
 
   public void setLauncherBottom(double speed) {
-    bottomRoller.set(-speed);
+    bottomRoller.set(TalonFXControlMode.PercentOutput, speed);
+  }
+
+  public void setLauncher(double bottomRollerSpeed, double topRollerSpeed) {
+    setLauncherTop(topRollerSpeed);
+    setLauncherBottom(bottomRollerSpeed);
   }
 
   public void setLauncherForPosition() {
@@ -221,8 +229,8 @@ public class Launcher extends SubsystemBase {
     selectedPosition = shooterPosition;
 
     // I and D values are not pulled from an array since these values are always zero
-    //setPIDGains(TOPROLLER_P[pos], 0, 0, TOPROLLER_F[pos], TOPROLLER_SETPOINT[pos]);
-    //setPIDGains(BOTTOMROLLER_P[pos], 0, 0, BOTTOMROLLER_F[pos], BOTTOMROLLER_SETPOINT[pos]);
+    setTopPIDGains(TOPROLLER_P[pos], TOPROLLER_F[pos], TOPROLLER_SETPOINT[pos]);
+    setBottomPIDGains(BOTTOMROLLER_P[pos], BOTTOMROLLER_F[pos], BOTTOMROLLER_SETPOINT[pos]);
   }
 
   /**
@@ -233,23 +241,30 @@ public class Launcher extends SubsystemBase {
    * @param f Feed-forward gain
    * @param setpoint RPM setpoint
    */
-  public void setPIDGains(double p, double i, double d, double f, double setpoint) {
-    this.p = p;
-    this.i = i;
-    this.d = d;
-    this.f = f;
-    this.setpoint = setpoint;
+  public void setBottomPIDGains(double p, double f, double setpoint) {
+    this.pBottom = p;
+    this.fBottom = f;
+    this.setpointBottom = setpoint;
 
-    launcherPID.setP(p);
-    launcherPID.setI(i);
-    launcherPID.setD(d);
-    launcherPID.setFF(f);
+    bottomRoller.config_kP(0, p);
+    bottomRoller.config_kF(0, f);
 
-    SmartDashboard.putNumber("Shooter P Gain", p);
-    SmartDashboard.putNumber("Shooter I Gain", i);
-    SmartDashboard.putNumber("Shooter D Gain", d);
-    SmartDashboard.putNumber("Shooter F Gain", f);
-    SmartDashboard.putNumber("Shooter Setpoint", setpoint);
+    SmartDashboard.putNumber("Bottom Launcher P Gain", p);
+    SmartDashboard.putNumber("Bottom Launcher F Gain", f);
+    SmartDashboard.putNumber("Bottom Launcher Setpoint", setpoint);
+  }
+
+  public void setTopPIDGains(double p, double f, double setpoint) {
+    this.pTop = p;
+    this.fTop = f;
+    this.setpointTop = setpoint;
+
+    topRoller.config_kP(0, p);
+    topRoller.config_kF(0, f);
+
+    SmartDashboard.putNumber("Top Launcher P Gain", p);
+    SmartDashboard.putNumber("Top Launcher F Gain", f);
+    SmartDashboard.putNumber("Top Launcher Setpoint", setpoint);
   }
 
   /**
@@ -265,7 +280,8 @@ public class Launcher extends SubsystemBase {
   public void pidOn() {
     if (!pidEnabled) {
       pidEnabled = true;
-      launcherPID.setIAccum(0);
+      bottomRoller.setIntegralAccumulator(0, 0, 100);
+      topRoller.setIntegralAccumulator(0, 0, 100);
     }
   }
 
@@ -274,7 +290,8 @@ public class Launcher extends SubsystemBase {
    * the PID is enabled
    */
   private void pidPeriodic() {
-    launcherPID.setReference(setpoint, ControlType.kVelocity);
+    bottomRoller.set(TalonFXControlMode.Velocity, setpointBottom);
+    topRoller.set(TalonFXControlMode.Velocity, setpointTop);
   }
 
   public void cycleGainPreset(Direction direction) {
@@ -302,7 +319,7 @@ public class Launcher extends SubsystemBase {
   }
 
   public boolean isAtTopSetpoint() {
-    return bottomRoller.getSelectedSensorVelocity() >= getTopSetPoint() - 50 || bottomRoller.getSelectedSensorVelocity() <= getTopSetPoint() + 50;
+    return topRoller.getSelectedSensorVelocity() >= getTopSetPoint() - 50 || topRoller.getSelectedSensorVelocity() <= getTopSetPoint() + 50;
   }
 
   public boolean isAtBottomSetpoint() {
@@ -317,7 +334,7 @@ public class Launcher extends SubsystemBase {
    */
   public void pidOff() {
     pidEnabled = false;
-    bottomRoller.set(0);
+    stop();
   }
 
   @Override
