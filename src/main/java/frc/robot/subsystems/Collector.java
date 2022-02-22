@@ -79,7 +79,7 @@ public class Collector extends SubsystemBase {
 
   //Might need to be inverted depending on motor orientation
   public void outake() {
-    collect.set(-1);
+    collect.set(-0.5);
   }
 
   public void singulatorIntake() {

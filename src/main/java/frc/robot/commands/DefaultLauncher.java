@@ -33,13 +33,11 @@ public class DefaultLauncher extends CommandBase {
     double launcherSpeed = rightYStick.getAsDouble();
     if(leftYStick.getAsDouble() < -0.5) {
       launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB);
-      SmartDashboard.putString("Launcher Position", "Upper Hub");
     }
     if(leftYStick.getAsDouble() > 0.5) {
       launcher.setGainPreset(Launcher.ShooterPosition.LOWER_HUB);
-      SmartDashboard.putString("Launcher Position", "Lower Hub");
     }
-    launcher.setLauncher(launcherSpeed, launcherSpeed);
+    //launcher.setLauncher(launcherSpeed, launcherSpeed);
   }
 
   // Called once the command ends or is interrupted.

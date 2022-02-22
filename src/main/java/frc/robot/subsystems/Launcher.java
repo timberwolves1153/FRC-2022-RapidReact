@@ -21,16 +21,22 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Launcher extends SubsystemBase {
   public enum ShooterPosition {
-    LOWER_HUB(0), UPPER_HUB(1), TARMAC_LOW(2), TARMAC_HIGH(3), INVALID(4);
+    LOWER_HUB(0, "Lower Hub"), UPPER_HUB(1, "Upper Hub"), TARMAC_LOW(2, "Tarmac Low"), TARMAC_HIGH(3, "Tarmac High"), INVALID(4, "Invalid");
 
     private int value;
+    private String name;
     
-    private ShooterPosition(int value) {
+    private ShooterPosition(int value, String name) {
       this.value = value;
+      this.name = name;
     }
 
     public int getPosition() {
       return value;
+    }
+
+    public String getName() {
+      return name;
     }
 
     public static ShooterPosition fromInt(int value) {
@@ -73,10 +79,10 @@ public class Launcher extends SubsystemBase {
 
   private boolean pidEnabled = false;
 
-  private static final double[] TOPROLLER_P = {0.0000001, 0.0000001, 0.0000001, 0.0000001};
-  private static final double[] TOPROLLER_F = {(1023 / 20000), (1023 / 20000), (1023 / 20000), (1023 / 20000)};
-  private static final double[] BOTTOMROLLER_P = {0.0000001, 0.0000001, 0.0000001, 0.0000001};
-  private static final double[] BOTTOMROLLER_F = {(1023 / 20000), (1023 / 20000), (1023 / 20000), (1023 / 20000)};
+  private static final double[] TOPROLLER_P = {0.00005, 0.00005, 0.00005, 0.00005};
+  private static final double[] TOPROLLER_F = {(1023.0 / 21350.0), (1023.0 / 21350.0), (1023.0 / 21350.0), (1023.0 / 21350.0)};
+  private static final double[] BOTTOMROLLER_P = {0.00005, 0.00005, 0.00005, 0.00005};
+  private static final double[] BOTTOMROLLER_F = {(1023.0 / 20000.0), (1023.0 / 20000.0), (1023.0 / 20000.0), (1023.0 / 20000.0)};
   private static final double[] TOPROLLER_SETPOINT = {3400, 3700, 4500};
   private static final double[] BOTTOMROLLER_SETPOINT = {3400, 3700, 4500};
   //Setpoint Values: 3400, 4100, 4500
@@ -97,6 +103,7 @@ public class Launcher extends SubsystemBase {
     topRoller = new WPI_TalonFX(22);
 
     config();
+    setGainPreset(defaultPosition);
   }
 
   public void config() {
@@ -142,7 +149,6 @@ public class Launcher extends SubsystemBase {
     SmartDashboard.putNumber("Top Shooter Velocity", topRoller.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Top Shooter Power", topRoller.get());
     SmartDashboard.putNumber("Top Shooter Value", topRoller.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Shooter Position", selectedPosition.getPosition());
 
     double pBottom = SmartDashboard.getNumber("Bottom Launcher P", this.pBottom);
     double fBottom = SmartDashboard.getNumber("Bottom Launcher F", this.fBottom);
@@ -152,7 +158,7 @@ public class Launcher extends SubsystemBase {
     double fTop = SmartDashboard.getNumber("Top Launcher F", this.fTop);
     double setpointTop = SmartDashboard.getNumber("Top Launcher Setpoint", this.setpointTop);
 
-    SmartDashboard.putString("Shooter Position", selectedPosition.getClass().getName());
+    SmartDashboard.putString("Launcher Position", selectedPosition.getName());
 
     // If there are any changes from Shuffleboard, update the PID Controller
     if (this.pBottom != pBottom || this.fBottom != fBottom || this.setpointBottom != setpointBottom) {
@@ -174,11 +180,11 @@ public class Launcher extends SubsystemBase {
   }
 
   public void setLauncherTop(double speed){
-    topRoller.set(TalonFXControlMode.PercentOutput, speed);
+    topRoller.set(TalonFXControlMode.PercentOutput, -speed);
   }
 
   public void setLauncherBottom(double speed) {
-    bottomRoller.set(TalonFXControlMode.PercentOutput, speed);
+    bottomRoller.set(TalonFXControlMode.PercentOutput, -speed);
   }
 
   public void setLauncher(double bottomRollerSpeed, double topRollerSpeed) {
@@ -188,11 +194,11 @@ public class Launcher extends SubsystemBase {
 
   public void setLauncherForPosition() {
     if(selectedPosition.equals(ShooterPosition.LOWER_HUB)) {
-      setLauncherTop(-0.23);
+      setLauncherTop(0.23);
       setLauncherBottom(0.23);
     }
     if(selectedPosition.equals(ShooterPosition.UPPER_HUB)) {
-      setLauncherTop(-0.47);
+      setLauncherTop(0.47);
       setLauncherBottom(0.47);
     }
   }
@@ -290,8 +296,8 @@ public class Launcher extends SubsystemBase {
    * the PID is enabled
    */
   private void pidPeriodic() {
-    bottomRoller.set(TalonFXControlMode.Velocity, setpointBottom);
-    topRoller.set(TalonFXControlMode.Velocity, setpointTop);
+    bottomRoller.set(TalonFXControlMode.Velocity, -setpointBottom);
+    topRoller.set(TalonFXControlMode.Velocity, -setpointTop);
   }
 
   public void cycleGainPreset(Direction direction) {

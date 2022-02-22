@@ -87,10 +87,10 @@ public class RobotContainer {
   private SequentialCommandGroup fourBallAutoCommandGroup;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
-  private String fourBallAutoPath1 = "pathplanner/generatedJSON/FourBallAuto1.wpilib.json";
-  private String fourBallAutoPath2 = "pathplanner/generatedJSON/FourBallAuto2.wpilib.json";
-  private String fourBallAutoPath3 = "pathplanner/generatedJSON/FourBallAuto3.wpilib.json";
-  private String fourBallAutoPath4 = "pathplanner/generatedJSON/FourBallAuto4.wpilib.json";
+  private String fourBallAutoPath1 = "pathplanner/generatedJSON/FourBallAutoPath1.wpilib.json";
+  private String fourBallAutoPath2 = "pathplanner/generatedJSON/FourBallAutoPath2.wpilib.json";
+  private String fourBallAutoPath3 = "pathplanner/generatedJSON/FourBallAutoPath3.wpilib.json";
+  private String fourBallAutoPath4 = "pathplanner/generatedJSON/FourBallAutoPath4.wpilib.json";
 
   private SendableChooser<Command> autoCommandChooser;
 
@@ -317,11 +317,11 @@ public class RobotContainer {
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
-    drive.updateShuffleboard();
+    //drive.updateShuffleboard();
     launcher.updateShuffleboard();
-    colorSensor.updateShuffleboard();
-    climber.updateShuffleboard();
-    collector.updateShuffleboard();
+    //colorSensor.updateShuffleboard();
+    //climber.updateShuffleboard();
+    //collector.updateShuffleboard();
   }
 
   public void generateTrajectories(){
