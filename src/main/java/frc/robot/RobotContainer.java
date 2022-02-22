@@ -6,16 +6,13 @@ package frc.robot;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
+
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -28,13 +25,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ClimbForDistance;
 import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
-import frc.robot.commands.FullAutoCommandGroup;
-import frc.robot.commands.PartialAutoCommandGroup;
 import frc.robot.commands.TurnForDegrees;
 import frc.robot.commands.WaitCommand;
 import frc.robot.subsystems.Climber;
@@ -80,22 +74,23 @@ public class RobotContainer {
   private Launcher launcher;
   private ColorSensor colorSensor;
 
-  private Trajectory exampleTrajectory;
-  private Trajectory straightPathTrajectory;
-  private Trajectory manualTrajectory1;
-  private Trajectory manualTrajectory2;
-  
-  private RamseteCommand manualRamseteCommand1Full;
-  private RamseteCommand manualRamseteCommand1Partial;
-  private RamseteCommand manualRamseteCommand2;
-  private RamseteCommand ramseteCommand;
+  private Trajectory fourBallAutoTrajectory1;
+  private Trajectory fourBallAutoTrajectory2;
+  private Trajectory fourBallAutoTrajectory3;
+  private Trajectory fourBallAutoTrajectory4;
 
-  private SequentialCommandGroup fullAutoCommandGroup;
-  private SequentialCommandGroup partialAutoCommandGroupRight;
-  private SequentialCommandGroup partialAutoCommandGroupLeft;
+  private Trajectory manualTrajectory1;
+ 
+
+  private SequentialCommandGroup twoBallAutoCommandGroupRight;
+  private SequentialCommandGroup twoBallAutoCommandGroupLeft;
+  private SequentialCommandGroup fourBallAutoCommandGroup;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
-  private String manualPath2 = "pathplanner/generatedJSON/ManualPath2.wpilib.json";
+  private String fourBallAutoPath1 = "pathplanner/generatedJSON/FourBallAuto1.wpilib.json";
+  private String fourBallAutoPath2 = "pathplanner/generatedJSON/FourBallAuto2.wpilib.json";
+  private String fourBallAutoPath3 = "pathplanner/generatedJSON/FourBallAuto3.wpilib.json";
+  private String fourBallAutoPath4 = "pathplanner/generatedJSON/FourBallAuto4.wpilib.json";
 
   private SendableChooser<Command> autoCommandChooser;
 
@@ -150,38 +145,8 @@ public class RobotContainer {
     // Configure the buttons to start new commands when they are pressed or released
     
     generateTrajectories();
-
-    fullAutoCommandGroup = new SequentialCommandGroup(
-      new InstantCommand(() -> System.out.println("Running Full Auto")),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> collector.intake(), collector),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
-      new TurnForDegrees(165, drive),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
-      generateRamseteCommandFromTrajectory(manualTrajectory1),
-      new TurnForDegrees(110, drive),
-      new WaitCommand(0.25),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory2.getInitialPose())),
-      generateRamseteCommandFromTrajectory(manualTrajectory2),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(4),
-      new InstantCommand(() -> collector.stop(), collector),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> collector.moverOff(), collector),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
-      new InstantCommand(() -> collector.singulatorStop(), collector)
-    );
     
-    partialAutoCommandGroupRight = new SequentialCommandGroup(
+    twoBallAutoCommandGroupRight = new SequentialCommandGroup(
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
@@ -212,7 +177,7 @@ public class RobotContainer {
       new InstantCommand(()-> collector.singulatorStop(), collector)
     );
 
-    partialAutoCommandGroupLeft = new SequentialCommandGroup(
+    twoBallAutoCommandGroupLeft = new SequentialCommandGroup(
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
@@ -243,11 +208,46 @@ public class RobotContainer {
       new InstantCommand(()-> collector.singulatorStop(), collector)
     );
 
+    fourBallAutoCommandGroup = new SequentialCommandGroup(
+      new InstantCommand(() -> System.out.println("Running Partial Auto")),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(2),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new TurnForDegrees(155, drive),
+      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
+      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
+      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1),
+      new TurnForDegrees(110, drive),
+      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
+      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2),
+      new TurnForDegrees(90, drive),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new WaitCommand(2),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new TurnForDegrees(180, drive),
+      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory3.getInitialPose())),
+      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory3),
+      new TurnForDegrees(180, drive),
+      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory4.getInitialPose())),
+      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory4),
+      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(()-> collector.moverOff(), collector),
+      new InstantCommand(()-> collector.singulatorStop(), collector),
+      new InstantCommand(()-> collector.stop())
+    );
 
-    autoCommandChooser.setDefaultOption("Partial Auto Right", partialAutoCommandGroupRight);
-    autoCommandChooser.addOption("Partial Auto Left", partialAutoCommandGroupLeft);
-    autoCommandChooser.addOption("Full Auto", fullAutoCommandGroup);
-    autoCommandChooser.addOption("Test Ramsete", generateRamseteCommandFromTrajectory(manualTrajectory1));
+
+    autoCommandChooser.setDefaultOption("Two Ball Auto Right", twoBallAutoCommandGroupRight);
+    autoCommandChooser.addOption("Two Ball Auto Left", twoBallAutoCommandGroupLeft);
+    autoCommandChooser.addOption("Four Ball", fourBallAutoCommandGroup);
 
     SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
 
@@ -317,10 +317,11 @@ public class RobotContainer {
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
-    //drive.updateShuffleboard();
+    drive.updateShuffleboard();
     launcher.updateShuffleboard();
-    //colorSensor.updateShuffleboard();
-    //climber.updateShuffleboard();
+    colorSensor.updateShuffleboard();
+    climber.updateShuffleboard();
+    collector.updateShuffleboard();
   }
 
   public void generateTrajectories(){
@@ -342,39 +343,17 @@ public class RobotContainer {
             // Apply the voltage constraint
             .addConstraint(autoVoltageConstraint);
 
-    // An example trajectory to follow.  All units in meters. Creates a list of Pose2d objects that the robot tries to replicate in real life.
-    exampleTrajectory =
-        TrajectoryGenerator.generateTrajectory(
-          List.of(
-            new Pose2d(0, 0, new Rotation2d()),
-            new Pose2d(1, 0.5, new Rotation2d(Math.PI/4)),
-            new Pose2d(2, 1.0, new Rotation2d(-Math.PI/4)),
-            new Pose2d(3, 1.5, new Rotation2d(Math.PI*5/4)),
-            new Pose2d(5, 2, new Rotation2d())
-          ),
-          // Pass config
-          config);
-    
-    straightPathTrajectory = 
-      TrajectoryGenerator.generateTrajectory(
-        List.of(
-          new Pose2d(0, 0, new Rotation2d()),
-          new Pose2d(2, 0, new Rotation2d())
-        ), 
-        config);
-
-    // Creates a ramsete command, which combines all of the previous systems to create an autonomous motion profile that follows the trajectory we just created
     try {
       manualTrajectory1 = generateTrajectoryFromJSON(manualPath1);
-      manualTrajectory2 = generateTrajectoryFromJSON(manualPath2);
+      fourBallAutoTrajectory1 = generateTrajectoryFromJSON(fourBallAutoPath1);
+      fourBallAutoTrajectory2 = generateTrajectoryFromJSON(fourBallAutoPath2);
+      fourBallAutoTrajectory3 = generateTrajectoryFromJSON(fourBallAutoPath3);
+      fourBallAutoTrajectory4 = generateTrajectoryFromJSON(fourBallAutoPath4);
+
+
     } catch (IOException e) {
       System.out.println("Could not read trajectory file.");
     }
-    manualRamseteCommand1Full = generateRamseteCommandFromTrajectory(manualTrajectory1);
-    manualRamseteCommand1Partial = generateRamseteCommandFromTrajectory(manualTrajectory1);
-    manualRamseteCommand2 = generateRamseteCommandFromTrajectory(manualTrajectory2);
-
-    ramseteCommand = generateRamseteCommandFromTrajectory(straightPathTrajectory);
   }
 
   public Trajectory generateTrajectoryFromJSON(String trajectoryPath) throws IOException{
@@ -405,7 +384,6 @@ public class RobotContainer {
               SmartDashboard.putNumber("Right Volts ", rightVolts);
               drive.tankDriveVolts(leftVolts, rightVolts);
             },
-            //drive::tankDriveVolts,
             drive);
   }
 
@@ -416,7 +394,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand(){
     // Run path following command, then stop at the end.
-  //return manualRamseteCommand2.andThen(() -> drive.tankDriveVolts(0, 0));
     return autoCommandChooser.getSelected();
   }
 }

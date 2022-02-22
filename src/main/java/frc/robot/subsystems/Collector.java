@@ -14,6 +14,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -26,6 +27,8 @@ public class Collector extends SubsystemBase {
   private CANSparkMax singulator;
   private DigitalInput moverSensor;
   private DigitalInput singulatorSensor;
+  private DigitalInput moverBannerSensor;
+  private DigitalInput singulatorBannerSensor;
   
 
   /** Creates a new Collector.*/
@@ -38,6 +41,8 @@ public class Collector extends SubsystemBase {
     doubleSolenoidLeft = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
     moverSensor = new DigitalInput(0);
     singulatorSensor = new DigitalInput(1);
+    moverBannerSensor = new DigitalInput(6);
+    singulatorBannerSensor = new DigitalInput(7);
 
     mover.restoreFactoryDefaults();
     collect.configFactoryDefault();
@@ -123,12 +128,25 @@ public class Collector extends SubsystemBase {
     }
   }
 
-  public boolean getMoverSensor(){
+  public boolean getMoverColorSensor(){
     return moverSensor.get();
   }
+  public boolean getMoverBannerSensor() {
+    return moverBannerSensor.get();
+  }
 
-  public boolean getSingulatorSensor(){
+  public boolean getSingulatorColorSensor(){
     return singulatorSensor.get();
+  }
+  public boolean getSingulatorBannerSensor() {
+    return singulatorBannerSensor.get();
+  }
+
+  public void updateShuffleboard(){
+    SmartDashboard.putBoolean("Singulator Banner Sensor", getSingulatorBannerSensor());
+    SmartDashboard.putBoolean("Singulator Color Sensor", getSingulatorColorSensor());
+    SmartDashboard.putBoolean("Mover Banner Sensor", getMoverBannerSensor());
+    SmartDashboard.putBoolean("Mover Color Sensor", getMoverColorSensor());
   }
 
   
