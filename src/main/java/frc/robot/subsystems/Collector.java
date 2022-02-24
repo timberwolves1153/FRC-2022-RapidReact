@@ -25,10 +25,8 @@ public class Collector extends SubsystemBase {
   private DoubleSolenoid doubleSolenoidLeft;
   private CANSparkMax mover;
   private CANSparkMax singulator;
-  private DigitalInput moverSensor;
-  private DigitalInput singulatorSensor;
   private DigitalInput moverBannerSensor;
-  private DigitalInput singulatorBannerSensor;
+  private DigitalInput feederBannerSensor;
   
 
   /** Creates a new Collector.*/
@@ -39,10 +37,8 @@ public class Collector extends SubsystemBase {
 
     doubleSolenoidRight = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
     doubleSolenoidLeft = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
-    moverSensor = new DigitalInput(0);
-    singulatorSensor = new DigitalInput(1);
-    moverBannerSensor = new DigitalInput(6);
-    singulatorBannerSensor = new DigitalInput(7);
+    moverBannerSensor = new DigitalInput(0);
+    feederBannerSensor = new DigitalInput(1);
 
     mover.restoreFactoryDefaults();
     collect.configFactoryDefault();
@@ -56,8 +52,6 @@ public class Collector extends SubsystemBase {
     singulator.burnFlash();
 
   }
-
-  
 
   public void moverForward() {
     mover.set(0.5);
@@ -73,9 +67,7 @@ public class Collector extends SubsystemBase {
   
   //This is a helper method that clarifies what winching up means in the context of the set method; 
   //might need to be inverted depending on motor orientation
-  public void autoIntake() {
-    collect.set(1);
-  }
+  
 
   public void intake() {
     collect.set(0.5);
@@ -86,16 +78,8 @@ public class Collector extends SubsystemBase {
     collect.set(-0.5);
   }
 
-  public void singulatorautoIntake() {
-    singulator.set(-1);
-  }
-
-  public void singulatorautoOutake() {
-    singulator.set(0.5);
-  }
-
   public void singulatorIntake() {
-    singulator.set(-0.5);
+    singulator.set(-1);
   }
 
   public void singulatorOutake() {
@@ -140,29 +124,18 @@ public class Collector extends SubsystemBase {
     }
   }
 
-  public boolean getMoverColorSensor(){
-    return moverSensor.get();
-  }
   public boolean getMoverBannerSensor() {
     return moverBannerSensor.get();
   }
-
-  public boolean getSingulatorColorSensor(){
-    return singulatorSensor.get();
-  }
-  public boolean getSingulatorBannerSensor() {
-    return singulatorBannerSensor.get();
+  
+  public boolean getFeederBannerSensor() {
+    return feederBannerSensor.get();
   }
 
   public void updateShuffleboard(){
-    SmartDashboard.putBoolean("Singulator Banner Sensor", getSingulatorBannerSensor());
-    SmartDashboard.putBoolean("Singulator Color Sensor", getSingulatorColorSensor());
+    SmartDashboard.putBoolean("Feeder Banner Sensor", getFeederBannerSensor());
     SmartDashboard.putBoolean("Mover Banner Sensor", getMoverBannerSensor());
-    SmartDashboard.putBoolean("Mover Color Sensor", getMoverColorSensor());
   }
-
-  
-
 
   @Override
   public void periodic() {
