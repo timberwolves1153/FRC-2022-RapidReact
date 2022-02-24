@@ -36,6 +36,8 @@ import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.ColorSensor;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Launcher;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 /**
@@ -94,11 +96,17 @@ public class RobotContainer {
 
   private SendableChooser<Command> autoCommandChooser;
 
+ 
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(){
+
+    
     //declares the drive joystick as an XboxController in port 0 on the Driver Station
     driveStick = new XboxController(0);
     opStick = new XboxController(1);
+
+    
 
     //declares all subsystems
     drive = new Drive();
@@ -219,24 +227,26 @@ public class RobotContainer {
       new InstantCommand(() -> launcher.feederOff(), launcher),
       new TurnForDegrees(155, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
-      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> collector.autoIntake(), collector),
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1),
-      new TurnForDegrees(110, drive),
+      new WaitCommand(0.25),
+      new TurnForDegrees(105, drive),
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
       generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2),
-      new TurnForDegrees(90, drive),
+      new TurnForDegrees(115, drive),
       new InstantCommand(() -> launcher.feederOn(), launcher),
       new WaitCommand(2),
       new InstantCommand(() -> launcher.feederOff(), launcher),
-      new TurnForDegrees(180, drive),
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory3.getInitialPose())),
-      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory3),
-      new TurnForDegrees(180, drive),
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory4.getInitialPose())),
-      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory4),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
-      new WaitCommand(0.5),
+      //  new TurnForDegrees(195, drive),
+      //  new WaitCommand(0.25),
+      //  new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory3.getInitialPose())),
+      //  generateRamseteCommandFromTrajectory(fourBallAutoTrajectory3)
+      // new TurnForDegrees(180, drive),
+      // new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory4.getInitialPose())),
+      // generateRamseteCommandFromTrajectory(fourBallAutoTrajectory4),
+      // new InstantCommand(() -> launcher.feederOn(), launcher),
+      // new WaitCommand(0.5),
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> launcher.feederOff(), launcher),
       new InstantCommand(()-> collector.moverOff(), collector),
@@ -317,7 +327,7 @@ public class RobotContainer {
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
-    //drive.updateShuffleboard();
+    drive.updateShuffleboard();
     launcher.updateShuffleboard();
     //colorSensor.updateShuffleboard();
     //climber.updateShuffleboard();

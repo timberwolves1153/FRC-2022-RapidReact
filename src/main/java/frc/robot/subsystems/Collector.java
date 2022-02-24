@@ -73,6 +73,10 @@ public class Collector extends SubsystemBase {
   
   //This is a helper method that clarifies what winching up means in the context of the set method; 
   //might need to be inverted depending on motor orientation
+  public void autoIntake() {
+    collect.set(1);
+  }
+
   public void intake() {
     collect.set(0.5);
   }
@@ -82,12 +86,20 @@ public class Collector extends SubsystemBase {
     collect.set(-0.5);
   }
 
+  public void singulatorautoIntake() {
+    singulator.set(-1);
+  }
+
+  public void singulatorautoOutake() {
+    singulator.set(0.5);
+  }
+
   public void singulatorIntake() {
     singulator.set(-0.5);
   }
 
   public void singulatorOutake() {
-    singulator.set(0.5);
+    singulator.set(1);
   }
 
   public void singulatorStop() {
