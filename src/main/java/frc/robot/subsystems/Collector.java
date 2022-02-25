@@ -27,6 +27,10 @@ public class Collector extends SubsystemBase {
   private CANSparkMax singulator;
   private DigitalInput moverBannerSensor;
   private DigitalInput feederBannerSensor;
+  private CANSparkMax feeder;
+
+
+  
   
 
   /** Creates a new Collector.*/
@@ -39,6 +43,9 @@ public class Collector extends SubsystemBase {
     doubleSolenoidLeft = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
     moverBannerSensor = new DigitalInput(0);
     feederBannerSensor = new DigitalInput(1);
+    feeder = new CANSparkMax(20, MotorType.kBrushless);
+
+    
 
     mover.restoreFactoryDefaults();
     collect.configFactoryDefault();
@@ -53,16 +60,72 @@ public class Collector extends SubsystemBase {
 
   }
 
+  public void config(){
+    feeder.restoreFactoryDefaults();
+    feeder.setIdleMode(IdleMode.kBrake);
+    feeder.burnFlash();
+  }
+
   public void moverForward() {
-    mover.set(0.5);
+      mover.set(0.5);
+  }
+
+  public void smartBallShoot(){
+    feeder.set(-0.5);
+    singulatorIntake();
+    if(moverSeesBall()&& !feederSeesBall()){
+      mover.set(0.5);
+    }else{
+      mover.set(0);
+    }
+  }
+
+  public void feederOn(){
+    feeder.set(-0.5);
+  }
+  public void feederOff(){
+    feeder.set(0);
   }
 
   public void moverOff() {
+  
     mover.set(0);
   }
 
+  public void smartBallCollect(){
+    singulator.set(-1);
+    if(!feederSeesBall() && moverSeesBall()){
+      feeder.set(-0.2);
+      mover.set(0.5);
+    }
+    else if(feederSeesBall()&&moverSeesBall()){
+      feeder.set(0);
+      mover.set(0);
+    }
+    else if(feederSeesBall() && !moverSeesBall()){
+      feeder.set(0);
+      mover.set(0.5);
+    }
+    else{//NO BALLS IN ROBOT
+      feeder.set(-0.2);
+      mover.set(0.5);
+    }
+  }
+
+  public boolean moverSeesBall(){
+    return !moverBannerSensor.get();
+  }
+
+  public boolean feederSeesBall(){
+    return !feederBannerSensor.get();
+  }
+  
+
   public void moverReverse() {
     mover.set(-0.5);
+  }
+  public boolean getFeederBannerSensor() {
+    return feederBannerSensor.get();
   }
   
   //This is a helper method that clarifies what winching up means in the context of the set method; 
@@ -128,9 +191,7 @@ public class Collector extends SubsystemBase {
     return moverBannerSensor.get();
   }
   
-  public boolean getFeederBannerSensor() {
-    return feederBannerSensor.get();
-  }
+ 
 
   public void updateShuffleboard(){
     SmartDashboard.putBoolean("Feeder Banner Sensor", getFeederBannerSensor());

@@ -159,11 +159,11 @@ public class RobotContainer {
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.feederOn(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new WaitCommand(2),
       new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
       new TurnForDegrees(155, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.intake(), collector),
@@ -175,12 +175,12 @@ public class RobotContainer {
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.feederOn(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new WaitCommand(2),
       new InstantCommand(() -> collector.intake(), collector),
       new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
       new InstantCommand(()-> collector.singulatorStop(), collector)
     );
@@ -190,11 +190,11 @@ public class RobotContainer {
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.feederOn(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new WaitCommand(2),
       new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
       new TurnForDegrees(195, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.intake(), collector),
@@ -206,12 +206,12 @@ public class RobotContainer {
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.feederOn(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new WaitCommand(2),
       new InstantCommand(() -> collector.intake(), collector),
       new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
       new InstantCommand(()-> collector.singulatorStop(), collector)
     );
@@ -221,10 +221,10 @@ public class RobotContainer {
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() -> collector.feederOn(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new WaitCommand(2),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
       new TurnForDegrees(155, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.intake(), collector),
@@ -237,9 +237,9 @@ public class RobotContainer {
       generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2),
       new TurnForDegrees(115, drive),
       new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> launcher.feederOn(), launcher),
+      new InstantCommand(() ->  collector.feederOn(), collector),
       new WaitCommand(2),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(() -> collector.moverOff(), collector),
       new TurnForDegrees(180, drive),
        new WaitCommand(0.25),
@@ -251,7 +251,7 @@ public class RobotContainer {
       // new InstantCommand(() -> launcher.feederOn(), launcher),
       // new WaitCommand(0.5),
       new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> launcher.feederOff(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
       new InstantCommand(()-> collector.singulatorStop(), collector),
       new InstantCommand(()-> collector.stop())
@@ -285,13 +285,13 @@ public class RobotContainer {
 
     // driveB.whenPressed(new InstantCommand(() -> drive.resetEncoders(), drive));
 
-    driveLeftBumper.whenPressed(new InstantCommand(() -> climber.winchDown()));
-    driveLeftBumper.whenReleased(new InstantCommand(() -> climber.stop()));
+    driveLeftBumper.whenPressed(new InstantCommand(() -> climber.winchDown(), climber));
+    driveLeftBumper.whenReleased(new InstantCommand(() -> climber.stop(), climber));
 
-    driveRightBumper.whenPressed(new InstantCommand(() -> climber.winchUp()));
-    driveRightBumper.whenReleased(new InstantCommand(() -> climber.stop()));
+    driveRightBumper.whenPressed(new InstantCommand(() -> climber.winchUp(), climber));
+    driveRightBumper.whenReleased(new InstantCommand(() -> climber.stop(), climber));
 
-    driveA.whenPressed(new InstantCommand(() -> climber.toggleSolenoid()));
+    driveA.whenPressed(new InstantCommand(() -> climber.toggleSolenoid(), climber));
 
     //driveA.whenPressed(climbForDistance);
     //driveA.whenReleased(() -> climbForDistance.cancel());
@@ -314,23 +314,31 @@ public class RobotContainer {
     opY.whenPressed(new InstantCommand(() -> launcher.pidOn(), launcher));
     opY.whenReleased(new InstantCommand(() -> launcher.pidOff(), launcher));
 
-    opB.whenPressed(new InstantCommand(() -> launcher.feederOn()));
-    opB.whenReleased(new InstantCommand(() -> launcher.feederOff()));
+    // opY.whenPressed(new InstantCommand(() -> launcher.setLauncher(1, 1), launcher));
+    // opY.whenReleased(new InstantCommand(() -> launcher.setLauncher(0, 0), launcher));
 
-    opA.whenPressed(new InstantCommand(() -> collector.toggleSolenoid()));
+    //opB.whenPressed(new InstantCommand(() -> collector.feederOn()));
+    opB.whileHeld(new InstantCommand(() ->collector.smartBallShoot(), collector));
+    opB.whenReleased(new InstantCommand(() -> {
+      collector.feederOff();
+      collector.moverOff();
+    }, collector));
+    
 
-    opLeftBumper.whenPressed(new InstantCommand(() -> collector.intake()));
-    opLeftBumper.whenReleased(new InstantCommand(() -> collector.stop()));
+    opA.whenPressed(new InstantCommand(() -> collector.toggleSolenoid(), collector));
 
-    opRightBumper.whenPressed(new InstantCommand(() -> collector.outake()));
-    opRightBumper.whenReleased(new InstantCommand(() -> collector.stop()));
+    opLeftBumper.whenPressed(new InstantCommand(() -> collector.intake(), collector));
+    opLeftBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
+
+    opRightBumper.whenPressed(new InstantCommand(() -> collector.outake(), collector));
+    opRightBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
   }
 
   /**
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
-    drive.updateShuffleboard();
+    //drive.updateShuffleboard();
     launcher.updateShuffleboard();
     //colorSensor.updateShuffleboard();
     //climber.updateShuffleboard();

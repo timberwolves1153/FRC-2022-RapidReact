@@ -6,14 +6,15 @@ package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Launcher;
+import frc.robot.subsystems.Launcher.Direction;
 
 public class DefaultLauncher extends CommandBase {
   private DoubleSupplier leftYStick;
   private DoubleSupplier rightYStick;
   private Launcher launcher;
+  private boolean canSwitch = true;
 
   /** Creates a new DefaultShooter. */
   public DefaultLauncher(DoubleSupplier leftYStick, DoubleSupplier rightYStick, Launcher launcher) {
@@ -30,14 +31,21 @@ public class DefaultLauncher extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double launcherSpeed = rightYStick.getAsDouble();
     if(leftYStick.getAsDouble() < -0.5) {
-      launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB);
+      if(canSwitch) {
+        launcher.cycleGainPreset(Direction.kForwards);
+        canSwitch = false;
+      }
     }
-    if(leftYStick.getAsDouble() > 0.5) {
-      launcher.setGainPreset(Launcher.ShooterPosition.LOWER_HUB);
+    else if(leftYStick.getAsDouble() > 0.5) {
+      if(canSwitch) {
+        launcher.cycleGainPreset(Direction.kBackwards);
+        canSwitch = false;
+      }
     }
-    //launcher.setLauncher(launcherSpeed, launcherSpeed);
+    else {
+      canSwitch = true;
+    }
   }
 
   // Called once the command ends or is interrupted.

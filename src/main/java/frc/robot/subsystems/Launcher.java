@@ -4,18 +4,11 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -75,16 +68,46 @@ public class Launcher extends SubsystemBase {
 
   private WPI_TalonFX bottomRoller;
   private WPI_TalonFX topRoller;
-  private CANSparkMax feeder;
 
   private boolean pidEnabled = false;
 
-  private static final double[] TOPROLLER_P = {0.00005, 0.00005, 0.00005, 0.00005};
-  private static final double[] TOPROLLER_F = {(1023.0 / 21350.0), (1023.0 / 21350.0), (1023.0 / 21350.0), (1023.0 / 21350.0)};
-  private static final double[] BOTTOMROLLER_P = {0.00005, 0.00005, 0.00005, 0.00005};
-  private static final double[] BOTTOMROLLER_F = {(1023.0 / 20000.0), (1023.0 / 20000.0), (1023.0 / 20000.0), (1023.0 / 20000.0)};
-  private static final double[] TOPROLLER_SETPOINT = {3400, 3700, 4500};
-  private static final double[] BOTTOMROLLER_SETPOINT = {3400, 3700, 4500};
+  private static final double[] TOPROLLER_SETPOINT = {
+    6500, 
+    7000, 
+    12500,
+    6000
+  };
+  private static final double[] BOTTOMROLLER_SETPOINT = {
+    4500, 
+    9000, 
+    9000,
+    14000
+  };
+  private static final double[] TOPROLLER_P = {
+    0.01, 
+    0.01, 
+    0.01, 
+    0.01
+  };
+  private static final double[] TOPROLLER_F = {
+    ((TOPROLLER_SETPOINT[0] / 20800) * 1023.0 / TOPROLLER_SETPOINT[0]), 
+    ((TOPROLLER_SETPOINT[1] / 20800) * 1023.0 / TOPROLLER_SETPOINT[1]), 
+    ((TOPROLLER_SETPOINT[2] / 20800) * 1023.0 / TOPROLLER_SETPOINT[2]), 
+    ((TOPROLLER_SETPOINT[3] / 20800) * 1023.0 / TOPROLLER_SETPOINT[3])
+  };
+  private static final double[] BOTTOMROLLER_P = {
+    0.01, 
+    0.01, 
+    0.01, 
+    0.01
+  };
+  private static final double[] BOTTOMROLLER_F = {
+    ((BOTTOMROLLER_SETPOINT[0] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[0]), 
+    ((BOTTOMROLLER_SETPOINT[1] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[1]), 
+    ((BOTTOMROLLER_SETPOINT[2] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[2]), 
+    ((BOTTOMROLLER_SETPOINT[3] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[3])
+  };
+  
   //Setpoint Values: 3400, 4100, 4500
 
   private double pBottom, fBottom, setpointBottom,
@@ -98,7 +121,7 @@ public class Launcher extends SubsystemBase {
   
   /** Creates a new Shooter. */
   public Launcher() {
-    feeder = new CANSparkMax(20, MotorType.kBrushless);
+    
     bottomRoller = new WPI_TalonFX(21);
     topRoller = new WPI_TalonFX(22);
 
@@ -137,9 +160,7 @@ public class Launcher extends SubsystemBase {
     topRoller.config_kP(0, TOPROLLER_P[selectedPosition.getPosition()], 100);
     topRoller.config_kF(0, TOPROLLER_F[selectedPosition.getPosition()], 100);
 
-    feeder.restoreFactoryDefaults();
-    feeder.setIdleMode(IdleMode.kBrake);
-    feeder.burnFlash();
+    
   }
 
   public void updateShuffleboard() {
@@ -172,12 +193,7 @@ public class Launcher extends SubsystemBase {
     }
   }
 
-  public void feederOn(){
-    feeder.set(-0.5);
-  }
-  public void feederOff(){
-    feeder.set(0);
-  }
+  
 
   public void setLauncherTop(double speed){
     topRoller.set(TalonFXControlMode.PercentOutput, -speed);
@@ -191,6 +207,7 @@ public class Launcher extends SubsystemBase {
     setLauncherTop(topRollerSpeed);
     setLauncherBottom(bottomRollerSpeed);
   }
+  
 
   public void setLauncherForPosition() {
     if(selectedPosition.equals(ShooterPosition.LOWER_HUB)) {
@@ -302,15 +319,15 @@ public class Launcher extends SubsystemBase {
 
   public void cycleGainPreset(Direction direction) {
     int highestVal = ShooterPosition.getHighestValue();
-    int nextPosition = defaultPosition.getPosition() + direction.getDirection();
+    int nextPosition = selectedPosition.getPosition() + direction.getDirection();
     if(nextPosition < 0) {
-      defaultPosition = ShooterPosition.fromInt(highestVal);
+      selectedPosition = ShooterPosition.fromInt(highestVal);
     } else if(nextPosition > highestVal) {
-      defaultPosition = ShooterPosition.fromInt(0);
+      selectedPosition = ShooterPosition.fromInt(0);
     } else {
-      defaultPosition = ShooterPosition.fromInt(nextPosition);
+      selectedPosition = ShooterPosition.fromInt(nextPosition);
     }
-    setGainPreset(defaultPosition);
+    setGainPreset(selectedPosition);
   }
 
   public double getShooterVelocity() {

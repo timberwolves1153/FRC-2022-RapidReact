@@ -30,8 +30,9 @@ public class DefaultCollect extends CommandBase {
   @Override
   public void execute() {
     if(leftTrigger.getAsDouble() > 0.1) {
-      collector.singulatorIntake();
-      collector.moverForward();
+      // collector.singulatorIntake();
+      // collector.moverForward();
+      collector.smartBallCollect();
     }
     if(rightTrigger.getAsDouble() > 0.1) {
       collector.singulatorOutake();
@@ -40,6 +41,7 @@ public class DefaultCollect extends CommandBase {
     if(leftTrigger.getAsDouble() < 0.1 && rightTrigger.getAsDouble() < 0.1) {
       collector.singulatorStop();
       collector.moverOff();
+      collector.feederOff();
     }
   }
 
