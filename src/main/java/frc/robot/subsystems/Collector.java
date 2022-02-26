@@ -70,16 +70,6 @@ public class Collector extends SubsystemBase {
       mover.set(0.5);
   }
 
-  public void smartBallShoot(){
-    feeder.set(-0.5);
-    singulatorIntake();
-    if(moverSeesBall()&& !feederSeesBall()){
-      mover.set(0.5);
-    }else{
-      mover.set(0);
-    }
-  }
-
   public void feederOn(){
     feeder.set(-0.5);
   }
@@ -91,35 +81,6 @@ public class Collector extends SubsystemBase {
   
     mover.set(0);
   }
-
-  public void smartBallCollect(){
-    singulator.set(-1);
-    if(!feederSeesBall() && moverSeesBall()){
-      feeder.set(-0.2);
-      mover.set(0.5);
-    }
-    else if(feederSeesBall()&&moverSeesBall()){
-      feeder.set(0);
-      mover.set(0);
-    }
-    else if(feederSeesBall() && !moverSeesBall()){
-      feeder.set(0);
-      mover.set(0.5);
-    }
-    else{//NO BALLS IN ROBOT
-      feeder.set(-0.2);
-      mover.set(0.5);
-    }
-  }
-
-  public boolean moverSeesBall(){
-    return !moverBannerSensor.get();
-  }
-
-  public boolean feederSeesBall(){
-    return !feederBannerSensor.get();
-  }
-  
 
   public void moverReverse() {
     mover.set(-0.5);
@@ -163,6 +124,36 @@ public class Collector extends SubsystemBase {
     collect.set(speed);
   }
 
+  public void smartBallShoot(){
+    feeder.set(-0.5);
+    singulatorIntake();
+    if(moverSeesBall()&& !feederSeesBall()){
+      mover.set(0.5);
+    }else{
+      mover.set(0);
+    }
+  }
+
+  public void smartBallCollect(){
+    singulator.set(-1);
+    if(!feederSeesBall() && moverSeesBall()){
+      feeder.set(-0.2);
+      mover.set(0.5);
+    }
+    else if(feederSeesBall()&&moverSeesBall()){
+      feeder.set(0);
+      mover.set(0);
+    }
+    else if(feederSeesBall() && !moverSeesBall()){
+      feeder.set(0);
+      mover.set(0.5);
+    }
+    else{//NO BALLS IN ROBOT
+      feeder.set(-0.2);
+      mover.set(0.5);
+    }
+  }
+
   public void setSolenoid(DoubleSolenoid.Value value) {
     doubleSolenoidRight.set(value);
     doubleSolenoidLeft.set(value);
@@ -189,6 +180,14 @@ public class Collector extends SubsystemBase {
 
   public boolean getMoverBannerSensor() {
     return moverBannerSensor.get();
+  }
+  
+  public boolean moverSeesBall(){
+    return !moverBannerSensor.get();
+  }
+
+  public boolean feederSeesBall(){
+    return !feederBannerSensor.get();
   }
   
  

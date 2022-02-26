@@ -12,7 +12,6 @@ import frc.robot.subsystems.Launcher.Direction;
 
 public class DefaultLauncher extends CommandBase {
   private DoubleSupplier leftYStick;
-  private DoubleSupplier rightYStick;
   private Launcher launcher;
   private boolean canSwitch = true;
 
@@ -20,7 +19,6 @@ public class DefaultLauncher extends CommandBase {
   public DefaultLauncher(DoubleSupplier leftYStick, DoubleSupplier rightYStick, Launcher launcher) {
     this.leftYStick = leftYStick;
     this.launcher = launcher;
-    this.rightYStick = rightYStick;
     addRequirements(launcher);
   }
 

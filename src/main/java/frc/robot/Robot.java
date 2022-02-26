@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import java.io.IOException;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
