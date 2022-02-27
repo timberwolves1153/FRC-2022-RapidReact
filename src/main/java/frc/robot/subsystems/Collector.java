@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 
 public class Collector extends SubsystemBase {
@@ -78,7 +79,6 @@ public class Collector extends SubsystemBase {
   }
 
   public void moverOff() {
-  
     mover.set(0);
   }
 
@@ -127,7 +127,7 @@ public class Collector extends SubsystemBase {
   public void smartBallShoot(){
     feeder.set(-0.5);
     singulatorIntake();
-    if(moverSeesBall()&& !feederSeesBall()){
+    if(moverSeesBall() && !feederSeesBall()){
       mover.set(0.5);
     }else{
       mover.set(0);

@@ -182,7 +182,7 @@ public class Climber extends SubsystemBase {
   //This is a helper method that clarifies what winching up means in the context of the set method; 
   //might need to be inverted depending on motor orientation
   public void winchUp() {
-    set(0.8);
+    setWinch(0.8);
   }
 
   //Might need to be inverted depending on motor orientation
@@ -224,11 +224,11 @@ public class Climber extends SubsystemBase {
 
   //Helper method to stop the climber
   public void stop() {
-    set(0);
+    setWinch(0);
   }
 
   //Main set method that can be called externally
-  public void set(double speed) {
+  public void setWinch(double speed) {
     winchRight.set(ControlMode.PercentOutput, speed);
     winchLeft.set(ControlMode.PercentOutput, -speed);
   }

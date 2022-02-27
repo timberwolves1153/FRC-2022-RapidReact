@@ -6,6 +6,7 @@
       "/LiveWindow/Collector": "Subsystem",
       "/LiveWindow/ColorSensor": "Subsystem",
       "/LiveWindow/Drive": "Subsystem",
+      "/LiveWindow/LEDLights": "Subsystem",
       "/LiveWindow/Launcher": "Subsystem",
       "/LiveWindow/Ungrouped/DifferentialDrive[1]": "DifferentialDrive",
       "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
@@ -42,6 +43,7 @@
       "/LiveWindow/Ungrouped/Talon FX [22]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [30]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [31]": "Motor Controller",
+      "/SmartDashboard/Alliance Color": "String Chooser",
       "/SmartDashboard/Auto Command Chooser": "String Chooser",
       "/SmartDashboard/Field": "Field2d"
     }

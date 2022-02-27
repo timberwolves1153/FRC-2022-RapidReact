@@ -35,7 +35,9 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.ColorSensor;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.LEDLights;
 import frc.robot.subsystems.Launcher;
+import frc.robot.subsystems.ColorSensor.BallColor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 /**
@@ -73,6 +75,7 @@ public class RobotContainer {
   private Climber climber;
   private Launcher launcher;
   private ColorSensor colorSensor;
+  private LEDLights ledLights;
 
   private Trajectory fourBallAutoTrajectory1;
   private Trajectory fourBallAutoTrajectory2;
@@ -81,7 +84,6 @@ public class RobotContainer {
 
   private Trajectory manualTrajectory1;
  
-
   private SequentialCommandGroup twoBallAutoCommandGroupRight;
   private SequentialCommandGroup twoBallAutoCommandGroupLeft;
   private SequentialCommandGroup fourBallAutoCommandGroup;
@@ -93,18 +95,14 @@ public class RobotContainer {
   private String fourBallAutoPath4 = "pathplanner/generatedJSON/FourBallAutoPath4.wpilib.json";
 
   private SendableChooser<Command> autoCommandChooser;
-
- 
+  private SendableChooser<BallColor> allianceColor;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(){
 
-    
     //declares the drive joystick as an XboxController in port 0 on the Driver Station
     driveStick = new XboxController(0);
     opStick = new XboxController(1);
-
-    
 
     //declares all subsystems
     drive = new Drive();
@@ -112,6 +110,7 @@ public class RobotContainer {
     climber = new Climber();
     launcher = new Launcher();
     colorSensor = new ColorSensor();
+    ledLights = new LEDLights();
 
     driveLeftBumper = new JoystickButton(driveStick, XboxController.Button.kLeftBumper.value);
     driveRightBumper = new JoystickButton(driveStick, XboxController.Button.kRightBumper.value);
@@ -132,6 +131,7 @@ public class RobotContainer {
     climbForDistance = new ClimbForDistance(5, climber);
 
     autoCommandChooser = new SendableChooser<Command>();
+    allianceColor = new SendableChooser<BallColor>();
     
     drive.setDefaultCommand(new DefaultDrive(
       () -> driveStick.getLeftY(),
@@ -255,12 +255,15 @@ public class RobotContainer {
       new InstantCommand(()-> collector.stop())
     );
 
-
     autoCommandChooser.setDefaultOption("Two Ball Auto Right", twoBallAutoCommandGroupRight);
     autoCommandChooser.addOption("Two Ball Auto Left", twoBallAutoCommandGroupLeft);
     autoCommandChooser.addOption("Four Ball", fourBallAutoCommandGroup);
 
+    allianceColor.setDefaultOption("Blue", BallColor.BLUE);
+    allianceColor.addOption("Red", BallColor.RED);
+
     SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
+    SmartDashboard.putData("Alliance Color", allianceColor);
 
     configureButtonBindings();
   }
@@ -290,20 +293,23 @@ public class RobotContainer {
     driveRightBumper.whenReleased(new InstantCommand(() -> climber.stop(), climber));
 
     driveA.whenPressed(new InstantCommand(() -> climber.toggleSolenoid(), climber));
+    
+    driveB.whenPressed(new InstantCommand(() -> climber.setWinch(0.1), climber));
+    driveB.whenReleased(new InstantCommand(() -> climber.setWinch(0), climber));
 
     //driveA.whenPressed(climbForDistance);
     //driveA.whenReleased(() -> climbForDistance.cancel());
 
-    driveBack.whenPressed(new InstantCommand(() -> climber.setLeft(-0.8), climber));
+    driveBack.whenPressed(new InstantCommand(() -> climber.setLeft(-0.4), climber));
     driveBack.whenReleased(new InstantCommand(() -> climber.setLeft(0), climber));
 
-    driveStart.whenPressed(new InstantCommand(() -> climber.setRight(0.8), climber));
+    driveStart.whenPressed(new InstantCommand(() -> climber.setRight(0.4), climber));
     driveStart.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
 
-    driveX.whenPressed(new InstantCommand(() -> climber.setLeft(0.8), climber));
+    driveX.whenPressed(new InstantCommand(() -> climber.setLeft(0.4), climber));
     driveX.whenReleased(new InstantCommand(() -> climber.setLeft(0), climber));
 
-    driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.8), climber));
+    driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
     driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
 
     // opY.whenPressed(new InstantCommand(() -> launcher.setLauncherForPosition()));
@@ -316,7 +322,7 @@ public class RobotContainer {
     // opY.whenReleased(new InstantCommand(() -> launcher.setLauncher(0, 0), launcher));
 
     //opB.whenPressed(new InstantCommand(() -> collector.feederOn()));
-    opB.whileHeld(new InstantCommand(() ->collector.smartBallShoot(), collector));
+    opB.whileHeld(new InstantCommand(() -> collector.smartBallShoot(), collector));
     opB.whenReleased(new InstantCommand(() -> {
       collector.feederOff();
       collector.moverOff();
@@ -339,7 +345,7 @@ public class RobotContainer {
     //drive.updateShuffleboard();
     launcher.updateShuffleboard();
     //colorSensor.updateShuffleboard();
-    //climber.updateShuffleboard();
+    climber.updateShuffleboard();
     //collector.updateShuffleboard();
   }
 
@@ -404,6 +410,10 @@ public class RobotContainer {
               drive.tankDriveVolts(leftVolts, rightVolts);
             },
             drive);
+  }
+
+  public BallColor getSelectedAllianceColor() {
+    return allianceColor.getSelected();
   }
 
   /**
