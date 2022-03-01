@@ -344,9 +344,9 @@ public class RobotContainer {
   public void updateShuffleboard() {
     //drive.updateShuffleboard();
     launcher.updateShuffleboard();
-    //colorSensor.updateShuffleboard();
-    climber.updateShuffleboard();
-    //collector.updateShuffleboard();
+    colorSensor.updateShuffleboard();
+    //climber.updateShuffleboard();
+    collector.updateShuffleboard();
   }
 
   public void generateTrajectories(){
@@ -414,6 +414,10 @@ public class RobotContainer {
 
   public BallColor getSelectedAllianceColor() {
     return allianceColor.getSelected();
+  }
+
+  public ColorSensor getColorSensor() {
+    return colorSensor;
   }
 
   /**

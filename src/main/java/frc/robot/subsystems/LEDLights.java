@@ -48,6 +48,12 @@ public class LEDLights extends SubsystemBase {
 
   @Override
   public void periodic() {
-    
+    if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Blue")) {
+      setRGB(0, 0, 255);
+    } else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Red")) {
+      setRGB(255, 0, 0);
+    } else {
+      setRGB(255, 20, 147);
+    }
   }
 }
