@@ -5,7 +5,11 @@
 package frc.robot.subsystems;
 
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -61,11 +65,32 @@ public class Collector extends SubsystemBase {
 
   }
 
-  public void config(){
-    feeder.restoreFactoryDefaults();
-    feeder.setIdleMode(IdleMode.kBrake);
-    feeder.burnFlash();
-  }
+    public void config() {
+
+      feeder.restoreFactoryDefaults();
+      feeder.setIdleMode(IdleMode.kBrake);
+      feeder.burnFlash();
+      collect.configFactoryDefault();
+  
+      collect.setNeutralMode(NeutralMode.Brake);
+  
+      collect.setInverted(InvertType.InvertMotorOutput);
+      collect.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 100);  
+      collect.configNominalOutputForward(0, 100);
+      collect.configNominalOutputReverse(0, 100);
+      collect.configPeakOutputForward(1, 100);
+      collect.configPeakOutputReverse(-1, 100);
+  
+  
+  
+      collect.configAllowableClosedloopError(0, 0, 100);  
+  
+      collect.config_kF(0, 0, 100);
+      collect.config_kP(0, 0.15, 100);
+      collect.config_kI(0, 0, 100);
+      collect.config_kD(0, 1, 100);
+  
+    }
 
   public void moverForward() {
       mover.set(0.5);
@@ -132,6 +157,23 @@ public class Collector extends SubsystemBase {
     }else{
       mover.set(0);
     }
+  }
+
+
+  public void resetRightCollectorEncoders(){
+    collect.setSelectedSensorPosition(0, 0, 100);
+  }
+  public double getEncoderTicksFromPosition(double distanceInches) {
+    return (2048 * 15) / (0.5 * Math.PI) * distanceInches;
+  }
+
+  public void climbToSetPoint(int setPoint){
+    collect.set(ControlMode.Position, setPoint);
+  }
+
+  public void setWinchPosition(double encoderTicks){
+    System.out.println("Setting winch to " + encoderTicks + " encoder ticks");
+    collect.set(TalonFXControlMode.Position, encoderTicks);
   }
 
   public void smartBallCollect(){

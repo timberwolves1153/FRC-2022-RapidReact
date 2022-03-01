@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ClimbForDistance;
+import frc.robot.commands.CollectForDistance;
 import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
@@ -60,6 +61,8 @@ public class RobotContainer {
   private JoystickButton driveA;
   private JoystickButton driveStart;
   private JoystickButton driveBack;
+  private JoystickButton driveLeftJoystickButton;
+  private JoystickButton driveRightJoystickButton;
 
   private JoystickButton opY;
   private JoystickButton opB;
@@ -68,6 +71,7 @@ public class RobotContainer {
   private JoystickButton opRightBumper;
 
   private ClimbForDistance climbForDistance;
+  private CollectForDistance collectForDistance;
   
   //Instantiates all subsystems
   private Drive drive;
@@ -120,6 +124,8 @@ public class RobotContainer {
     driveA = new JoystickButton(driveStick, XboxController.Button.kA.value);
     driveStart = new JoystickButton(driveStick, XboxController.Button.kStart.value);
     driveBack = new JoystickButton(driveStick, XboxController.Button.kBack.value);
+    driveLeftJoystickButton = new JoystickButton(driveStick, XboxController.Button.kLeftStick.value);
+    driveRightJoystickButton = new JoystickButton(driveStick, XboxController.Button.kRightStick.value);
 
     opY = new JoystickButton(opStick, XboxController.Button.kY.value);
     opB = new JoystickButton(opStick, XboxController.Button.kB.value);
@@ -129,6 +135,7 @@ public class RobotContainer {
     opRightBumper = new JoystickButton(opStick, XboxController.Button.kRightBumper.value);
 
     climbForDistance = new ClimbForDistance(5, climber);
+    collectForDistance = new CollectForDistance(5, collector);
 
     autoCommandChooser = new SendableChooser<Command>();
     allianceColor = new SendableChooser<BallColor>();
@@ -312,6 +319,9 @@ public class RobotContainer {
     driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
     driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
 
+    driveLeftJoystickButton.whileHeld(collectForDistance);
+    //driveLeftJoystickButton.whenReleased(() -> collector.cancel());
+
     // opY.whenPressed(new InstantCommand(() -> launcher.setLauncherForPosition()));
     // opY.whenReleased(new InstantCommand(() -> launcher.stop()));
 
@@ -343,10 +353,10 @@ public class RobotContainer {
    */
   public void updateShuffleboard() {
     //drive.updateShuffleboard();
-    launcher.updateShuffleboard();
-    colorSensor.updateShuffleboard();
-    //climber.updateShuffleboard();
-    collector.updateShuffleboard();
+    //launcher.updateShuffleboard();
+    //colorSensor.updateShuffleboard();
+    climber.updateShuffleboard();
+    //collector.updateShuffleboard();
   }
 
   public void generateTrajectories(){

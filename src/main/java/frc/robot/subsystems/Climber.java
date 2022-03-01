@@ -96,13 +96,13 @@ public class Climber extends SubsystemBase {
 
 
     winchLeft.config_kF(0, 0, 100);
-		winchLeft.config_kP(0, .15, 100);
+		winchLeft.config_kP(0, 0.15, 100);
 		winchLeft.config_kI(0, 0, 100);
 		winchLeft.config_kD(0, 1, 100);
 
 
     winchRight.config_kF(0, 0, 100);
-		winchRight.config_kP(0,.15, 100);
+		winchRight.config_kP(0, 0.15, 100);
 		winchRight.config_kI(0, 0, 100);
 		winchRight.config_kD(0, 1, 100);
 
@@ -264,12 +264,13 @@ public class Climber extends SubsystemBase {
     return winchLeft.getSelectedSensorPosition();
   }
 
-  public double getEncoderTicksFromPosition(double distance) {
-    return (2048 * 15) / (0.5 * Math.PI) * distance;
+  public double getEncoderTicksFromPosition(double distanceInches) {
+    return (2048 * 15) / (0.5 * Math.PI) * distanceInches;
   }
 
   public void setWinchPosition(double encoderTicks){
-    winchLeft.set(TalonFXControlMode.Position, encoderTicks);
+    System.out.println("Setting winch to " + encoderTicks + " encoder ticks");
+    winchLeft.set(TalonFXControlMode.Position, -encoderTicks);
     winchRight.set(TalonFXControlMode.Position, encoderTicks);
   }
 
