@@ -159,6 +159,8 @@ public class Collector extends SubsystemBase {
     }
   }
 
+  
+
 
   public void resetRightCollectorEncoders(){
     collect.setSelectedSensorPosition(0, 0, 100);

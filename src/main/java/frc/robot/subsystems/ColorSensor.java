@@ -7,8 +7,11 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Collector;
+
 
 public class ColorSensor extends SubsystemBase {
   public enum BallColor {
@@ -34,6 +37,7 @@ public class ColorSensor extends SubsystemBase {
 
   private NetworkTableEntry proxValue;
 
+
   /** Creates a new ColorSensor. */
   public ColorSensor() {
     colorSensorTable = NetworkTableInstance.getDefault().getTable("colorsensor");
@@ -44,6 +48,7 @@ public class ColorSensor extends SubsystemBase {
     irValue = colorSensorTable.getEntry("ir");
 
     proxValue = colorSensorTable.getEntry("proximity");
+
   }
 
   public double getRedValue() {
@@ -67,19 +72,21 @@ public class ColorSensor extends SubsystemBase {
   }
 
   public BallColor getDetectedBallColor() {
-    if(getBlueValue() > 3000 && getRedValue() > 3000) {
+    if(getBlueValue() < 2100 && getRedValue() < 2100) {
       return BallColor.NONE;
     }
-    if(getBlueValue() >= 2900 && getBlueValue() <= 3500) {
+    if(getBlueValue() > getRedValue()) {
       return BallColor.BLUE;
     }
-    if(getRedValue() >= 2900 && getRedValue() <= 3500) {
+    if(getRedValue() > getBlueValue()) {
       return BallColor.RED;
     }
     else {
       return BallColor.NONE;
     }
   }
+
+  
 
   public void updateShuffleboard() {
     SmartDashboard.putNumber("Color Sensor Red", getRedValue());

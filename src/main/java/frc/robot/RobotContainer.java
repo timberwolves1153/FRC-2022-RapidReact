@@ -99,7 +99,7 @@ public class RobotContainer {
   private String fourBallAutoPath4 = "pathplanner/generatedJSON/FourBallAutoPath4.wpilib.json";
 
   private SendableChooser<Command> autoCommandChooser;
-  private SendableChooser<BallColor> allianceColor;
+  public SendableChooser<BallColor> allianceColor;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(){
@@ -353,10 +353,10 @@ public class RobotContainer {
    */
   public void updateShuffleboard() {
     //drive.updateShuffleboard();
-    //launcher.updateShuffleboard();
-    //colorSensor.updateShuffleboard();
+    launcher.updateShuffleboard();
+    colorSensor.updateShuffleboard();
     climber.updateShuffleboard();
-    //collector.updateShuffleboard();
+    collector.updateShuffleboard();
   }
 
   public void generateTrajectories(){

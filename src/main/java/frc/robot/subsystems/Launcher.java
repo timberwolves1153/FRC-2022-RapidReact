@@ -9,8 +9,12 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.ColorSensor.BallColor;
+import frc.robot.subsystems.Collector;
+import frc.robot.RobotContainer;
 
 public class Launcher extends SubsystemBase {
   public enum ShooterPosition {
@@ -71,6 +75,14 @@ public class Launcher extends SubsystemBase {
 
   private boolean pidEnabled = false;
 
+  private SendableChooser<BallColor> allianceColor;
+
+  private RobotContainer m_robot;
+
+  private ColorSensor colorSensor;
+
+  private Collector collect;
+
   private static final double[] TOPROLLER_SETPOINT = {
     6500, 
     7000, 
@@ -118,6 +130,8 @@ public class Launcher extends SubsystemBase {
 
   private static final double MAX_OUTPUT = 1;
   private static final double MIN_OUTPUT = -1;
+
+
   
   /** Creates a new Shooter. */
   public Launcher() {
@@ -240,6 +254,22 @@ public class Launcher extends SubsystemBase {
   public double getLeftEncoder(){
     return bottomRoller.getSelectedSensorPosition();
   }
+
+  public void smart(){
+    if(colorSensor.getDetectedBallColor() != BallColor.NONE){
+      // There is a ball infront of the sensor
+      if(colorSensor.getDetectedBallColor() ==  m_robot.allianceColor.getSelected() && collect.moverSeesBall()){
+        // We have our color ball
+        collect.moverOff();
+        //SHOOTER LOW SELECTED POSITION
+        //TIMEDSHOOTERCOMMAND
+      }else{
+        // We have a wrong-color ball
+      } 
+    }else{
+      // There is no ball in front of the sensor
+    }
+   }
 
 
   /**

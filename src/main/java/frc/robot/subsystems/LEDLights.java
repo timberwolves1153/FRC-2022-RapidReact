@@ -16,8 +16,8 @@ public class LEDLights extends SubsystemBase {
 
   /** Creates a new LEDLights. */
   public LEDLights() {
-    m_led = new AddressableLED(6);
-    m_ledBuffer = new AddressableLEDBuffer(20);
+    m_led = new AddressableLED(9);
+    m_ledBuffer = new AddressableLEDBuffer(32);
     m_led.setLength(m_ledBuffer.getLength());
 
     m_led.start();
@@ -52,7 +52,11 @@ public class LEDLights extends SubsystemBase {
       setRGB(0, 0, 255);
     } else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Red")) {
       setRGB(255, 0, 0);
-    } else {
+    }
+      else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Error")){
+      setRGB(255, 215, 0);
+    }
+     else {
       setRGB(255, 20, 147);
     }
   }
