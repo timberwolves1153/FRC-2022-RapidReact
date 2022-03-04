@@ -9,6 +9,8 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Launcher.Direction;
+import frc.robot.subsystems.Launcher.ShooterPosition;
+
 
 public class DefaultLauncher extends CommandBase {
   private DoubleSupplier leftYStick;
@@ -33,6 +35,9 @@ public class DefaultLauncher extends CommandBase {
       if(canSwitch) {
         launcher.cycleGainPreset(Direction.kForwards);
         canSwitch = false;
+        if (launcher.getSelectedPosition() == ShooterPosition.TARMAC_HIGH && leftYStick.getAsDouble() < -0.5){
+          
+        }
       }
     }
     else if(leftYStick.getAsDouble() > 0.5) {

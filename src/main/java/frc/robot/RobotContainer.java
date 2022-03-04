@@ -328,6 +328,9 @@ public class RobotContainer {
     opY.whenPressed(new InstantCommand(() -> launcher.pidOn(), launcher));
     opY.whenReleased(new InstantCommand(() -> launcher.pidOff(), launcher));
 
+    // opY.whenPressed(new InstantCommand(() -> launcher.setLauncher(0.23, 0.30), launcher));
+    // opY.whenReleased(new InstantCommand(() -> launcher.setLauncher(0.00, 0.00), launcher));
+
     // opY.whenPressed(new InstantCommand(() -> launcher.setLauncher(1, 1), launcher));
     // opY.whenReleased(new InstantCommand(() -> launcher.setLauncher(0, 0), launcher));
 
@@ -355,7 +358,7 @@ public class RobotContainer {
     //drive.updateShuffleboard();
     launcher.updateShuffleboard();
     colorSensor.updateShuffleboard();
-    climber.updateShuffleboard();
+    //climber.updateShuffleboard();
     collector.updateShuffleboard();
   }
 

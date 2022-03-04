@@ -18,7 +18,7 @@ import frc.robot.RobotContainer;
 
 public class Launcher extends SubsystemBase {
   public enum ShooterPosition {
-    LOWER_HUB(0, "Lower Hub"), UPPER_HUB(1, "Upper Hub"), TARMAC_LOW(2, "Tarmac Low"), TARMAC_HIGH(3, "Tarmac High"), INVALID(4, "Invalid");
+    LOWER_HUB(0, "Lower Hub"), UPPER_HUB(1, "Upper Hub"), TARMAC_LOW(2, "Tarmac Low"), TARMAC_HIGH(3, "Tarmac High"),  WRONGBALL(4, "Wrong Ball"),  INVALID(5, "Invalid");
 
     private int value;
     private String name;
@@ -87,37 +87,44 @@ public class Launcher extends SubsystemBase {
     6500, 
     7000, 
     12500,
-    6000
+    6000,
+    20800
   };
   private static final double[] BOTTOMROLLER_SETPOINT = {
     4500, 
     9000, 
     9000,
-    14000
+    13000,
+    1000
   };
   private static final double[] TOPROLLER_P = {
     0.01, 
     0.01, 
     0.01, 
+    0.01,
     0.01
   };
   private static final double[] TOPROLLER_F = {
-    ((TOPROLLER_SETPOINT[0] / 20800) * 1023.0 / TOPROLLER_SETPOINT[0]), 
+    (0.30 * 1023.0 / TOPROLLER_SETPOINT[0]), 
     ((TOPROLLER_SETPOINT[1] / 20800) * 1023.0 / TOPROLLER_SETPOINT[1]), 
     ((TOPROLLER_SETPOINT[2] / 20800) * 1023.0 / TOPROLLER_SETPOINT[2]), 
-    ((TOPROLLER_SETPOINT[3] / 20800) * 1023.0 / TOPROLLER_SETPOINT[3])
+    ((TOPROLLER_SETPOINT[3] / 20800) * 1023.0 / TOPROLLER_SETPOINT[3]),
+    ((TOPROLLER_SETPOINT[4] / 20800) * 1023.0 / TOPROLLER_SETPOINT[4])
+
   };
   private static final double[] BOTTOMROLLER_P = {
     0.01, 
     0.01, 
     0.01, 
+    0.01,
     0.01
   };
   private static final double[] BOTTOMROLLER_F = {
-    ((BOTTOMROLLER_SETPOINT[0] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[0]), 
+    (0.23 * 1023.0 / BOTTOMROLLER_SETPOINT[0]), 
     ((BOTTOMROLLER_SETPOINT[1] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[1]), 
     ((BOTTOMROLLER_SETPOINT[2] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[2]), 
-    ((BOTTOMROLLER_SETPOINT[3] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[3])
+    ((BOTTOMROLLER_SETPOINT[3] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[3]),
+    ((BOTTOMROLLER_SETPOINT[4] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[4])
   };
   
   //Setpoint Values: 3400, 4100, 4500
@@ -240,7 +247,7 @@ public class Launcher extends SubsystemBase {
   }
 
   public void resetRightEncoders(){
-    topRoller.setSelectedSensorPosition(0, 0, 100);
+    topRoller.setSelectedSensorPosition(0, 0, 100);  
   }
 
   public void resetLeftEncoders(){
@@ -260,7 +267,7 @@ public class Launcher extends SubsystemBase {
       // There is a ball infront of the sensor
       if(colorSensor.getDetectedBallColor() ==  m_robot.allianceColor.getSelected() && collect.moverSeesBall()){
         // We have our color ball
-        collect.moverOff();
+        collect.moverOff(); 
         //SHOOTER LOW SELECTED POSITION
         //TIMEDSHOOTERCOMMAND
       }else{
