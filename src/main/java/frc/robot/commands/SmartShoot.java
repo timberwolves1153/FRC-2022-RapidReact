@@ -9,6 +9,7 @@ import frc.robot.Robot;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.ColorSensor;
 import frc.robot.subsystems.Launcher;
+import frc.robot.subsystems.ColorSensor.BallColor;
 import frc.robot.subsystems.Launcher.ShooterPosition;
 
 public class SmartShoot extends CommandBase {
@@ -18,6 +19,8 @@ public class SmartShoot extends CommandBase {
   private Launcher launcher;
 
   private ShooterPosition previousPosition = ShooterPosition.LOWER_HUB;
+
+  private double initialTime = 0.0;
 
   /** Creates a new SmartBallShoot. */
   public SmartShoot(Collector collector, ColorSensor colorSensor, Launcher launcher) {
@@ -37,16 +40,21 @@ public class SmartShoot extends CommandBase {
   public void execute() {
     collector.feederOn();
     collector.singulatorIntake();
-    if(colorSensor.getDetectedBallColor().equals(Robot.getContainer().getSelectedAllianceColor())){
-      if(collector.moverSeesBall() && !collector.feederSeesBall()){
-        collector.moverForward();
+    if((colorSensor.getDetectedBallColor().equals(Robot.getContainer().getSelectedAllianceColor()) || colorSensor.getDetectedBallColor().equals(BallColor.NONE)) && (System.currentTimeMillis() - initialTime) / 1000 >= 0.5){
+      if(launcher.getSelectedPosition().equals(ShooterPosition.WRONGBALL)) {
+        launcher.setGainPreset(previousPosition);
       } else {
-        collector.moverOff();
+        if(collector.moverSeesBall() && !collector.feederSeesBall()){
+          collector.moverForward();
+        } else {
+          collector.moverOff();
+        }
       }
     } else {
+      initialTime = System.currentTimeMillis();
       previousPosition = launcher.getSelectedPosition();
       launcher.setGainPreset(ShooterPosition.WRONGBALL);
-      launcher.pidOn();
+      // launcher.pidOn();
       if(!collector.moverSeesBall()) {
         collector.moverForward();
       } else {
@@ -60,8 +68,9 @@ public class SmartShoot extends CommandBase {
   public void end(boolean interrupted) {
     collector.feederOff();
     collector.moverOff();
-    launcher.pidOff();
-    launcher.setGainPreset(previousPosition);
+    // launcher.pidOff();
+    if(launcher.getSelectedPosition().equals(ShooterPosition.WRONGBALL))
+      launcher.setGainPreset(previousPosition);
   }
 
   // Returns true when the command should end.

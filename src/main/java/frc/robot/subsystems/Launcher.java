@@ -9,12 +9,8 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.ColorSensor.BallColor;
-import frc.robot.subsystems.Collector;
-import frc.robot.RobotContainer;
 
 public class Launcher extends SubsystemBase {
   public enum ShooterPosition {
@@ -52,7 +48,7 @@ public class Launcher extends SubsystemBase {
           highestVal = position.value;
         }
       }
-      return highestVal - 1;
+      return highestVal - 2;
     }
   }
 
@@ -74,14 +70,6 @@ public class Launcher extends SubsystemBase {
   private WPI_TalonFX topRoller;
 
   private boolean pidEnabled = false;
-
-  private SendableChooser<BallColor> allianceColor;
-
-  private RobotContainer m_robot;
-
-  private ColorSensor colorSensor;
-
-  private Collector collect;
 
   private static final double[] TOPROLLER_SETPOINT = {
     6500, 
@@ -180,8 +168,6 @@ public class Launcher extends SubsystemBase {
     bottomRoller.config_kF(0, BOTTOMROLLER_F[selectedPosition.getPosition()], 100);
     topRoller.config_kP(0, TOPROLLER_P[selectedPosition.getPosition()], 100);
     topRoller.config_kF(0, TOPROLLER_F[selectedPosition.getPosition()], 100);
-
-    
   }
 
   public void updateShuffleboard() {
@@ -227,7 +213,6 @@ public class Launcher extends SubsystemBase {
     setLauncherBottom(bottomRollerSpeed);
   }
   
-
   public void setLauncherForPosition() {
     if(selectedPosition.equals(ShooterPosition.LOWER_HUB)) {
       setLauncherTop(0.23);
@@ -259,25 +244,6 @@ public class Launcher extends SubsystemBase {
   public double getLeftEncoder(){
     return bottomRoller.getSelectedSensorPosition();
   }
-
-  public void smart(){
-    if(colorSensor.getDetectedBallColor() != BallColor.NONE){
-      // There is a ball infront of the sensor
-      if(colorSensor.getDetectedBallColor() ==  m_robot.allianceColor.getSelected() && collect.moverSeesBall()){
-        // We have our color ball
-        collect.moverOff(); 
-        //SHOOTER LOW SELECTED POSITION
-        //TIMEDSHOOTERCOMMAND
-      } else if(colorSensor.getDetectedBallColor() == BallColor.RED){
-        // We have a wrong-color ball
-        setGainPreset(ShooterPosition.WRONGBALL);
-        System.out.println("wrong ball");
-      } 
-    }else{
-      // There is no ball in front of the sensor
-    }
-   }
-
 
   /**
    * Convenience wrapper that sets PID parameters according to pre-stored values that

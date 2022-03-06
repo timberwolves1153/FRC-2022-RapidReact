@@ -7,10 +7,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Collector;
 
 
 public class ColorSensor extends SubsystemBase {
@@ -36,7 +34,6 @@ public class ColorSensor extends SubsystemBase {
   private NetworkTableEntry irValue;
 
   private NetworkTableEntry proxValue;
-
 
   /** Creates a new ColorSensor. */
   public ColorSensor() {
@@ -85,8 +82,6 @@ public class ColorSensor extends SubsystemBase {
       return BallColor.NONE;
     }
   }
-
-  
 
   public void updateShuffleboard() {
     SmartDashboard.putNumber("Color Sensor Red", getRedValue());

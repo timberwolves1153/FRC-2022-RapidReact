@@ -20,11 +20,9 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 
 
 public class Collector extends SubsystemBase {
-
   private WPI_TalonFX collect;
   private DoubleSolenoid doubleSolenoidRight;
   private DoubleSolenoid doubleSolenoidLeft;
@@ -33,10 +31,6 @@ public class Collector extends SubsystemBase {
   private DigitalInput moverBannerSensor;
   private DigitalInput feederBannerSensor;
   private CANSparkMax feeder;
-
-
-  
-  
 
   /** Creates a new Collector.*/
   public Collector() {
@@ -50,8 +44,6 @@ public class Collector extends SubsystemBase {
     feederBannerSensor = new DigitalInput(1);
     feeder = new CANSparkMax(20, MotorType.kBrushless);
 
-    
-
     mover.restoreFactoryDefaults();
     collect.configFactoryDefault();
     singulator.restoreFactoryDefaults();
@@ -62,35 +54,30 @@ public class Collector extends SubsystemBase {
 
     mover.burnFlash();
     singulator.burnFlash();
-
   }
 
-    public void config() {
+  public void config() {
+    feeder.restoreFactoryDefaults();
+    feeder.setIdleMode(IdleMode.kBrake);
+    feeder.burnFlash();
+    collect.configFactoryDefault();
 
-      feeder.restoreFactoryDefaults();
-      feeder.setIdleMode(IdleMode.kBrake);
-      feeder.burnFlash();
-      collect.configFactoryDefault();
-  
-      collect.setNeutralMode(NeutralMode.Brake);
-  
-      collect.setInverted(InvertType.InvertMotorOutput);
-      collect.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 100);  
-      collect.configNominalOutputForward(0, 100);
-      collect.configNominalOutputReverse(0, 100);
-      collect.configPeakOutputForward(1, 100);
-      collect.configPeakOutputReverse(-1, 100);
-  
-  
-  
-      collect.configAllowableClosedloopError(0, 0, 100);  
-  
-      collect.config_kF(0, 0, 100);
-      collect.config_kP(0, 0.15, 100);
-      collect.config_kI(0, 0, 100);
-      collect.config_kD(0, 1, 100);
-  
-    }
+    collect.setNeutralMode(NeutralMode.Brake);
+
+    collect.setInverted(InvertType.InvertMotorOutput);
+    collect.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 100);  
+    collect.configNominalOutputForward(0, 100);
+    collect.configNominalOutputReverse(0, 100);
+    collect.configPeakOutputForward(1, 100);
+    collect.configPeakOutputReverse(-1, 100);
+
+    collect.configAllowableClosedloopError(0, 0, 100);  
+
+    collect.config_kF(0, 0, 100);
+    collect.config_kP(0, 0.15, 100);
+    collect.config_kI(0, 0, 100);
+    collect.config_kD(0, 1, 100);
+  }
 
   public void moverForward() {
       mover.set(0.5);
@@ -116,8 +103,6 @@ public class Collector extends SubsystemBase {
   
   //This is a helper method that clarifies what winching up means in the context of the set method; 
   //might need to be inverted depending on motor orientation
-  
-
   public void intake() {
     collect.set(0.5);
   }
@@ -231,8 +216,6 @@ public class Collector extends SubsystemBase {
     return !feederBannerSensor.get();
   }
   
- 
-
   public void updateShuffleboard(){
     SmartDashboard.putBoolean("Feeder Banner Sensor", getFeederBannerSensor());
     SmartDashboard.putBoolean("Mover Banner Sensor", getMoverBannerSensor());

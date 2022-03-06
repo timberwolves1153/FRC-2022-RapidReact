@@ -350,7 +350,6 @@ public class RobotContainer {
     opB.whenPressed(smartShoot);
     opB.whenReleased(() -> smartShoot.cancel());
     
-
     opA.whenPressed(new InstantCommand(() -> collector.toggleSolenoid(), collector));
 
     opLeftBumper.whenPressed(new InstantCommand(() -> collector.intake(), collector));
@@ -396,8 +395,6 @@ public class RobotContainer {
       fourBallAutoTrajectory2 = generateTrajectoryFromJSON(fourBallAutoPath2);
       fourBallAutoTrajectory3 = generateTrajectoryFromJSON(fourBallAutoPath3);
       fourBallAutoTrajectory4 = generateTrajectoryFromJSON(fourBallAutoPath4);
-
-
     } catch (IOException e) {
       System.out.println("Could not read trajectory file.");
     }
@@ -411,27 +408,27 @@ public class RobotContainer {
   }
 
   public RamseteCommand generateRamseteCommandFromTrajectory(Trajectory trajectory) {
-    return
-    new RamseteCommand(
-            trajectory,
-            drive::getPose,
-            new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
-            new SimpleMotorFeedforward(
-                Constants.ksVolts,
-                Constants.kvVoltSecondsPerMeter,
-                Constants.kaVoltSecondsSquaredPerMeter),
-            Constants.kDriveKinematics,
-            drive::getWheelSpeeds,
-            new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
-            new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
-            // RamseteCommand passes volts to the callback
-            (leftVolts, rightVolts) -> {
-              //System.out.println("Left Volts   " + leftVolts + "               Right Volts:  " + rightVolts);
-              SmartDashboard.putNumber("Left Volts ", leftVolts);
-              SmartDashboard.putNumber("Right Volts ", rightVolts);
-              drive.tankDriveVolts(leftVolts, rightVolts);
-            },
-            drive);
+    return new RamseteCommand(
+        trajectory,
+        drive::getPose,
+        new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
+        new SimpleMotorFeedforward(
+            Constants.ksVolts,
+            Constants.kvVoltSecondsPerMeter,
+            Constants.kaVoltSecondsSquaredPerMeter),
+        Constants.kDriveKinematics,
+        drive::getWheelSpeeds,
+        new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
+        new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
+        // RamseteCommand passes volts to the callback
+        (leftVolts, rightVolts) -> {
+          //System.out.println("Left Volts   " + leftVolts + "               Right Volts:  " + rightVolts);
+          SmartDashboard.putNumber("Left Volts ", leftVolts);
+          SmartDashboard.putNumber("Right Volts ", rightVolts);
+          drive.tankDriveVolts(leftVolts, rightVolts);
+        },
+        drive
+      );
   }
 
   public BallColor getSelectedAllianceColor() {
