@@ -8,16 +8,22 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.ColorSensor;
+import frc.robot.subsystems.Launcher;
+import frc.robot.subsystems.Launcher.ShooterPosition;
 
-public class SmartBallShoot extends CommandBase {
+public class SmartShoot extends CommandBase {
 
   private Collector collector;
   private ColorSensor colorSensor;
+  private Launcher launcher;
+
+  private ShooterPosition previousPosition = ShooterPosition.LOWER_HUB;
 
   /** Creates a new SmartBallShoot. */
-  public SmartBallShoot(Collector collector, ColorSensor colorSensor) {
+  public SmartShoot(Collector collector, ColorSensor colorSensor, Launcher launcher) {
     this.collector = collector;
     this.colorSensor = colorSensor;
+    this.launcher = launcher;
 
     addRequirements(collector, colorSensor);
   }
@@ -31,11 +37,21 @@ public class SmartBallShoot extends CommandBase {
   public void execute() {
     collector.feederOn();
     collector.singulatorIntake();
-    //if(colorSensor.getDetectedBallColor().equals(Robot.getContainer().getSelectedAllianceColor()))
-    if(collector.moverSeesBall() && !collector.feederSeesBall()){
-      collector.moverForward();
-    }else{
-      collector.moverOff();
+    if(colorSensor.getDetectedBallColor().equals(Robot.getContainer().getSelectedAllianceColor())){
+      if(collector.moverSeesBall() && !collector.feederSeesBall()){
+        collector.moverForward();
+      } else {
+        collector.moverOff();
+      }
+    } else {
+      previousPosition = launcher.getSelectedPosition();
+      launcher.setGainPreset(ShooterPosition.WRONGBALL);
+      launcher.pidOn();
+      if(!collector.moverSeesBall()) {
+        collector.moverForward();
+      } else {
+        collector.moverOff();
+      }
     }
   }
 
@@ -44,6 +60,8 @@ public class SmartBallShoot extends CommandBase {
   public void end(boolean interrupted) {
     collector.feederOff();
     collector.moverOff();
+    launcher.pidOff();
+    launcher.setGainPreset(previousPosition);
   }
 
   // Returns true when the command should end.

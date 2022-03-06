@@ -214,8 +214,6 @@ public class Launcher extends SubsystemBase {
     }
   }
 
-  
-
   public void setLauncherTop(double speed){
     topRoller.set(TalonFXControlMode.PercentOutput, -speed);
   }
@@ -270,8 +268,10 @@ public class Launcher extends SubsystemBase {
         collect.moverOff(); 
         //SHOOTER LOW SELECTED POSITION
         //TIMEDSHOOTERCOMMAND
-      }else{
+      } else if(colorSensor.getDetectedBallColor() == BallColor.RED){
         // We have a wrong-color ball
+        setGainPreset(ShooterPosition.WRONGBALL);
+        System.out.println("wrong ball");
       } 
     }else{
       // There is no ball in front of the sensor

@@ -14,8 +14,9 @@ import frc.robot.subsystems.Launcher.ShooterPosition;
 
 public class DefaultLauncher extends CommandBase {
   private DoubleSupplier leftYStick;
-  private Launcher launcher;
   private boolean canSwitch = true;
+  private Launcher launcher;
+
 
   /** Creates a new DefaultShooter. */
   public DefaultLauncher(DoubleSupplier leftYStick, DoubleSupplier rightYStick, Launcher launcher) {
@@ -35,9 +36,6 @@ public class DefaultLauncher extends CommandBase {
       if(canSwitch) {
         launcher.cycleGainPreset(Direction.kForwards);
         canSwitch = false;
-        if (launcher.getSelectedPosition() == ShooterPosition.TARMAC_HIGH && leftYStick.getAsDouble() < -0.5){
-          
-        }
       }
     }
     else if(leftYStick.getAsDouble() > 0.5) {

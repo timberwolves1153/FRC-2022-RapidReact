@@ -30,6 +30,7 @@ import frc.robot.commands.CollectForDistance;
 import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
+import frc.robot.commands.SmartShoot;
 import frc.robot.commands.TurnForDegrees;
 import frc.robot.commands.WaitCommand;
 import frc.robot.subsystems.Climber;
@@ -72,6 +73,7 @@ public class RobotContainer {
 
   private ClimbForDistance climbForDistance;
   private CollectForDistance collectForDistance;
+  private SmartShoot smartShoot;
   
   //Instantiates all subsystems
   private Drive drive;
@@ -136,6 +138,7 @@ public class RobotContainer {
 
     climbForDistance = new ClimbForDistance(5, climber);
     collectForDistance = new CollectForDistance(5, collector);
+    smartShoot = new SmartShoot(collector, colorSensor, launcher);
 
     autoCommandChooser = new SendableChooser<Command>();
     allianceColor = new SendableChooser<BallColor>();
@@ -335,11 +338,17 @@ public class RobotContainer {
     // opY.whenReleased(new InstantCommand(() -> launcher.setLauncher(0, 0), launcher));
 
     //opB.whenPressed(new InstantCommand(() -> collector.feederOn()));
-    opB.whileHeld(new InstantCommand(() -> collector.smartBallShoot(), collector));
-    opB.whenReleased(new InstantCommand(() -> {
-      collector.feederOff();
-      collector.moverOff();
-    }, collector));
+    // opB.whileHeld(new InstantCommand(() -> {
+    //   collector.smartBallShoot();
+    //   launcher.smart();
+    // }, collector));
+    // opB.whenReleased(new InstantCommand(() -> {
+    //   collector.feederOff();
+    //   collector.moverOff();
+    // }, collector, launcher));
+
+    opB.whenPressed(smartShoot);
+    opB.whenReleased(() -> smartShoot.cancel());
     
 
     opA.whenPressed(new InstantCommand(() -> collector.toggleSolenoid(), collector));
