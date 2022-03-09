@@ -89,16 +89,24 @@ public class RobotContainer {
   private Trajectory fourBallAutoTrajectory4;
 
   private Trajectory manualTrajectory1;
+
+  private Trajectory gatewayPathTrajectory1;
+  private Trajectory gatewayPathTrajectory2;
+  private Trajectory gatewayPathtTrajectory3;
  
   private SequentialCommandGroup twoBallAutoCommandGroupRight;
   private SequentialCommandGroup twoBallAutoCommandGroupLeft;
   private SequentialCommandGroup fourBallAutoCommandGroup;
+  private SequentialCommandGroup gateKeepAutoCommandGroup;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
   private String fourBallAutoPath1 = "pathplanner/generatedJSON/FourBallAutoPath1.wpilib.json";
   private String fourBallAutoPath2 = "pathplanner/generatedJSON/FourBallAutoPath2.wpilib.json";
   private String fourBallAutoPath3 = "pathplanner/generatedJSON/FourBallAutoPath3.wpilib.json";
   private String fourBallAutoPath4 = "pathplanner/generatedJSON/FourBallAutoPath4.wpilib.json";
+  private String gatewayPath1 = "pathplanner/generatedJSON/GatewayPath1.wpilib.json";
+  private String gatewayPath2 = "pathplanner/generatedJSON/GatewayPath2.wpilib.json";
+  private String gatewayPath3 = "pathplanner/generatedJSON/GatewayPath3.wpilib.json";
 
   private SendableChooser<Command> autoCommandChooser;
   public SendableChooser<BallColor> allianceColor;
@@ -265,6 +273,54 @@ public class RobotContainer {
       new InstantCommand(()-> collector.stop())
     );
 
+    gateKeepAutoCommandGroup = new SequentialCommandGroup( 
+      new InstantCommand(() -> System.out.println("Running Partial Auto")),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> collector.feederOn(), collector),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(2),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
+      new TurnForDegrees(195, drive),
+      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
+      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(()-> drive.resetOdometry(gatewayPathTrajectory1.getInitialPose())),
+      generateRamseteCommandFromTrajectory(gatewayPathTrajectory1),
+      new TurnForDegrees(165, drive),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
+      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> collector.feederOn(), collector),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
+      new InstantCommand(() -> collector.moverOff(), collector),
+      new TurnForDegrees(90, drive),
+      new InstantCommand(()-> drive.resetOdometry(gatewayPathTrajectory2.getInitialPose())),
+      generateRamseteCommandFromTrajectory(gatewayPathTrajectory2),
+      new TurnForDegrees(180, drive),
+      new WaitCommand(0.25),
+      new InstantCommand(() -> drive.resetOdometry(gatewayPathtTrajectory3.getInitialPose())),
+      generateRamseteCommandFromTrajectory(gatewayPathtTrajectory3),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> collector.outake(), collector),
+      new InstantCommand(() -> collector.singulatorOutake(), collector),
+      new InstantCommand(() -> collector.moverReverse(), collector),
+      new WaitCommand(1),
+      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
+      new InstantCommand(() -> collector.moverOff(), collector),
+      new InstantCommand(() -> collector.singulatorStop(), collector)
+    );
+      
+
+
+
+    
     autoCommandChooser.setDefaultOption("Two Ball Auto Right", twoBallAutoCommandGroupRight);
     autoCommandChooser.addOption("Two Ball Auto Left", twoBallAutoCommandGroupLeft);
     autoCommandChooser.addOption("Four Ball", fourBallAutoCommandGroup);
