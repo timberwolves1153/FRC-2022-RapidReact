@@ -273,7 +273,7 @@ public class RobotContainer {
       new InstantCommand(()-> collector.stop())
     );
 
-    gateKeepAutoCommandGroup = new SequentialCommandGroup( 
+    /*gateKeepAutoCommandGroup = new SequentialCommandGroup( 
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
@@ -315,12 +315,8 @@ public class RobotContainer {
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(() -> collector.moverOff(), collector),
       new InstantCommand(() -> collector.singulatorStop(), collector)
-    );
+    );*/
       
-
-
-
-    
     autoCommandChooser.setDefaultOption("Two Ball Auto Right", twoBallAutoCommandGroupRight);
     autoCommandChooser.addOption("Two Ball Auto Left", twoBallAutoCommandGroupLeft);
     autoCommandChooser.addOption("Four Ball", fourBallAutoCommandGroup);
@@ -360,19 +356,19 @@ public class RobotContainer {
 
     driveA.whenPressed(new InstantCommand(() -> climber.toggleSolenoid(), climber));
     
-    driveB.whenPressed(new InstantCommand(() -> climber.setWinch(0.1), climber));
+    driveB.whenPressed(new InstantCommand(() -> climber.setWinchPosition(climber.getEncoderTicksFromPosition(12)), climber));
     driveB.whenReleased(new InstantCommand(() -> climber.setWinch(0), climber));
 
     //driveA.whenPressed(climbForDistance);
     //driveA.whenReleased(() -> climbForDistance.cancel());
 
-    driveBack.whenPressed(new InstantCommand(() -> climber.setLeft(-0.4), climber));
+    driveBack.whenPressed(new InstantCommand(() -> climber.setLeft(0.4), climber));
     driveBack.whenReleased(new InstantCommand(() -> climber.setLeft(0), climber));
 
     driveStart.whenPressed(new InstantCommand(() -> climber.setRight(0.4), climber));
     driveStart.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
 
-    driveX.whenPressed(new InstantCommand(() -> climber.setLeft(0.4), climber));
+    driveX.whenPressed(new InstantCommand(() -> climber.setLeft(-0.4), climber));
     driveX.whenReleased(new InstantCommand(() -> climber.setLeft(0), climber));
 
     driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
@@ -419,11 +415,11 @@ public class RobotContainer {
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
-    //drive.updateShuffleboard();
-    launcher.updateShuffleboard();
+    drive.updateShuffleboard();
+    //launcher.updateShuffleboard();
     colorSensor.updateShuffleboard();
-    //climber.updateShuffleboard();
-    collector.updateShuffleboard();
+    climber.updateShuffleboard();
+    //collector.updateShuffleboard();
   }
 
   public void generateTrajectories(){

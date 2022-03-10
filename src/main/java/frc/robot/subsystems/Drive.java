@@ -202,7 +202,9 @@ public class Drive extends SubsystemBase {
     SmartDashboard.putNumber("Right Encoder Distance", -getRightEncoderPosition() * 0.4788 / 23514.07407407407);
     SmartDashboard.putNumber("Left Encoder Distance", getLeftEncoderPosition() * 0.4788 / 23514.07407407407);
 
-    SmartDashboard.putNumber("Gyro Heading", imu.getAngle());
+    SmartDashboard.putNumber("Gyro Heading Z", imu.getAngle());
+    SmartDashboard.putNumber("Gyro Complementary X", imu.getXComplementaryAngle());
+    SmartDashboard.putNumber("Gryo Complementary Y", imu.getYComplementaryAngle());
 
     SmartDashboard.putNumber("Odometry X", pose.getX());
     SmartDashboard.putNumber("Odometry Y", pose.getY());

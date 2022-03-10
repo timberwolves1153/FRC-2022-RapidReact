@@ -55,6 +55,8 @@ public class Climber extends SubsystemBase {
     xAccelFilter = LinearFilter.movingAverage(10);
     yAccelFilter = LinearFilter.movingAverage(10);
     zAccelFilter = LinearFilter.movingAverage(10);
+
+    config();
   }
 
   public void updateShuffleboard(){
@@ -65,14 +67,17 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putNumber("Accelerometer X", getAccelerationX());
     SmartDashboard.putNumber("Accelerometer Y", getAccelerationY());
     SmartDashboard.putNumber("Accelerometer Z", getAccelerationZ());
+
+    SmartDashboard.putBoolean("Right Magnet", getRightMagnetSensorValue());
+    SmartDashboard.putBoolean("Left Magnet", getLeftMagnetSensorValue());
   }
 
   public void config() {
     winchRight.configFactoryDefault();
     winchLeft.configFactoryDefault();
 
-    winchRight.setNeutralMode(NeutralMode.Brake);
-    winchLeft.setNeutralMode(NeutralMode.Brake);
+    winchRight.setNeutralMode(NeutralMode.Coast);
+    winchLeft.setNeutralMode(NeutralMode.Coast);
 
     winchLeft.follow(winchRight);
     winchLeft.setInverted(InvertType.InvertMotorOutput);
@@ -94,18 +99,22 @@ public class Climber extends SubsystemBase {
     winchRight.configAllowableClosedloopError(0, 0, 100);
     winchLeft.configAllowableClosedloopError(0, 0, 100);
 
+    winchLeft.setSensorPhase(true);
 
+    winchRight.configClosedloopRamp(0.15, 100);
+    winchLeft.configClosedloopRamp(0.15, 100);
+
+
+    winchLeft.config_kP(0, 0.025, 100);
+    winchLeft.config_kI(0, 0, 100);
+    winchLeft.config_kD(0, 1.5, 100);
     winchLeft.config_kF(0, 0, 100);
-		winchLeft.config_kP(0, 0.15, 100);
-		winchLeft.config_kI(0, 0, 100);
-		winchLeft.config_kD(0, 1, 100);
 
 
+    winchRight.config_kP(0, 0.025, 100);
+    winchRight.config_kI(0, 0, 100);
+    winchRight.config_kD(0, 1.5, 100);
     winchRight.config_kF(0, 0, 100);
-		winchRight.config_kP(0, 0.15, 100);
-		winchRight.config_kI(0, 0, 100);
-		winchRight.config_kD(0, 1, 100);
-
   }
 
   public boolean getRightMagnetSensorValue() {
@@ -192,7 +201,7 @@ public class Climber extends SubsystemBase {
       winchLeft.set(0);
     }
     else {
-      winchLeft.set(0.8);
+      winchLeft.set(-0.8);
     }
 
     if (!rightMagnetSensor.get()) { // true when see black tape
@@ -202,7 +211,6 @@ public class Climber extends SubsystemBase {
     else {
       winchRight.set(-0.8);
     }
-
   }
 
   public void winchUpRight() {
@@ -230,7 +238,7 @@ public class Climber extends SubsystemBase {
   //Main set method that can be called externally
   public void setWinch(double speed) {
     winchRight.set(ControlMode.PercentOutput, speed);
-    winchLeft.set(ControlMode.PercentOutput, -speed);
+    winchLeft.set(ControlMode.PercentOutput, speed);
   }
 
   public void setRight(double speed) {
@@ -243,18 +251,11 @@ public class Climber extends SubsystemBase {
 
   public void resetRightEncoders(){
     winchRight.setSelectedSensorPosition(0, 0, 100);
-   
   }
 
   public void resetLeftEncoders(){
     winchLeft.setSelectedSensorPosition(0, 0, 100);
   }
-
-  public void climbToSetPoint(int setPoint){
-    winchLeft.set(ControlMode.Position, setPoint);
-    winchRight.set(ControlMode.Position, setPoint);
-  }
-
 
   public double getRightEncoder(){
    return winchRight.getSelectedSensorPosition();
@@ -265,13 +266,19 @@ public class Climber extends SubsystemBase {
   }
 
   public double getEncoderTicksFromPosition(double distanceInches) {
-    return (2048 * 15) / (0.5 * Math.PI) * distanceInches;
+    return ((2048 * 15) / (0.875 * Math.PI)) * distanceInches;
   }
 
   public void setWinchPosition(double encoderTicks){
     System.out.println("Setting winch to " + encoderTicks + " encoder ticks");
-    winchLeft.set(TalonFXControlMode.Position, -encoderTicks);
-    winchRight.set(TalonFXControlMode.Position, encoderTicks);
+    resetRightEncoders();
+    resetLeftEncoders();
+
+    winchRight.setIntegralAccumulator(0, 0, 100);
+    winchLeft.setIntegralAccumulator(0, 0, 100);
+
+    winchLeft.set(TalonFXControlMode.Position, encoderTicks);
+    winchRight.set(TalonFXControlMode.Position, encoderTicks + 1000);
   }
 
   @Override
