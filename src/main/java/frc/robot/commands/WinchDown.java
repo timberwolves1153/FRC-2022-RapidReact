@@ -8,14 +8,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Climber;
 
 public class WinchDown extends CommandBase {
-  private Climber climb;
-
-
+  private Climber climber;
   /** Creates a new WinchDown. */
-  public WinchDown(Climber climb) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    this.climb = climb;
-    addRequirements(climb);
+  public WinchDown(Climber climber) {
+    this.climber = climber;
+    addRequirements(climber);
   }
 
   // Called when the command is initially scheduled.
@@ -25,12 +22,28 @@ public class WinchDown extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    climb.winchDown();
+    if (!climber.getLeftMagnetSensorValue()) { 
+      climber.resetLeftEncoders();        // true when see black tape
+      climber.setLeft(0);
+    }
+    else {
+      climber.setLeft(-0.8);
+    }
+
+    if (!climber.getRightMagnetSensorValue()) { // true when see black tape
+      climber.resetRightEncoders();
+      climber.setRight(0);
+    }
+    else {
+      climber.setRight(-0.8);
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    climber.setWinch(0);
+  }
 
   // Returns true when the command should end.
   @Override

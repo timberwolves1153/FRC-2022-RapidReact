@@ -41,18 +41,23 @@ public class SmartShoot extends CommandBase {
     collector.feederOn();
     collector.singulatorIntake();
     if((colorSensor.getDetectedBallColor().equals(Robot.getContainer().getSelectedAllianceColor()) || colorSensor.getDetectedBallColor().equals(BallColor.NONE)) && (System.currentTimeMillis() - initialTime) / 1000 >= 0.5){
+      System.out.println("Correct Ball Detected");
       if(launcher.getSelectedPosition().equals(ShooterPosition.WRONGBALL)) {
+        System.out.println("Resetting Launcher Position to " + previousPosition.getName());
         launcher.setGainPreset(previousPosition);
       } else {
-        if(collector.moverSeesBall() && !collector.feederSeesBall()){
+        if(!collector.feederSeesBall()){
           collector.moverForward();
         } else {
           collector.moverOff();
         }
       }
     } else {
+      System.out.println("Wrong ball detected");
       initialTime = System.currentTimeMillis();
-      previousPosition = launcher.getSelectedPosition();
+      if(!launcher.getSelectedPosition().equals(ShooterPosition.WRONGBALL)) {
+        previousPosition = launcher.getSelectedPosition();
+      }
       launcher.setGainPreset(ShooterPosition.WRONGBALL);
       // launcher.pidOn();
       if(!collector.moverSeesBall()) {

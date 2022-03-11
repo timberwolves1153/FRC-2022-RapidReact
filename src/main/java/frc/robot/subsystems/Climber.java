@@ -76,8 +76,8 @@ public class Climber extends SubsystemBase {
     winchRight.configFactoryDefault();
     winchLeft.configFactoryDefault();
 
-    winchRight.setNeutralMode(NeutralMode.Coast);
-    winchLeft.setNeutralMode(NeutralMode.Coast);
+    winchRight.setNeutralMode(NeutralMode.Brake);
+    winchLeft.setNeutralMode(NeutralMode.Brake);
 
     winchLeft.follow(winchRight);
     winchLeft.setInverted(InvertType.InvertMotorOutput);

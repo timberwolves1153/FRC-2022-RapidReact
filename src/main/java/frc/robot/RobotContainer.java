@@ -33,6 +33,7 @@ import frc.robot.commands.DefaultLauncher;
 import frc.robot.commands.SmartShoot;
 import frc.robot.commands.TurnForDegrees;
 import frc.robot.commands.WaitCommand;
+import frc.robot.commands.WinchDown;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.ColorSensor;
@@ -74,6 +75,7 @@ public class RobotContainer {
   private ClimbForDistance climbForDistance;
   private CollectForDistance collectForDistance;
   private SmartShoot smartShoot;
+  private WinchDown winchDownCommand;
   
   //Instantiates all subsystems
   private Drive drive;
@@ -147,6 +149,7 @@ public class RobotContainer {
     climbForDistance = new ClimbForDistance(5, climber);
     collectForDistance = new CollectForDistance(5, collector);
     smartShoot = new SmartShoot(collector, colorSensor, launcher);
+    winchDownCommand = new WinchDown(climber);
 
     autoCommandChooser = new SendableChooser<Command>();
     allianceColor = new SendableChooser<BallColor>();
@@ -348,8 +351,8 @@ public class RobotContainer {
 
     // driveB.whenPressed(new InstantCommand(() -> drive.resetEncoders(), drive));
 
-    driveLeftBumper.whenPressed(new InstantCommand(() -> climber.winchDown(), climber));
-    driveLeftBumper.whenReleased(new InstantCommand(() -> climber.stop(), climber));
+    driveLeftBumper.whenPressed(winchDownCommand);
+    driveLeftBumper.whenReleased(() -> winchDownCommand.cancel());
 
     driveRightBumper.whenPressed(new InstantCommand(() -> climber.winchUp(), climber));
     driveRightBumper.whenReleased(new InstantCommand(() -> climber.stop(), climber));
@@ -399,8 +402,8 @@ public class RobotContainer {
     //   collector.moverOff();
     // }, collector, launcher));
 
-    opB.whenPressed(smartShoot);
-    opB.whenReleased(() -> smartShoot.cancel());
+     opY.whenPressed(smartShoot);
+     opY.whenReleased(() -> smartShoot.cancel());
     
     opA.whenPressed(new InstantCommand(() -> collector.toggleSolenoid(), collector));
 
@@ -416,10 +419,10 @@ public class RobotContainer {
    */
   public void updateShuffleboard() {
     drive.updateShuffleboard();
-    //launcher.updateShuffleboard();
+    launcher.updateShuffleboard();
     colorSensor.updateShuffleboard();
-    climber.updateShuffleboard();
-    //collector.updateShuffleboard();
+    //climber.updateShuffleboard();
+    collector.updateShuffleboard();
   }
 
   public void generateTrajectories(){
