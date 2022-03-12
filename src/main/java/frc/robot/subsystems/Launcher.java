@@ -73,16 +73,16 @@ public class Launcher extends SubsystemBase {
 
   private static final double[] TOPROLLER_SETPOINT = {
     6500, 
-    7000, 
+    11000, 
     12500,
-    6000,
+    11250,
     20800
   };
   private static final double[] BOTTOMROLLER_SETPOINT = {
     4500, 
     9000, 
     9000,
-    13000,
+    12000,
     1000
   };
   private static final double[] TOPROLLER_P = {

@@ -84,7 +84,7 @@ public class Collector extends SubsystemBase {
   }
 
   public void feederOn(){
-    feeder.set(-0.5);
+    feeder.set(-0.8);
   }
   public void feederOff(){
     feeder.set(0);
@@ -134,15 +134,15 @@ public class Collector extends SubsystemBase {
     collect.set(speed);
   }
 
-  public void smartBallShoot(){
-    feeder.set(-0.5);
-    singulatorIntake();
-    if(moverSeesBall() && !feederSeesBall()){
-      mover.set(0.5);
-    }else{
-      mover.set(0);
-    }
-  }
+  // public void smartBallShoot(){
+  //   feeder.set(-0.5);
+  //   singulatorIntake();
+  //   if(moverSeesBall() && !feederSeesBall()){
+  //     mover.set(0.5);
+  //   }else{
+  //     mover.set(0);
+  //   }
+  // }
 
   public void resetRightCollectorEncoders(){
     collect.setSelectedSensorPosition(0, 0, 100);
@@ -160,25 +160,25 @@ public class Collector extends SubsystemBase {
     collect.set(TalonFXControlMode.Position, encoderTicks);
   }
 
-  public void smartBallCollect(){
-    singulator.set(-1);
-    if(!feederSeesBall() && moverSeesBall()){
-      feeder.set(-0.2);
-      mover.set(0.5);
-    }
-    else if(feederSeesBall()&&moverSeesBall()){
-      feeder.set(0);
-      mover.set(0);
-    }
-    else if(feederSeesBall() && !moverSeesBall()){
-      feeder.set(0);
-      mover.set(0.5);
-    }
-    else{//NO BALLS IN ROBOT
-      feeder.set(-0.2);
-      mover.set(0.5);
-    }
-  }
+  // public void smartBallCollect(){
+  //   singulator.set(-1);
+  //   if(!feederSeesBall() && moverSeesBall()){
+  //     feeder.set(-0.2);
+  //     mover.set(0.5);
+  //   }
+  //   else if(feederSeesBall()&&moverSeesBall()){
+  //     feeder.set(0);
+  //     mover.set(0);
+  //   }
+  //   else if(feederSeesBall() && !moverSeesBall()){
+  //     feeder.set(0);
+  //     mover.set(0.5);
+  //   }
+  //   else{//NO BALLS IN ROBOT
+  //     feeder.set(-0.2);
+  //     mover.set(0.5);
+  //   }
+  // }
 
   public void setSolenoid(DoubleSolenoid.Value value) {
     doubleSolenoidRight.set(value);

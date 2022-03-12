@@ -237,26 +237,30 @@ public class RobotContainer {
 
     fourBallAutoCommandGroup = new SequentialCommandGroup(
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> collector.feederOn(), collector),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(155, drive),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
+      new InstantCommand(() -> launcher.pidOn(), launcher),
+      // new WaitCommand(2),
+      new TurnForDegrees(150, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
       new InstantCommand(() -> collector.intake(), collector),
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1),
       new WaitCommand(0.25),
-      new InstantCommand(() -> collector.moverOff(), collector),
-      new TurnForDegrees(105, drive),
+     // new InstantCommand(() -> collector.moverOff(), collector),
+      new TurnForDegrees(185, drive),
+      // new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
+      // new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> collector.feederOn(), collector),
+      new WaitCommand(2),
+      new TurnForDegrees(270, drive),
+      new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
       generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2),
-      new TurnForDegrees(115, drive),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() ->  collector.feederOn(), collector),
+       new TurnForDegrees(115, drive),
+      // new InstantCommand(() -> collector.moverForward(), collector),
+       new InstantCommand(() ->  collector.feederOn(), collector),
       new WaitCommand(2),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(() -> collector.moverOff(), collector),
@@ -267,9 +271,9 @@ public class RobotContainer {
        new TurnForDegrees(160, drive),
        new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory4.getInitialPose())),
        generateRamseteCommandFromTrajectory(fourBallAutoTrajectory4),
-      // new InstantCommand(() -> launcher.feederOn(), launcher),
-      // new WaitCommand(0.5),
-      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> collector.feederOn(), collector),
+      new WaitCommand(1),
+      new InstantCommand(() -> launcher.pidOff(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
       new InstantCommand(()-> collector.singulatorStop(), collector),
@@ -402,8 +406,8 @@ public class RobotContainer {
     //   collector.moverOff();
     // }, collector, launcher));
 
-     opY.whenPressed(smartShoot);
-     opY.whenReleased(() -> smartShoot.cancel());
+    //  opY.whenPressed(smartShoot);
+    //  opY.whenReleased(() -> smartShoot.cancel());
     
     opA.whenPressed(new InstantCommand(() -> collector.toggleSolenoid(), collector));
 
@@ -412,6 +416,9 @@ public class RobotContainer {
 
     opRightBumper.whenPressed(new InstantCommand(() -> collector.outake(), collector));
     opRightBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
+    opB.whileHeld(new InstantCommand(()-> collector.feederOn(), collector));
+    opB.whenReleased(new InstantCommand(()-> collector.feederOff(), collector));
+
   }
 
   /**
