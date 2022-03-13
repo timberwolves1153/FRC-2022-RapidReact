@@ -41,7 +41,6 @@ public class DefaultCollect extends CommandBase {
     if(leftTrigger.getAsDouble() < 0.1 && rightTrigger.getAsDouble() < 0.1) {
       collector.singulatorStop();
       collector.moverOff();
-      collector.feederOff();
     }
   }
 

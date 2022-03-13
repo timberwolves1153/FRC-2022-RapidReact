@@ -6,7 +6,7 @@ package frc.robot;
 
 import java.io.IOException;
 import java.nio.file.Path;
-
+import java.time.Instant;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
@@ -94,12 +94,15 @@ public class RobotContainer {
 
   private Trajectory gatewayPathTrajectory1;
   private Trajectory gatewayPathTrajectory2;
-  private Trajectory gatewayPathtTrajectory3;
+  private Trajectory gatewayPathTrajectory3;
+
+  private Trajectory threeBallAutoTrajectory3;
  
   private SequentialCommandGroup twoBallAutoCommandGroupRight;
   private SequentialCommandGroup twoBallAutoCommandGroupLeft;
   private SequentialCommandGroup fourBallAutoCommandGroup;
   private SequentialCommandGroup gateKeepAutoCommandGroup;
+  private SequentialCommandGroup threeBallAutoCommandGroup;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
   private String fourBallAutoPath1 = "pathplanner/generatedJSON/FourBallAutoPath1.wpilib.json";
@@ -109,6 +112,7 @@ public class RobotContainer {
   private String gatewayPath1 = "pathplanner/generatedJSON/GatewayPath1.wpilib.json";
   private String gatewayPath2 = "pathplanner/generatedJSON/GatewayPath2.wpilib.json";
   private String gatewayPath3 = "pathplanner/generatedJSON/GatewayPath3.wpilib.json";
+  private String threeBallAutoPath3 = "pathplanner/generatedJSON/ThreeBallAutoPath3.wpilib.json";
 
   private SendableChooser<Command> autoCommandChooser;
   public SendableChooser<BallColor> allianceColor;
@@ -185,7 +189,7 @@ public class RobotContainer {
       new InstantCommand(() -> collector.feederOff(), collector),
       new TurnForDegrees(155, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
-      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> collector.collectorStop(), collector),
       new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(manualTrajectory1),
       new TurnForDegrees(180, drive),
@@ -197,7 +201,7 @@ public class RobotContainer {
       new InstantCommand(() -> collector.feederOn(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new WaitCommand(2),
-      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> collector.collectorStop(), collector),
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
@@ -216,7 +220,7 @@ public class RobotContainer {
       new InstantCommand(() -> collector.feederOff(), collector),
       new TurnForDegrees(195, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
-      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> collector.collectorStop(), collector),
       new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(manualTrajectory1),
       new TurnForDegrees(165, drive),
@@ -228,7 +232,7 @@ public class RobotContainer {
       new InstantCommand(() -> collector.feederOn(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new WaitCommand(2),
-      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> collector.collectorStop(), collector),
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
@@ -244,7 +248,7 @@ public class RobotContainer {
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new InstantCommand(() -> collector.intake(), collector),
+      new InstantCommand(() -> collector.collectorStop(), collector),
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1),
       new WaitCommand(0.25),
@@ -277,7 +281,40 @@ public class RobotContainer {
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
       new InstantCommand(()-> collector.singulatorStop(), collector),
-      new InstantCommand(()-> collector.stop())
+      new InstantCommand(()-> collector.collectorStop())
+    );
+
+    threeBallAutoCommandGroup = new SequentialCommandGroup(
+      new InstantCommand(()-> System.out.println("Running Three Ball Auto")),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.pidOn(), launcher),
+      new InstantCommand(()-> collector.feederOn(), collector),
+      new WaitCommand(2),
+      new InstantCommand(()-> collector.feederOff(), collector),
+      new TurnForDegrees(150, drive),
+      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
+      new InstantCommand(() -> collector.moverForward(), collector),
+      new InstantCommand(() -> collector.singulatorIntake(), collector),
+      new InstantCommand(() -> collector.collectIntake(), collector),
+      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
+      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1),
+      new TurnForDegrees(100, drive),
+      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
+      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2),
+      new InstantCommand(()-> collector.moverOff()),
+      new InstantCommand(()-> collector.collectorStop()),
+      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kForward)),
+      new TurnForDegrees(110, drive),
+      new InstantCommand(()-> drive.resetOdometry(threeBallAutoTrajectory3.getInitialPose())),
+      generateRamseteCommandFromTrajectory(threeBallAutoTrajectory3),
+      new InstantCommand(()-> collector.moverForward()),
+      new InstantCommand(()-> collector.feederOn(), collector),
+      new WaitCommand(1),
+      new InstantCommand(() -> launcher.pidOff(), launcher),
+      new InstantCommand(() -> collector.feederOff(), collector),
+      new InstantCommand(()-> collector.moverOff(), collector),
+      new InstantCommand(()-> collector.singulatorStop(), collector),
+      new InstantCommand(()-> collector.collectorStop())
     );
 
     /*gateKeepAutoCommandGroup = new SequentialCommandGroup( 
@@ -327,6 +364,7 @@ public class RobotContainer {
     autoCommandChooser.setDefaultOption("Two Ball Auto Right", twoBallAutoCommandGroupRight);
     autoCommandChooser.addOption("Two Ball Auto Left", twoBallAutoCommandGroupLeft);
     autoCommandChooser.addOption("Four Ball", fourBallAutoCommandGroup);
+    autoCommandChooser.addOption("Three Ball", threeBallAutoCommandGroup);
 
     allianceColor.setDefaultOption("Blue", BallColor.BLUE);
     allianceColor.addOption("Red", BallColor.RED);
@@ -411,12 +449,13 @@ public class RobotContainer {
     
     opA.whenPressed(new InstantCommand(() -> collector.toggleSolenoid(), collector));
 
-    opLeftBumper.whenPressed(new InstantCommand(() -> collector.intake(), collector));
-    opLeftBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
+    opLeftBumper.whenPressed(new InstantCommand(() -> collector.collectIntake(), collector));
+    opLeftBumper.whenReleased(new InstantCommand(() -> collector.collectorStop(), collector));
 
-    opRightBumper.whenPressed(new InstantCommand(() -> collector.outake(), collector));
-    opRightBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
-    opB.whileHeld(new InstantCommand(()-> collector.feederOn(), collector));
+    opRightBumper.whenPressed(new InstantCommand(() -> collector.collectOutake(), collector));
+    opRightBumper.whenReleased(new InstantCommand(() -> collector.collectorStop(), collector));
+    //change back to while held when smart shooting is being used.
+    opB.whenPressed(new InstantCommand(()-> collector.feederOn(), collector));
     opB.whenReleased(new InstantCommand(()-> collector.feederOff(), collector));
 
   }
@@ -457,6 +496,7 @@ public class RobotContainer {
       fourBallAutoTrajectory2 = generateTrajectoryFromJSON(fourBallAutoPath2);
       fourBallAutoTrajectory3 = generateTrajectoryFromJSON(fourBallAutoPath3);
       fourBallAutoTrajectory4 = generateTrajectoryFromJSON(fourBallAutoPath4);
+      threeBallAutoTrajectory3 = generateTrajectoryFromJSON(threeBallAutoPath3);
     } catch (IOException e) {
       System.out.println("Could not read trajectory file.");
     }

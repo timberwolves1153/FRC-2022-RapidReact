@@ -191,7 +191,7 @@ public class Climber extends SubsystemBase {
   //This is a helper method that clarifies what winching up means in the context of the set method; 
   //might need to be inverted depending on motor orientation
   public void winchUp() {
-    setWinch(0.8);
+    setWinch(1);
   }
 
   //Might need to be inverted depending on motor orientation
@@ -201,7 +201,7 @@ public class Climber extends SubsystemBase {
       winchLeft.set(0);
     }
     else {
-      winchLeft.set(-0.8);
+      winchLeft.set(-1);
     }
 
     if (!rightMagnetSensor.get()) { // true when see black tape
@@ -209,7 +209,7 @@ public class Climber extends SubsystemBase {
       winchRight.set(0);
     }
     else {
-      winchRight.set(-0.8);
+      winchRight.set(-1);
     }
   }
 

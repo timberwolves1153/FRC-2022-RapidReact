@@ -103,12 +103,12 @@ public class Collector extends SubsystemBase {
   
   //This is a helper method that clarifies what winching up means in the context of the set method; 
   //might need to be inverted depending on motor orientation
-  public void intake() {
+  public void collectIntake() {
     collect.set(0.5);
   }
 
   //Might need to be inverted depending on motor orientation
-  public void outake() {
+  public void collectOutake() {
     collect.set(-0.5);
   }
 
@@ -125,8 +125,8 @@ public class Collector extends SubsystemBase {
   }
 
   //Helper method to stop the climber
-  public void stop() {
-    set(0);
+  public void collectorStop() {
+    collect.set(0);
   }
 
   //Main set method that can be called externally

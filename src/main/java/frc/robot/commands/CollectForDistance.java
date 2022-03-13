@@ -33,7 +33,7 @@ public class CollectForDistance extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    collect.stop();
+    collect.collectorStop();
   }
 
   // Returns true when the command should end.

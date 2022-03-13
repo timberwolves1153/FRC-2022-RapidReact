@@ -6,13 +6,22 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.lib.led.ChasePattern;
+import frc.robot.lib.led.SolidColorPattern;
 
 public class LEDLights extends SubsystemBase {
   private AddressableLED m_led;
+  private AddressableLED m_led2;
   private AddressableLEDBuffer m_ledBuffer;
   private int m_rainbowFirstPixelHue;
+
+  private Color[] chaseColors = {new Color(255/255.0, 20/255.0, 147/255.0), new Color(0, 255/255.0, 0)};
+
+  private SolidColorPattern solidPattern;
+  private ChasePattern chasePattern;
 
   /** Creates a new LEDLights. */
   public LEDLights() {
@@ -20,15 +29,24 @@ public class LEDLights extends SubsystemBase {
     m_ledBuffer = new AddressableLEDBuffer(32);
     m_led.setLength(m_ledBuffer.getLength());
 
+    // solidPattern = new SolidColorPattern(new Color(255/255.0, 20/255.0, 147/255.0));
+    solidPattern = new SolidColorPattern(Color.kGreen);
+    chasePattern = new ChasePattern(chaseColors, 32);
+
     m_led.start();
   }
 
   public void setRGB(int r, int g, int b) {
+    Color tempColor = new Color(r, g, b);
     for (var i = 0; i < m_ledBuffer.getLength(); i++) {
       m_ledBuffer.setRGB(i, r, g, b);
     }
    
     m_led.setData(m_ledBuffer);
+  }
+
+  public void setLEDPattern() {
+    solidPattern.setLEDs(m_ledBuffer);
   }
 
   private void rainbow() {
@@ -58,6 +76,7 @@ public class LEDLights extends SubsystemBase {
     }
      else {
       setRGB(255, 20, 147);
+      // setLEDPattern();
     }
   }
 }

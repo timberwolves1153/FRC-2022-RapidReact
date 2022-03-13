@@ -27,7 +27,7 @@ public class WinchDown extends CommandBase {
       climber.setLeft(0);
     }
     else {
-      climber.setLeft(-0.8);
+      climber.setLeft(-1);
     }
 
     if (!climber.getRightMagnetSensorValue()) { // true when see black tape
@@ -35,7 +35,7 @@ public class WinchDown extends CommandBase {
       climber.setRight(0);
     }
     else {
-      climber.setRight(-0.8);
+      climber.setRight(-1);
     }
   }
 
