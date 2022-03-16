@@ -9,7 +9,11 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.lib.led.BlinkingPattern;
+import frc.robot.lib.led.ChaosPattern;
 import frc.robot.lib.led.ChasePattern;
+import frc.robot.lib.led.IntensityPattern;
+import frc.robot.lib.led.ScannerPattern;
 import frc.robot.lib.led.SolidColorPattern;
 
 public class LEDLights extends SubsystemBase {
@@ -22,7 +26,10 @@ public class LEDLights extends SubsystemBase {
 
   private SolidColorPattern solidPattern;
   private ChasePattern chasePattern;
-
+  private ChaosPattern chaosPattern;
+  private IntensityPattern intensityPattern;
+  private ScannerPattern scannerPattern;
+  private BlinkingPattern blinkingPattern;
   /** Creates a new LEDLights. */
   public LEDLights() {
     m_led = new AddressableLED(8);
@@ -30,8 +37,11 @@ public class LEDLights extends SubsystemBase {
     m_led.setLength(m_ledBuffer.getLength());
 
     // solidPattern = new SolidColorPattern(new Color(255/255.0, 20/255.0, 147/255.0));
-    solidPattern = new SolidColorPattern(Color.kGreen);
+    solidPattern = new SolidColorPattern(Color.kAliceBlue);
     chasePattern = new ChasePattern(chaseColors, 32);
+    chaosPattern = new ChaosPattern();
+    scannerPattern = new ScannerPattern(Color.kRed, Color.kBlack, 10);
+    blinkingPattern = new BlinkingPattern(Color.kHotPink, .5);
 
     m_led.start();
   }
@@ -46,7 +56,7 @@ public class LEDLights extends SubsystemBase {
   }
 
   public void setLEDPattern() {
-    solidPattern.setLEDs(m_ledBuffer);
+    scannerPattern.setLEDs(m_ledBuffer);
   }
 
   private void rainbow() {
@@ -66,17 +76,19 @@ public class LEDLights extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Blue")) {
-      setRGB(0, 0, 255);
-    } else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Red")) {
-      setRGB(255, 0, 0);
-    }
-      else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Error")){
-      setRGB(255, 215, 0);
-    }
-     else {
-      setRGB(255, 20, 147);
-      // setLEDPattern();
-    }
-  }
+  //   if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Blue")) {
+  //     setRGB(0, 0, 255);
+  //   } else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Red")) {
+  //     setRGB(255, 0, 0);
+  //   }
+  //     else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Error")){
+  //     setRGB(255, 215, 0);
+  //   }
+  //    else {
+  //     setRGB(255, 20, 147);
+   setLEDPattern();
+   m_led.setData(m_ledBuffer);
+
+  //   }
+   }
 }

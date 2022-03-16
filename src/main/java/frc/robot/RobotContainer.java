@@ -187,9 +187,9 @@ public class RobotContainer {
       new WaitCommand(2),
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(155, drive),
+      new TurnForDegrees(145, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
-      new InstantCommand(() -> collector.collectorStop(), collector),
+      new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(manualTrajectory1),
       new TurnForDegrees(180, drive),
@@ -289,7 +289,7 @@ public class RobotContainer {
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(()-> collector.feederOn(), collector),
-      new WaitCommand(2),
+      new WaitCommand(1),
       new InstantCommand(()-> collector.feederOff(), collector),
       new TurnForDegrees(150, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
@@ -298,7 +298,7 @@ public class RobotContainer {
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1),
-      new TurnForDegrees(100, drive),
+      new TurnForDegrees(105, drive),
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
       generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2),
       new InstantCommand(()-> collector.moverOff()),
@@ -428,13 +428,35 @@ public class RobotContainer {
     opY.whenPressed(new InstantCommand(() -> launcher.pidOn(), launcher));
     opY.whenReleased(new InstantCommand(() -> launcher.pidOff(), launcher));
 
+    
+    opLeftBumper.whenPressed(new InstantCommand(() -> {
+      collector.collectIntake();
+     collector.setSolenoid(DoubleSolenoid.Value.kReverse);
+    }, collector));
+
+    opLeftBumper.whenReleased(new InstantCommand(() -> {
+      collector.collectorStop();
+     collector.setSolenoid(DoubleSolenoid.Value.kForward);
+    }, collector));
+
+
+    opRightBumper.whenPressed(new InstantCommand(() -> {
+      collector.collectOutake();
+     collector.setSolenoid(DoubleSolenoid.Value.kReverse);
+    }, collector));
+
+    opRightBumper.whenReleased(new InstantCommand(() -> {
+      collector.collectorStop();
+     collector.setSolenoid(DoubleSolenoid.Value.kForward);
+    }, collector));
+
     // opY.whenPressed(new InstantCommand(() -> launcher.setLauncher(0.23, 0.30), launcher));
     // opY.whenReleased(new InstantCommand(() -> launcher.setLauncher(0.00, 0.00), launcher));
 
     // opY.whenPressed(new InstantCommand(() -> launcher.setLauncher(1, 1), launcher));
     // opY.whenReleased(new InstantCommand(() -> launcher.setLauncher(0, 0), launcher));
 
-    //opB.whenPressed(new InstantCommand(() -> collector.feederOn()));
+    // opB.whenPressed(new InstantCommand(() -> collector.feederOn()));
     // opB.whileHeld(new InstantCommand(() -> {
     //   collector.smartBallShoot();
     //   launcher.smart();
