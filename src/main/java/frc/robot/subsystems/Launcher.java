@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Launcher extends SubsystemBase {
   public enum ShooterPosition {
-    LOWER_HUB(0, "Lower Hub"), UPPER_HUB(1, "Upper Hub"), TARMAC_LOW(2, "Tarmac Low"), TARMAC_HIGH(3, "Tarmac High"),  WRONGBALL(4, "Wrong Ball"),  INVALID(5, "Invalid");
+    LOWER_HUB(0, "Lower Hub"), UPPER_HUB(1, "Upper Hub"), TARMAC_LOW(2, "Tarmac Low"), TARMAC_HIGH(3, "Tarmac High"), HALF_COURT(4, "Half Court"),  WRONGBALL(5, "Wrong Ball"),  INVALID(6, "Invalid");
 
     private int value;
     private String name;
@@ -76,6 +76,7 @@ public class Launcher extends SubsystemBase {
     11000, 
     12500,
     12000,
+    16000,
     20800
   };
   private static final double[] BOTTOMROLLER_SETPOINT = {
@@ -83,6 +84,7 @@ public class Launcher extends SubsystemBase {
     9000, 
     9000,
     11500,
+    10250,
     1000
   };
   private static final double[] TOPROLLER_P = {
