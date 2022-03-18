@@ -25,12 +25,8 @@ public class Climber extends SubsystemBase {
   private WPI_TalonFX winchRight;
 
   private DoubleSolenoid doubleSolenoid1;
-  private DoubleSolenoid doubleSolenoid2;
-
   private DigitalInput leftMagnetSensor;
   private DigitalInput rightMagnetSensor;
-  private DigitalInput leftLimitSwitch;
-  private DigitalInput rightLimitSwitch;
 
   private Accelerometer accelerometer;
   private LinearFilter xAccelFilter; 
@@ -43,13 +39,10 @@ public class Climber extends SubsystemBase {
     winchLeft =  new WPI_TalonFX(30);
     winchRight =  new WPI_TalonFX(31);
     
-    doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
-    doubleSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+    doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 6, 7);
 
     leftMagnetSensor = new DigitalInput(2);
     rightMagnetSensor = new DigitalInput(3);
-    leftLimitSwitch = new DigitalInput(4);
-    rightLimitSwitch = new DigitalInput(5);
 
     accelerometer = new BuiltInAccelerometer();
     xAccelFilter = LinearFilter.movingAverage(10);
@@ -137,55 +130,34 @@ public class Climber extends SubsystemBase {
     return zAccelFilter.calculate(accelerometer.getZ());
   }
 
-  public boolean getLeftLimitSwitch(){
-    return leftLimitSwitch.get();
-  }
-
-  public boolean getRightLimitSwitch(){
-    return rightLimitSwitch.get();
-  }
+ 
 
 
   public void set(DoubleSolenoid.Value value) {
     doubleSolenoid1.set(value);
-    doubleSolenoid2.set(value);
-  }
-
-  public void setRight(DoubleSolenoid.Value value) {
-    doubleSolenoid1.set(value);
-  }
-
-  public void setLeft(DoubleSolenoid.Value value) {
-    doubleSolenoid2.set(value);
   }
 
   public DoubleSolenoid.Value getSolenoid1State() {
     return doubleSolenoid1.get();
   }
 
-  public DoubleSolenoid.Value getSolenoid2State() {
-    return doubleSolenoid2.get();
-  }
+
 
   public void toggleSolenoid(){
-    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff) || doubleSolenoid2.get().equals(DoubleSolenoid.Value.kOff)) {
+    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff)) {
       doubleSolenoid1.set(DoubleSolenoid.Value.kForward);
-      doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
     } else {
       doubleSolenoid1.toggle();
-      doubleSolenoid2.toggle();
     }
   }
 
   public void pistonReverse(){
     doubleSolenoid1.set(DoubleSolenoid.Value.kReverse);
-    doubleSolenoid2.set(DoubleSolenoid.Value.kReverse);
 
   }
 
   public void pistonForward(){
     doubleSolenoid1.set(DoubleSolenoid.Value.kForward);
-    doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
   }
 
   //This is a helper method that clarifies what winching up means in the context of the set method; 

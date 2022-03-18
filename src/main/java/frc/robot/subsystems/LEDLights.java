@@ -32,7 +32,7 @@ public class LEDLights extends SubsystemBase {
   private BlinkingPattern blinkingPattern;
   /** Creates a new LEDLights. */
   public LEDLights() {
-    m_led = new AddressableLED(8);
+    m_led = new AddressableLED(9);
     m_ledBuffer = new AddressableLEDBuffer(32);
     m_led.setLength(m_ledBuffer.getLength());
 
@@ -40,7 +40,7 @@ public class LEDLights extends SubsystemBase {
     solidPattern = new SolidColorPattern(Color.kAliceBlue);
     chasePattern = new ChasePattern(chaseColors, 32);
     chaosPattern = new ChaosPattern();
-    scannerPattern = new ScannerPattern(Color.kRed, Color.kBlack, 10);
+    scannerPattern = new ScannerPattern(Color.kRed, Color.kBlack, 5);
     blinkingPattern = new BlinkingPattern(Color.kHotPink, .5);
 
     m_led.start();
@@ -76,19 +76,20 @@ public class LEDLights extends SubsystemBase {
 
   @Override
   public void periodic() {
-  //   if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Blue")) {
-  //     setRGB(0, 0, 255);
-  //   } else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Red")) {
-  //     setRGB(255, 0, 0);
-  //   }
-  //     else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Error")){
-  //     setRGB(255, 215, 0);
-  //   }
-  //    else {
-  //     setRGB(255, 20, 147);
-   setLEDPattern();
-   m_led.setData(m_ledBuffer);
+    if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Blue")) {
+      setRGB(0, 0, 255);
+    } else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Red")) {
+      setRGB(255, 0, 0);
+    }
+      else if(Robot.getContainer().getColorSensor().getDetectedBallColor().getName().equals("Error")){
+      setRGB(255, 215, 0);
+    }
+     else {
+      setRGB(255, 20, 147);
+  //  setLEDPattern();
+  //  m_led.setData(m_ledBuffer);
 
   //   }
    }
+}
 }

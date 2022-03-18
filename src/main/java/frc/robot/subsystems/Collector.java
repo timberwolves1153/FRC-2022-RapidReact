@@ -24,8 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Collector extends SubsystemBase {
   private WPI_TalonFX collect;
-  private DoubleSolenoid doubleSolenoidRight;
-  private DoubleSolenoid doubleSolenoidLeft;
+  private DoubleSolenoid doubleSolenoid1;
   private CANSparkMax mover;
   private CANSparkMax singulator;
   private DigitalInput moverBannerSensor;
@@ -37,12 +36,14 @@ public class Collector extends SubsystemBase {
     collect = new WPI_TalonFX(10);
     singulator = new CANSparkMax(11, MotorType.kBrushless);
     mover = new CANSparkMax(12, MotorType.kBrushless);
-
-    doubleSolenoidRight = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
-    doubleSolenoidLeft = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
-    moverBannerSensor = new DigitalInput(0);
-    feederBannerSensor = new DigitalInput(1);
     feeder = new CANSparkMax(20, MotorType.kBrushless);
+
+
+
+    doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 4, 5);
+    moverBannerSensor = new DigitalInput(1);
+    feederBannerSensor = new DigitalInput(0);
+    
 
     mover.restoreFactoryDefaults();
     collect.configFactoryDefault();
@@ -181,25 +182,16 @@ public class Collector extends SubsystemBase {
   // }
 
   public void setSolenoid(DoubleSolenoid.Value value) {
-    doubleSolenoidRight.set(value);
-    doubleSolenoidLeft.set(value);
+    doubleSolenoid1.set(value);
   }
 
-  public DoubleSolenoid.Value getRightSolenoidState() {
-    return doubleSolenoidRight.get();
-  }
-
-  public DoubleSolenoid.Value getLeftSolenoidState() {
-    return doubleSolenoidLeft.get();
+  public DoubleSolenoid.Value getSolenoidState() {
+    return doubleSolenoid1.get();
   }
 
   public void toggleSolenoid(){
-    doubleSolenoidRight.toggle();
-    doubleSolenoidLeft.toggle();
-    if(doubleSolenoidRight.get().equals(DoubleSolenoid.Value.kOff)) {
-      setSolenoid(DoubleSolenoid.Value.kForward);
-    }
-    if(doubleSolenoidLeft.get().equals(DoubleSolenoid.Value.kOff)) {
+    doubleSolenoid1.toggle();
+    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff)) {
       setSolenoid(DoubleSolenoid.Value.kForward);
     }
   }

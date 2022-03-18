@@ -69,7 +69,7 @@ public class ColorSensor extends SubsystemBase {
   }
 
   public BallColor getDetectedBallColor() {
-    if(getBlueValue() < 1700 && getRedValue() < 1700) {
+    if(getBlueValue() < 10000 && getRedValue() < 10000) {
       return BallColor.NONE;
     }
     if(getBlueValue() > getRedValue()) {
