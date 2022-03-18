@@ -75,7 +75,7 @@ public class Launcher extends SubsystemBase {
     6500, 
     11000, 
     12500,
-    12000,
+    11000,
     12000,
     20800
   };
@@ -83,7 +83,7 @@ public class Launcher extends SubsystemBase {
     4500, 
     9000, 
     9000,
-    11500,
+    10500,
     11500,
     1000
   };

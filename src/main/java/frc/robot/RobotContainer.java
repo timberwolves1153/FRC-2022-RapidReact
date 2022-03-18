@@ -33,6 +33,7 @@ import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
 import frc.robot.commands.SmartShoot;
 import frc.robot.commands.TurnForDegrees;
+import frc.robot.commands.TurnWithLimeLight;
 import frc.robot.commands.WaitCommand;
 import frc.robot.commands.WinchDown;
 import frc.robot.subsystems.Climber;
@@ -41,6 +42,7 @@ import frc.robot.subsystems.ColorSensor;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.LEDLights;
 import frc.robot.subsystems.Launcher;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ColorSensor.BallColor;
 import frc.robot.subsystems.Launcher.ShooterPosition;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -83,6 +85,7 @@ public class RobotContainer {
   private CollectForDistance collectForDistance;
   private SmartShoot smartShoot;
   private WinchDown winchDownCommand;
+  private TurnWithLimeLight turnWithLimeLight;
   
   //Instantiates all subsystems
   private Drive drive;
@@ -91,6 +94,7 @@ public class RobotContainer {
   private Launcher launcher;
   private ColorSensor colorSensor;
   private LEDLights ledLights;
+  private Limelight limelight;
 
   private Trajectory fourBallAutoTrajectory1;
   private Trajectory fourBallAutoTrajectory2;
@@ -140,7 +144,7 @@ public class RobotContainer {
     launcher = new Launcher();
     colorSensor = new ColorSensor();
     ledLights = new LEDLights();
-
+    limelight = new Limelight();
     driveLeftBumper = new JoystickButton(driveStick, XboxController.Button.kLeftBumper.value);
     driveRightBumper = new JoystickButton(driveStick, XboxController.Button.kRightBumper.value);
     driveX = new JoystickButton(driveStick, XboxController.Button.kX.value);
@@ -158,6 +162,8 @@ public class RobotContainer {
 
     opLeftBumper = new JoystickButton(opStick, XboxController.Button.kLeftBumper.value);
     opRightBumper = new JoystickButton(opStick, XboxController.Button.kRightBumper.value);
+    turnWithLimeLight = new TurnWithLimeLight(drive, limelight);
+
 
     opPovUp = new POVButton(opStick, 0);
     opPovDown = new POVButton(opStick, 180);
@@ -334,9 +340,10 @@ public class RobotContainer {
       new InstantCommand(()-> collector.moverOff(), collector),
       new InstantCommand(()-> collector.collectorStop(), collector),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kForward)),
-      new TurnForDegrees(110, drive),
-      new InstantCommand(()-> drive.resetOdometry(threeBallAutoTrajectory3.getInitialPose())),
-      generateRamseteCommandFromTrajectory(threeBallAutoTrajectory3),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.HALF_COURT), launcher),
+      //new TurnForDegrees(110, drive), Substitute for limelight
+      new TurnWithLimeLight(drive, limelight),
+      //generateRamseteCommandFromTrajectory(threeBallAutoTrajectory3),
       new InstantCommand(()-> collector.moverForward(), collector),
       new InstantCommand(()-> collector.feederOn(), collector),
       new WaitCommand(1),
@@ -361,7 +368,8 @@ public class RobotContainer {
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(()-> drive.resetOdometry(gatewayPathTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(gatewayPathTrajectory1),
-      new TurnForDegrees(160, drive),
+      new TurnWithLimeLight(drive, limelight),
+      //new TurnForDegrees(160, drive),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
@@ -452,6 +460,7 @@ public class RobotContainer {
 
     driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
     driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
+    driveRightJoystickButton.whenPressed(turnWithLimeLight);
 
     driveLeftJoystickButton.whileHeld(collectForDistance);
     //driveLeftJoystickButton.whenReleased(() -> collector.cancel());
@@ -527,8 +536,9 @@ public class RobotContainer {
     //drive.updateShuffleboard();
     launcher.updateShuffleboard();
     colorSensor.updateShuffleboard();
-    //climber.updateShuffleboard();
+    climber.updateShuffleboard();
     collector.updateShuffleboard();
+    limelight.updateShuffleBoard();
   }
 
   public void generateTrajectories(){
