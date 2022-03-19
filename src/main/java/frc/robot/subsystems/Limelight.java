@@ -62,11 +62,11 @@ public class Limelight extends PIDSubsystem {
 
 	public void updateShuffleBoard() {
 		updateLimelightData();
-		SmartDashboard.putBoolean("haveTarget", target != null);
+		SmartDashboard.putBoolean("Has Target", target != null);
 		if (target != null) {
-			SmartDashboard.putNumber("targetX", target.x);
-			SmartDashboard.putNumber("targetY", target.y);
-			SmartDashboard.putNumber("targetA", target.a);
+			SmartDashboard.putNumber("Target X", target.x);
+			SmartDashboard.putNumber("Target Y", target.y);
+			SmartDashboard.putNumber("Target A", target.a);
 		}
 		//System.out.println("Target a:" + ta);
 	}

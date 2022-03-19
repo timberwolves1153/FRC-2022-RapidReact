@@ -535,9 +535,9 @@ public class RobotContainer {
   public void updateShuffleboard() {
     //drive.updateShuffleboard();
     launcher.updateShuffleboard();
-    colorSensor.updateShuffleboard();
+    //colorSensor.updateShuffleboard();
     climber.updateShuffleboard();
-    collector.updateShuffleboard();
+    //collector.updateShuffleboard();
     limelight.updateShuffleBoard();
   }
 

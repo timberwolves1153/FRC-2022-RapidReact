@@ -53,13 +53,13 @@ public class Climber extends SubsystemBase {
   }
 
   public void updateShuffleboard(){
-    SmartDashboard.putBoolean("rightWinch", getRightMagnetSensorValue());
-    SmartDashboard.putBoolean("leftWinch", getLeftMagnetSensorValue());
+    /*
     SmartDashboard.putNumber("rightEncoder", getRightEncoder());
     SmartDashboard.putNumber("leftEncoder", getLeftEncoder());
     SmartDashboard.putNumber("Accelerometer X", getAccelerationX());
     SmartDashboard.putNumber("Accelerometer Y", getAccelerationY());
     SmartDashboard.putNumber("Accelerometer Z", getAccelerationZ());
+    */
 
     SmartDashboard.putBoolean("Right Magnet", getRightMagnetSensorValue());
     SmartDashboard.putBoolean("Left Magnet", getLeftMagnetSensorValue());
