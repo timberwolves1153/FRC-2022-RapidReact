@@ -14,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -38,8 +39,6 @@ public class Collector extends SubsystemBase {
     mover = new CANSparkMax(12, MotorType.kBrushless);
     feeder = new CANSparkMax(20, MotorType.kBrushless);
 
-
-
     doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 4, 5);
     moverBannerSensor = new DigitalInput(1);
     feederBannerSensor = new DigitalInput(0);
@@ -51,7 +50,15 @@ public class Collector extends SubsystemBase {
 
     mover.setIdleMode(IdleMode.kBrake);
     singulator.setIdleMode(IdleMode.kBrake);
-    collect.setNeutralMode(NeutralMode.Brake); 
+    collect.setNeutralMode(NeutralMode.Brake);
+
+    mover.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
+    singulator.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
+    feeder.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
+
+    mover.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
+    singulator.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
+    feeder.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
 
     mover.burnFlash();
     singulator.burnFlash();

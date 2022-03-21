@@ -24,6 +24,8 @@ public class Limelight extends PIDSubsystem {
 		//super(new PIDController(0.05, 0, 0.0025));
 		super(new PIDController(0.045, 0.008, 0.0075));
     	table = NetworkTableInstance.getDefault().getTable("limelight");
+
+		table.getEntry("stream").setNumber(1);
     	
     	//horizontalAlignPid = new PIDController(0.05, 0, 0.01);
     	//horizontalAlignPid = new PIDController(0.015, 0.001, 0.01, source, output);

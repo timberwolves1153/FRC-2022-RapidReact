@@ -1,6 +1,6 @@
 {
   "SysId": {
-    "Analysis Type": "Drivetrain",
+    "Analysis Type": "General Mechanism",
     "AnalyzerJSONLocation": "C:\\Users\\Kyle Schmottlach\\Documents\\FRC VS Code Projects\\TalonFX-Test\\sysid_data20220124-203426.json",
     "NetworkTables Settings": {
       "serverTeam": "1153"

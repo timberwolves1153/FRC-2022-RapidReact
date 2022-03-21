@@ -11,6 +11,7 @@ import java.time.Instant;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
@@ -207,12 +208,12 @@ public class RobotContainer {
       new WaitCommand(2),
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(145, drive),
+      new TurnForDegrees(155, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(manualTrajectory1),
-      new TurnForDegrees(180, drive),
+      new TurnForDegrees(185, drive),
       new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(manualTrajectory1),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
@@ -347,6 +348,7 @@ public class RobotContainer {
       new InstantCommand(()-> collector.moverForward(), collector),
       new InstantCommand(()-> collector.feederOn(), collector),
       new WaitCommand(1),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.pidOff(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
@@ -363,13 +365,12 @@ public class RobotContainer {
       new WaitCommand(2),
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(195, drive),
+      new TurnForDegrees(180, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(()-> drive.resetOdometry(gatewayPathTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(gatewayPathTrajectory1),
-      new TurnWithLimeLight(drive, limelight),
-      //new TurnForDegrees(160, drive),
+      new TurnForDegrees(170, drive),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
@@ -379,7 +380,7 @@ public class RobotContainer {
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(() -> collector.moverOff(), collector),
-      new TurnForDegrees(-50, drive),
+      new TurnForDegrees(-60, drive),
       new InstantCommand(()-> drive.resetOdometry(gatewayPathTrajectory2.getInitialPose())),
       generateRamseteCommandFromTrajectory(gatewayPathTrajectory2),
       new TurnForDegrees(-120, drive),
@@ -395,6 +396,7 @@ public class RobotContainer {
       new InstantCommand(() -> collector.singulatorOutake(), collector),
       new InstantCommand(() -> collector.moverReverse(), collector),
       new WaitCommand(1),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
@@ -460,7 +462,10 @@ public class RobotContainer {
 
     driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
     driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
-    driveRightJoystickButton.whenPressed(turnWithLimeLight);
+
+    /*driveRightJoystickButton.whenPressed(turnWithLimeLight);
+    driveRightJoystickButton.whenPressed(() -> turnWithLimeLight.cancel());*/
+    //driveRightJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
 
     driveLeftJoystickButton.whileHeld(collectForDistance);
     //driveLeftJoystickButton.whenReleased(() -> collector.cancel());
@@ -478,23 +483,23 @@ public class RobotContainer {
 
     opLeftBumper.whenPressed(new InstantCommand(() -> {
       collector.collectIntake();
-     collector.setSolenoid(DoubleSolenoid.Value.kReverse);
+      collector.setSolenoid(DoubleSolenoid.Value.kReverse);
     }, collector));
 
     opLeftBumper.whenReleased(new InstantCommand(() -> {
       collector.collectorStop();
-     collector.setSolenoid(DoubleSolenoid.Value.kForward);
+      collector.setSolenoid(DoubleSolenoid.Value.kForward);
     }, collector));
 
 
     opRightBumper.whenPressed(new InstantCommand(() -> {
       collector.collectOutake();
-     collector.setSolenoid(DoubleSolenoid.Value.kReverse);
+      collector.setSolenoid(DoubleSolenoid.Value.kReverse);
     }, collector));
 
     opRightBumper.whenReleased(new InstantCommand(() -> {
       collector.collectorStop();
-     collector.setSolenoid(DoubleSolenoid.Value.kForward);
+      collector.setSolenoid(DoubleSolenoid.Value.kForward);
     }, collector));
 
     // opY.whenPressed(new InstantCommand(() -> launcher.setLauncher(0.23, 0.30), launcher));
@@ -535,7 +540,7 @@ public class RobotContainer {
   public void updateShuffleboard() {
     //drive.updateShuffleboard();
     launcher.updateShuffleboard();
-    //colorSensor.updateShuffleboard();
+    colorSensor.updateShuffleboard();
     climber.updateShuffleboard();
     //collector.updateShuffleboard();
     limelight.updateShuffleBoard();
@@ -612,6 +617,10 @@ public class RobotContainer {
 
   public ColorSensor getColorSensor() {
     return colorSensor;
+  }
+
+  public Launcher getLauncher() {
+    return launcher;
   }
 
   /**

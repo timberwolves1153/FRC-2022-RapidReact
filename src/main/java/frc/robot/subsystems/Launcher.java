@@ -72,16 +72,16 @@ public class Launcher extends SubsystemBase {
   private boolean pidEnabled = false;
 
   private static final double[] TOPROLLER_SETPOINT = {
-    6500, 
-    11000, 
+    6000, 
+    9050, 
     12500,
     11000,
     12000,
     20800
   };
   private static final double[] BOTTOMROLLER_SETPOINT = {
-    4500, 
-    9000, 
+    4000, 
+    8250, 
     9000,
     10500,
     11500,
@@ -173,18 +173,18 @@ public class Launcher extends SubsystemBase {
   }
 
   public void updateShuffleboard() {
-    /* North Shore Changes
+ 
     SmartDashboard.putNumber("Bottom Shooter Velocity", bottomRoller.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Bottom Shooter Power", bottomRoller.get());
     SmartDashboard.putNumber("Bottom Shooter Value", bottomRoller.getSelectedSensorPosition());
     SmartDashboard.putNumber("Top Shooter Velocity", topRoller.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Top Shooter Power", topRoller.get());
     SmartDashboard.putNumber("Top Shooter Value", topRoller.getSelectedSensorPosition());
-    */
+    
 
     SmartDashboard.putString("Launcher Position", selectedPosition.getName());
 
-    /* North Shore Changes
+    // North Shore Changes
     double pBottom = SmartDashboard.getNumber("Bottom Launcher P", this.pBottom);
     double fBottom = SmartDashboard.getNumber("Bottom Launcher F", this.fBottom);
     double setpointBottom = SmartDashboard.getNumber("Bottom Launcher Setpoint", this.setpointBottom);
@@ -203,7 +203,7 @@ public class Launcher extends SubsystemBase {
       setTopPIDGains(pTop, fTop, setpointTop);
       System.out.println("Updating Values");
     }
-    */
+    
   }
 
   public void setLauncherTop(double speed){
