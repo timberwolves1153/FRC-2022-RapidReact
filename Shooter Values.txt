@@ -1,0 +1,5 @@
+B: 10000 T: 0 slightly away from the hub
+B: 12000 T: 0 in line with bottom hub exit
+B: 8000 T: 8700 slightly more than a collector distance away
+B: 7750 T: 8700 slightly more than a collector distance away - Tarmac shooting
+B: 5000 T: 14000 on fender

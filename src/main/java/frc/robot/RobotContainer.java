@@ -32,6 +32,7 @@ import frc.robot.commands.CollectForDistance;
 import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
+import frc.robot.commands.Shoot;
 import frc.robot.commands.SmartShoot;
 import frc.robot.commands.TurnForDegrees;
 import frc.robot.commands.TurnWithLimeLight;
@@ -44,6 +45,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.LEDLights;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Rumble;
 import frc.robot.subsystems.ColorSensor.BallColor;
 import frc.robot.subsystems.Launcher.ShooterPosition;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -87,6 +89,7 @@ public class RobotContainer {
   private SmartShoot smartShoot;
   private WinchDown winchDownCommand;
   private TurnWithLimeLight turnWithLimeLight;
+  private Shoot shoot;
   
   //Instantiates all subsystems
   private Drive drive;
@@ -96,6 +99,7 @@ public class RobotContainer {
   private ColorSensor colorSensor;
   private LEDLights ledLights;
   private Limelight limelight;
+  private Rumble rumble;
 
   private Trajectory fourBallAutoTrajectory1;
   private Trajectory fourBallAutoTrajectory2;
@@ -146,6 +150,8 @@ public class RobotContainer {
     colorSensor = new ColorSensor();
     ledLights = new LEDLights();
     limelight = new Limelight();
+    rumble = new Rumble(driveStick, opStick);
+
     driveLeftBumper = new JoystickButton(driveStick, XboxController.Button.kLeftBumper.value);
     driveRightBumper = new JoystickButton(driveStick, XboxController.Button.kRightBumper.value);
     driveX = new JoystickButton(driveStick, XboxController.Button.kX.value);
@@ -175,6 +181,7 @@ public class RobotContainer {
     collectForDistance = new CollectForDistance(5, collector);
     smartShoot = new SmartShoot(collector, colorSensor, launcher);
     winchDownCommand = new WinchDown(climber);
+    shoot = new Shoot(launcher, limelight);
 
     autoCommandChooser = new SendableChooser<Command>();
     allianceColor = new SendableChooser<BallColor>();
@@ -473,8 +480,11 @@ public class RobotContainer {
     // opY.whenPressed(new InstantCommand(() -> launcher.setLauncherForPosition()));
     // opY.whenReleased(new InstantCommand(() -> launcher.stop()));
 
-    opY.whenPressed(new InstantCommand(() -> launcher.pidOn(), launcher));
-    opY.whenReleased(new InstantCommand(() -> launcher.pidOff(), launcher));
+    // opY.whenPressed(new InstantCommand(() -> launcher.pidOn(), launcher));
+    // opY.whenReleased(new InstantCommand(() -> launcher.pidOff(), launcher));
+
+    opY.whenPressed(shoot);
+    opY.whenReleased(() -> shoot.cancel());
 
     opPovUp.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.UPPER_HUB), launcher));
     opPovDown.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.LOWER_HUB), launcher));

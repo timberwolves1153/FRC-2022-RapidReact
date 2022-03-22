@@ -18,19 +18,28 @@ public class Limelight extends PIDSubsystem {
 	private NetworkTable table;
 	
 	private Target target;
+
+	private final double targetFixedHeightInches;
+	private final double limelightFixedAngleDegrees;
+	private final double limelightFixedHeightInches;
 	
     public Limelight() {
 		//super(new PIDController(0.05, 0, 0.01));
 		//super(new PIDController(0.05, 0, 0.0025));
 		super(new PIDController(0.045, 0.008, 0.0075));
     	table = NetworkTableInstance.getDefault().getTable("limelight");
-
-		table.getEntry("stream").setNumber(1);
     	
     	//horizontalAlignPid = new PIDController(0.05, 0, 0.01);
     	//horizontalAlignPid = new PIDController(0.015, 0.001, 0.01, source, output);
 		setSetpoint(0);
 		getController().setTolerance(Constants.POSITION_TOLERANCE, Constants.VELOCITY_TOLERANCE);
+		setPipeline(1);
+
+		targetFixedHeightInches = 104;
+		limelightFixedAngleDegrees = 45;
+		limelightFixedHeightInches = 22.75;
+
+		target = new Target();
 	}
 
 	public void updateLimelightData() {
@@ -40,8 +49,10 @@ public class Limelight extends PIDSubsystem {
 		
 		if (!targetExists) {
 			disable();
-			target = null;
+			target.setTargetExistance(false);
 			return;
+		} else {
+			target.setTargetExistance(true);
 		}
 		
 		NetworkTableEntry tx = table.getEntry("tx");
@@ -53,8 +64,7 @@ public class Limelight extends PIDSubsystem {
 		NetworkTableEntry ty0 = table.getEntry("ty0");
 		NetworkTableEntry ta0 = table.getEntry("ta0");
 		*/
-		
-		target = new Target();
+
 		target.x = tx.getDouble(0);
 		target.y = ty.getDouble(0);
 		target.a = ta.getDouble(0);
@@ -65,12 +75,26 @@ public class Limelight extends PIDSubsystem {
 	public void updateShuffleBoard() {
 		updateLimelightData();
 		SmartDashboard.putBoolean("Has Target", target != null);
+		SmartDashboard.putNumber("Target Distance", calcDistance());
 		if (target != null) {
 			SmartDashboard.putNumber("Target X", target.x);
 			SmartDashboard.putNumber("Target Y", target.y);
 			SmartDashboard.putNumber("Target A", target.a);
 		}
 		//System.out.println("Target a:" + ta);
+	}
+
+	public double calcDistance() {
+		if(!target.exists()) return -1;
+
+		double targetOffsetAngleVertical = target.y;
+
+		double angleToGoalDegrees = limelightFixedAngleDegrees + targetOffsetAngleVertical;
+		double angleToGoalRadians = angleToGoalDegrees * (Math.PI / 180);
+
+		double distanceInches = (targetFixedHeightInches - limelightFixedHeightInches) / Math.tan(angleToGoalRadians);
+		
+		return distanceInches;
 	}
 
     public void initDefaultCommand() {
@@ -110,6 +134,16 @@ public class Limelight extends PIDSubsystem {
 		public double x0;
     	public double y0;
     	public double a0;
+
+		private boolean exists = false;
+
+		public boolean exists() {
+			return exists;
+		}
+
+		public void setTargetExistance(boolean exists) {
+			this.exists = exists;
+		}
     }
     
     public void turnOffLight() {
@@ -171,5 +205,10 @@ public class Limelight extends PIDSubsystem {
 	@Override
 	protected double getMeasurement() {
 		return target.x;
+	}
+
+	@Override
+	public void periodic() {
+		super.periodic();
 	}
 }

@@ -72,7 +72,7 @@ public class Launcher extends SubsystemBase {
   private boolean pidEnabled = false;
 
   private static final double[] TOPROLLER_SETPOINT = {
-    6000, 
+    14000, 
     9050, 
     12500,
     11000,
@@ -80,7 +80,7 @@ public class Launcher extends SubsystemBase {
     20800
   };
   private static final double[] BOTTOMROLLER_SETPOINT = {
-    4000, 
+    5000, 
     8250, 
     9000,
     10500,
@@ -173,7 +173,6 @@ public class Launcher extends SubsystemBase {
   }
 
   public void updateShuffleboard() {
- 
     SmartDashboard.putNumber("Bottom Shooter Velocity", bottomRoller.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Bottom Shooter Power", bottomRoller.get());
     SmartDashboard.putNumber("Bottom Shooter Value", bottomRoller.getSelectedSensorPosition());
@@ -181,10 +180,8 @@ public class Launcher extends SubsystemBase {
     SmartDashboard.putNumber("Top Shooter Power", topRoller.get());
     SmartDashboard.putNumber("Top Shooter Value", topRoller.getSelectedSensorPosition());
     
-
     SmartDashboard.putString("Launcher Position", selectedPosition.getName());
 
-    // North Shore Changes
     double pBottom = SmartDashboard.getNumber("Bottom Launcher P", this.pBottom);
     double fBottom = SmartDashboard.getNumber("Bottom Launcher F", this.fBottom);
     double setpointBottom = SmartDashboard.getNumber("Bottom Launcher Setpoint", this.setpointBottom);
@@ -203,7 +200,6 @@ public class Launcher extends SubsystemBase {
       setTopPIDGains(pTop, fTop, setpointTop);
       System.out.println("Updating Values");
     }
-    
   }
 
   public void setLauncherTop(double speed){
@@ -280,6 +276,10 @@ public class Launcher extends SubsystemBase {
 
     bottomRoller.config_kP(0, p);
     bottomRoller.config_kF(0, f);
+
+    SmartDashboard.putNumber("Bottom Launcher P", p);
+    SmartDashboard.putNumber("Bottom Launcher F", f);
+    SmartDashboard.putNumber("Bottom Launcher Setpoint", setpoint);
   }
 
   public void setTopPIDGains(double p, double f, double setpoint) {
@@ -289,6 +289,10 @@ public class Launcher extends SubsystemBase {
 
     topRoller.config_kP(0, p);
     topRoller.config_kF(0, f);
+
+    SmartDashboard.putNumber("Top Launcher P", p);
+    SmartDashboard.putNumber("Top Launcher F", f);
+    SmartDashboard.putNumber("Top Launcher Setpoint", setpoint);
   }
 
   /**
