@@ -33,7 +33,7 @@ import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.SmartShoot;
+//import frc.robot.commands.SmartShoot;
 import frc.robot.commands.TurnForDegrees;
 import frc.robot.commands.TurnWithLimeLight;
 import frc.robot.commands.WaitCommand;
@@ -86,7 +86,7 @@ public class RobotContainer {
 
   private ClimbForDistance climbForDistance;
   private CollectForDistance collectForDistance;
-  private SmartShoot smartShoot;
+  //private SmartShoot smartShoot;
   private WinchDown winchDownCommand;
   private TurnWithLimeLight turnWithLimeLight;
   private Shoot shoot;
@@ -179,7 +179,7 @@ public class RobotContainer {
 
     climbForDistance = new ClimbForDistance(5, climber);
     collectForDistance = new CollectForDistance(5, collector);
-    smartShoot = new SmartShoot(collector, colorSensor, launcher);
+    //smartShoot = new SmartShoot(collector, colorSensor, launcher);
     winchDownCommand = new WinchDown(climber);
     shoot = new Shoot(launcher, limelight);
 
@@ -470,9 +470,9 @@ public class RobotContainer {
     driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
     driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
 
-    /*driveRightJoystickButton.whenPressed(turnWithLimeLight);
-    driveRightJoystickButton.whenPressed(() -> turnWithLimeLight.cancel());*/
-    //driveRightJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
+    driveRightJoystickButton.whenPressed(turnWithLimeLight);
+    driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
+    driveRightJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
 
     driveLeftJoystickButton.whileHeld(collectForDistance);
     //driveLeftJoystickButton.whenReleased(() -> collector.cancel());
@@ -480,11 +480,11 @@ public class RobotContainer {
     // opY.whenPressed(new InstantCommand(() -> launcher.setLauncherForPosition()));
     // opY.whenReleased(new InstantCommand(() -> launcher.stop()));
 
-    // opY.whenPressed(new InstantCommand(() -> launcher.pidOn(), launcher));
-    // opY.whenReleased(new InstantCommand(() -> launcher.pidOff(), launcher));
+    //  opY.whenPressed(new InstantCommand(() -> launcher.pidOn(), launcher));
+    //  opY.whenReleased(new InstantCommand(() -> launcher.pidOff(), launcher));
 
-    opY.whenPressed(shoot);
-    opY.whenReleased(() -> shoot.cancel());
+   opY.whenPressed(shoot);
+   opY.whenReleased(() -> shoot.cancel());
 
     opPovUp.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.UPPER_HUB), launcher));
     opPovDown.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.LOWER_HUB), launcher));

@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Launcher extends SubsystemBase {
   public enum ShooterPosition {
-    LOWER_HUB(0, "Lower Hub"), UPPER_HUB(1, "Upper Hub"), TARMAC_LOW(2, "Tarmac Low"), TARMAC_HIGH(3, "Tarmac High"), HALF_COURT(4, "Half Court"),  WRONGBALL(5, "Wrong Ball"),  INVALID(6, "Invalid");
+    LOWER_HUB(0, "Lower Hub"), UPPER_HUB(1, "Upper Hub"), TARMAC_LOW(2, "Tarmac Low"), TARMAC_HIGH(3, "Tarmac High"), HALF_COURT(4, "Half Court"),  DEAD_ZONE(5, "Dead Zone"),  INVALID(6, "Invalid");
 
     private int value;
     private String name;
@@ -73,24 +73,25 @@ public class Launcher extends SubsystemBase {
 
   private static final double[] TOPROLLER_SETPOINT = {
     14000, 
-    9050, 
+    16000, 
     12500,
     11000,
     12000,
-    20800
+    15000
   };
   private static final double[] BOTTOMROLLER_SETPOINT = {
     5000, 
-    8250, 
+    5000, 
     9000,
     10500,
-    11500,
-    1000
+    1000,
+    8500
   };
   private static final double[] TOPROLLER_P = {
     0.01, 
     0.01, 
     0.01, 
+    0.01,
     0.01,
     0.01
   };
@@ -99,13 +100,17 @@ public class Launcher extends SubsystemBase {
     ((TOPROLLER_SETPOINT[1] / 20800) * 1023.0 / TOPROLLER_SETPOINT[1]), 
     ((TOPROLLER_SETPOINT[2] / 20800) * 1023.0 / TOPROLLER_SETPOINT[2]), 
     ((TOPROLLER_SETPOINT[3] / 20800) * 1023.0 / TOPROLLER_SETPOINT[3]),
-    ((TOPROLLER_SETPOINT[4] / 20800) * 1023.0 / TOPROLLER_SETPOINT[4])
+    ((TOPROLLER_SETPOINT[4] / 20800) * 1023.0 / TOPROLLER_SETPOINT[4]),
+    ((TOPROLLER_SETPOINT[5] / 20800) * 1023.0 / TOPROLLER_SETPOINT[5]),
+
+
 
   };
   private static final double[] BOTTOMROLLER_P = {
     0.01, 
     0.01, 
     0.01, 
+    0.01,
     0.01,
     0.01
   };
@@ -114,7 +119,8 @@ public class Launcher extends SubsystemBase {
     ((BOTTOMROLLER_SETPOINT[1] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[1]), 
     ((BOTTOMROLLER_SETPOINT[2] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[2]), 
     ((BOTTOMROLLER_SETPOINT[3] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[3]),
-    ((BOTTOMROLLER_SETPOINT[4] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[4])
+    ((BOTTOMROLLER_SETPOINT[4] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[4]),
+    ((BOTTOMROLLER_SETPOINT[5] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[5]),
   };
   
   //Setpoint Values: 3400, 4100, 4500

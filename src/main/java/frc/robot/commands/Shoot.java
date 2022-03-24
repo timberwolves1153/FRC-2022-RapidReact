@@ -12,6 +12,7 @@ import frc.robot.subsystems.Launcher.ShooterPosition;
 public class Shoot extends CommandBase {
   private Launcher launcher;
   private Limelight limelight;
+  private ShooterPosition previousPosition = ShooterPosition.LOWER_HUB;
 
   /** Creates a new Shoot. */
   public Shoot(Launcher launcher, Limelight limelight) {
@@ -29,12 +30,16 @@ public class Shoot extends CommandBase {
   @Override
   public void execute() {
     launcher.pidOn();
-    if(limelight.calcDistance() < 60) {
+    if(limelight.calcDistance() < 70) {
       launcher.setGainPreset(ShooterPosition.UPPER_HUB);
-    } else if(limelight.calcDistance() > 60) {
+    } else if(limelight.calcDistance() > 70 && limelight.calcDistance() < 95) {
+      launcher.setGainPreset(ShooterPosition.DEAD_ZONE);
+    } else if(limelight.calcDistance() > 95) {
       launcher.setGainPreset(ShooterPosition.TARMAC_HIGH);
     }
-  }
+    }
+
+
 
   // Called once the command ends or is interrupted.
   @Override
