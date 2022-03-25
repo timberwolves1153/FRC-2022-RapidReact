@@ -6,7 +6,6 @@ package frc.robot;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Instant;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
@@ -33,11 +32,12 @@ import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
 import frc.robot.commands.Shoot;
-//import frc.robot.commands.SmartShoot;
 import frc.robot.commands.TurnForDegrees;
 import frc.robot.commands.TurnWithLimeLight;
 import frc.robot.commands.WaitCommand;
 import frc.robot.commands.WinchDown;
+import frc.robot.commands.commandGroups.TwoBallAutoLeftGroup;
+import frc.robot.commands.commandGroups.TwoBallAutoRightGroup;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.ColorSensor;
@@ -83,6 +83,7 @@ public class RobotContainer {
   private JoystickButton opA;
   private JoystickButton opLeftBumper;
   private JoystickButton opRightBumper;
+  private JoystickButton opStart;
 
   private ClimbForDistance climbForDistance;
   private CollectForDistance collectForDistance;
@@ -166,17 +167,15 @@ public class RobotContainer {
     opY = new JoystickButton(opStick, XboxController.Button.kY.value);
     opB = new JoystickButton(opStick, XboxController.Button.kB.value);
     opA = new JoystickButton(opStick, XboxController.Button.kA.value);
-
+    opStart = new JoystickButton(opStick, XboxController.Button.kStart.value);
     opLeftBumper = new JoystickButton(opStick, XboxController.Button.kLeftBumper.value);
     opRightBumper = new JoystickButton(opStick, XboxController.Button.kRightBumper.value);
-    turnWithLimeLight = new TurnWithLimeLight(drive, limelight);
-
-
     opPovUp = new POVButton(opStick, 0);
     opPovDown = new POVButton(opStick, 180);
     opPovLeft = new POVButton(opStick, 270);
     opPovRight = new POVButton(opStick, 90);
 
+    turnWithLimeLight = new TurnWithLimeLight(drive, limelight);
     climbForDistance = new ClimbForDistance(5, climber);
     collectForDistance = new CollectForDistance(5, collector);
     //smartShoot = new SmartShoot(collector, colorSensor, launcher);
@@ -205,7 +204,7 @@ public class RobotContainer {
     
     generateTrajectories();
     
-    twoBallAutoCommandGroupRight = new SequentialCommandGroup(
+    /*twoBallAutoCommandGroupRight = new SequentialCommandGroup(
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
@@ -234,9 +233,14 @@ public class RobotContainer {
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
       new InstantCommand(()-> collector.singulatorStop(), collector)
-    );
+    );*/
 
-    twoBallAutoCommandGroupLeft = new SequentialCommandGroup(
+    twoBallAutoCommandGroupRight = new TwoBallAutoRightGroup(
+      manualTrajectory1, 
+      () -> generateRamseteCommandFromTrajectory(manualTrajectory1), 
+      launcher, collector, drive);
+
+    /*twoBallAutoCommandGroupLeft = new SequentialCommandGroup(
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
@@ -265,7 +269,12 @@ public class RobotContainer {
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
       new InstantCommand(()-> collector.singulatorStop(), collector)
-    );
+    );*/
+
+    twoBallAutoCommandGroupLeft = new TwoBallAutoLeftGroup(
+      manualTrajectory1, 
+      () -> generateRamseteCommandFromTrajectory(manualTrajectory1), 
+      launcher, collector, drive);
 
     fourBallAutoCommandGroup = new SequentialCommandGroup(
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
@@ -330,12 +339,12 @@ public class RobotContainer {
 
     threeBallAutoCommandGroup = new SequentialCommandGroup(
       new InstantCommand(()-> System.out.println("Running Three Ball Auto")),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.DEAD_ZONE), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(()-> collector.feederOn(), collector),
       new WaitCommand(1),
       new InstantCommand(()-> collector.feederOff(), collector),
-      new TurnForDegrees(150, drive),
+      new TurnForDegrees(170, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
@@ -348,14 +357,13 @@ public class RobotContainer {
       new InstantCommand(()-> collector.moverOff(), collector),
       new InstantCommand(()-> collector.collectorStop(), collector),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kForward)),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.HALF_COURT), launcher),
-      //new TurnForDegrees(110, drive), Substitute for limelight
-      new TurnWithLimeLight(drive, limelight),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
+      new TurnForDegrees(95, drive), 
+     // new TurnWithLimeLight(drive, limelight),
       //generateRamseteCommandFromTrajectory(threeBallAutoTrajectory3),
       new InstantCommand(()-> collector.moverForward(), collector),
       new InstantCommand(()-> collector.feederOn(), collector),
-      new WaitCommand(1),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new WaitCommand(2),
       new InstantCommand(() -> launcher.pidOff(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
@@ -472,7 +480,6 @@ public class RobotContainer {
 
     driveRightJoystickButton.whenPressed(turnWithLimeLight);
     driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
-    driveRightJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d()), drive));
 
     driveLeftJoystickButton.whileHeld(collectForDistance);
     //driveLeftJoystickButton.whenReleased(() -> collector.cancel());
@@ -483,12 +490,14 @@ public class RobotContainer {
     //  opY.whenPressed(new InstantCommand(() -> launcher.pidOn(), launcher));
     //  opY.whenReleased(new InstantCommand(() -> launcher.pidOff(), launcher));
 
-   opY.whenPressed(shoot);
-   opY.whenReleased(() -> shoot.cancel());
+    opY.whenPressed(shoot);
+    opY.whenReleased(() -> shoot.cancel());
+
+    opStart.whenPressed(() -> launcher.toggleLimelightOverride());
 
     opPovUp.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.UPPER_HUB), launcher));
     opPovDown.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.LOWER_HUB), launcher));
-    opPovLeft.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_LOW), launcher));
+    opPovLeft.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.DEAD_ZONE), launcher));
     opPovRight.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_HIGH), launcher));
 
     opLeftBumper.whenPressed(new InstantCommand(() -> {

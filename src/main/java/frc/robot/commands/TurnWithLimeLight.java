@@ -37,7 +37,7 @@ public class TurnWithLimeLight extends PIDCommand {
           if (limeLight.getTargetValues() == null) {
             drive.arcadeDrive(0, 0.5);
           } else {
-            drive.arcadeDrive(-0.5, -1.1 * output);
+            drive.arcadeDrive(0, -1 * output);
           }
         }, 
         drive,
@@ -52,8 +52,7 @@ public class TurnWithLimeLight extends PIDCommand {
   @Override
   public void initialize() {
     super.initialize();
-    //vision.setLedMode(3);
-    //vision.setPipeline(1);
+    System.out.println("Turning with Limelight");
   }
 
   // Returns true when the command should end.
@@ -66,14 +65,12 @@ public class TurnWithLimeLight extends PIDCommand {
       canFinishCommand = false;
     }
     counter++;
-    //return canFinishCommand && getController().atSetpoint();
-    return false;
+    return canFinishCommand && getController().atSetpoint();
+    //return false;
   }
 
   @Override
   public void end(boolean interrupted) {
-    //vision.setLedMode(1);
-    //vision.setPipeline(0);
     drive.arcadeDrive(0, 0);
   }
 }

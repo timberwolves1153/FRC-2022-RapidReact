@@ -71,6 +71,8 @@ public class Launcher extends SubsystemBase {
 
   private boolean pidEnabled = false;
 
+  private boolean overrideLimelight = false;
+
   private static final double[] TOPROLLER_SETPOINT = {
     14000, 
     16000, 
@@ -85,7 +87,7 @@ public class Launcher extends SubsystemBase {
     9000,
     10500,
     1000,
-    8500
+    7500
   };
   private static final double[] TOPROLLER_P = {
     0.01, 
@@ -187,6 +189,7 @@ public class Launcher extends SubsystemBase {
     SmartDashboard.putNumber("Top Shooter Value", topRoller.getSelectedSensorPosition());
     
     SmartDashboard.putString("Launcher Position", selectedPosition.getName());
+    SmartDashboard.putBoolean("Launcher Override", getOverride());
 
     double pBottom = SmartDashboard.getNumber("Bottom Launcher P", this.pBottom);
     double fBottom = SmartDashboard.getNumber("Bottom Launcher F", this.fBottom);
@@ -363,6 +366,15 @@ public class Launcher extends SubsystemBase {
   public ShooterPosition getSelectedPosition() {
     return selectedPosition;
   }
+
+  public void toggleLimelightOverride() {
+    overrideLimelight = overrideLimelight ? false : true;
+  }
+
+  public boolean getOverride() {
+    return overrideLimelight;
+  }
+
   /**
    * Sets a flag that will prevent the PID from running periodically
    */

@@ -121,11 +121,12 @@ public class Collector extends SubsystemBase {
   }
 
   public void singulatorIntake() {
-    singulator.set(-1);
+    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kReverse)) singulator.set(-1);
   }
+  
 
   public void singulatorOutake() {
-    singulator.set(1);
+    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kReverse)) singulator.set(1);
   }
 
   public void singulatorStop() {

@@ -33,7 +33,7 @@ public class DefaultDrive extends CommandBase {
   public void execute() {
     //Drives the robot using the input taken from the joysticks; note the 0.8, which reduces the magnitude of the speed or
     //rotation to 80% of its original value to reduce the sensitivity of driving
-    drive.arcadeDrive(0.8 * speed.getAsDouble(), 0.7 * rotation.getAsDouble());
+    drive.arcadeDrive(speed.getAsDouble(), 0.7 * rotation.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.

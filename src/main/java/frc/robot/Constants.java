@@ -15,21 +15,16 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    //public static final double ksVolts = 0.58612;
-    //public static final double ksVolts = 0.51344;
-    public static final double ksVolts = 0.61565;
+    // public static final double ksVolts = 0.61565;
+    // public static final double kvVoltSecondsPerMeter = 2.5557;
+    // public static final double kaVoltSecondsSquaredPerMeter = 0.25684;
 
-    //public static final double kvVoltSecondsPerMeter = 2.8094;
-    // public static final double kvVoltSecondsPerMeter = 2.8269;
-    public static final double kvVoltSecondsPerMeter = 2.5557;
-    //public static final double kaVoltSecondsSquaredPerMeter = 0.11531;
-    //public static final double kaVoltSecondsSquaredPerMeter = 0.16096;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.25684;
+    public static final double ksVolts = 0.58668;
+    public static final double kvVoltSecondsPerMeter = 2.5632;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.31239;
 
     public static final double kPDriveVel = 0.0000005;
-    //public static final double kPDriveVel = 2;
     public static final double kDDriveVel = 0.001;
-    //public static final double kDDriveVel = 0.0;
 
     // public static final double kTrackwidthMeters = 0.694;
     public static final double kTrackwidthMeters = 0.635;
