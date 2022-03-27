@@ -12,13 +12,14 @@ import frc.robot.subsystems.Launcher.ShooterPosition;
 public class Shoot extends CommandBase {
   private Launcher launcher;
   private Limelight limelight;
-
-  private ShooterPosition previousPosition = ShooterPosition.LOWER_HUB;
+  private boolean isAuto;
+  private double initialTime;
 
   /** Creates a new Shoot. */
-  public Shoot(Launcher launcher, Limelight limelight) {
+  public Shoot(boolean isAuto, Launcher launcher, Limelight limelight) {
     this.launcher = launcher;
     this.limelight = limelight;
+    this.isAuto = isAuto;
 
     addRequirements(launcher, limelight);
   }
@@ -26,6 +27,7 @@ public class Shoot extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    initialTime = System.currentTimeMillis();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -34,9 +36,9 @@ public class Shoot extends CommandBase {
     launcher.pidOn();
 
     if(!launcher.getOverride()) {
-      if(limelight.calcDistance() < 65) {
+      if(limelight.calcDistance() < 50) {
         launcher.setGainPreset(ShooterPosition.UPPER_HUB);
-      } else if(limelight.calcDistance() > 65 && limelight.calcDistance() < 95) {
+      } else if(limelight.calcDistance() > 50 && limelight.calcDistance() < 95) {
         launcher.setGainPreset(ShooterPosition.DEAD_ZONE);
       } else if(limelight.calcDistance() > 95) {
         launcher.setGainPreset(ShooterPosition.TARMAC_HIGH);
@@ -55,6 +57,9 @@ public class Shoot extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if(isAuto){
+      return System.currentTimeMillis() - initialTime > 2000;
+    } 
     return false;
   }
 }

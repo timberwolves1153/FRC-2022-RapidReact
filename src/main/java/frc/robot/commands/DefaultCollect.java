@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Collector;
 
@@ -30,12 +31,20 @@ public class DefaultCollect extends CommandBase {
   @Override
   public void execute() {
     if(leftTrigger.getAsDouble() > 0.1) {
-       collector.singulatorIntake();
-       collector.moverForward();
+      if(collector.getSolenoidState().equals(DoubleSolenoid.Value.kReverse)) {
+        collector.singulatorIntake();
+      } else {
+        collector.singulatorStop();
+      }
+      collector.moverForward();
       //collector.smartBallCollect();
     }
     if(rightTrigger.getAsDouble() > 0.1) {
-      collector.singulatorOutake();
+      if(collector.getSolenoidState().equals(DoubleSolenoid.Value.kReverse)){
+        collector.singulatorOutake();
+      } else {
+        collector.singulatorStop();
+      }
       collector.moverReverse();
     }
     if(leftTrigger.getAsDouble() < 0.1 && rightTrigger.getAsDouble() < 0.1) {

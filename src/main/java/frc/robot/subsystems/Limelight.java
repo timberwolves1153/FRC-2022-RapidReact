@@ -107,6 +107,10 @@ public class Limelight extends PIDSubsystem {
     public Target getTargetValues() {
     	return target;
     }
+
+	public boolean targetExists() {
+		return target.exists();
+	}
 	
 	public boolean getTargetV() {
 		NetworkTableEntry tv = table.getEntry("tv");
@@ -184,10 +188,8 @@ public class Limelight extends PIDSubsystem {
 	}
 
 	public void turnWithLimeLight(DoubleConsumer useOutput, boolean end) {
-		setPipeline(8);
 		if(end) {
 			useOutput.accept(0);
-			setPipeline(0);
 		} else {
 			useOutput.accept(getController().calculate(getTargetX(), getController().getSetpoint()));
 		}

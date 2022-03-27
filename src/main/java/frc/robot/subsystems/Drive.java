@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleConsumer;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.*;
@@ -103,6 +105,14 @@ public class Drive extends SubsystemBase {
     leftGroup.setVoltage(-leftVolts);
     rightGroup.setVoltage(-rightVolts);
     feed();
+  }
+
+  public void turnWithLimelight(Limelight limelight) {
+    if(limelight.targetExists()) {
+      arcadeDrive(0, limelight.getController().calculate(limelight.getTargetX(), limelight.getController().getSetpoint()));
+    } else {
+      arcadeDrive(0, 0.5);
+    }
   }
 
   /**

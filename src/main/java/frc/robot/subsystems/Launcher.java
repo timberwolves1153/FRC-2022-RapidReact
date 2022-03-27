@@ -85,7 +85,7 @@ public class Launcher extends SubsystemBase {
     5000, 
     5000, 
     9000,
-    10500,
+    9500,
     1000,
     7500
   };
@@ -112,7 +112,7 @@ public class Launcher extends SubsystemBase {
     0.01, 
     0.01, 
     0.01, 
-    0.01,
+    0.0075,
     0.01,
     0.01
   };
@@ -181,17 +181,17 @@ public class Launcher extends SubsystemBase {
   }
 
   public void updateShuffleboard() {
-    SmartDashboard.putNumber("Bottom Shooter Velocity", bottomRoller.getSelectedSensorVelocity());
-    SmartDashboard.putNumber("Bottom Shooter Power", bottomRoller.get());
-    SmartDashboard.putNumber("Bottom Shooter Value", bottomRoller.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Top Shooter Velocity", topRoller.getSelectedSensorVelocity());
-    SmartDashboard.putNumber("Top Shooter Power", topRoller.get());
-    SmartDashboard.putNumber("Top Shooter Value", topRoller.getSelectedSensorPosition());
+    // SmartDashboard.putNumber("Bottom Shooter Velocity", bottomRoller.getSelectedSensorVelocity());
+    // SmartDashboard.putNumber("Bottom Shooter Power", bottomRoller.get());
+    // SmartDashboard.putNumber("Bottom Shooter Value", bottomRoller.getSelectedSensorPosition());
+    // SmartDashboard.putNumber("Top Shooter Velocity", topRoller.getSelectedSensorVelocity());
+    // SmartDashboard.putNumber("Top Shooter Power", topRoller.get());
+    // SmartDashboard.putNumber("Top Shooter Value", topRoller.getSelectedSensorPosition());
     
     SmartDashboard.putString("Launcher Position", selectedPosition.getName());
     SmartDashboard.putBoolean("Launcher Override", getOverride());
 
-    double pBottom = SmartDashboard.getNumber("Bottom Launcher P", this.pBottom);
+    /*double pBottom = SmartDashboard.getNumber("Bottom Launcher P", this.pBottom);
     double fBottom = SmartDashboard.getNumber("Bottom Launcher F", this.fBottom);
     double setpointBottom = SmartDashboard.getNumber("Bottom Launcher Setpoint", this.setpointBottom);
 
@@ -208,7 +208,7 @@ public class Launcher extends SubsystemBase {
     if (this.pTop != pTop || this.fTop != fTop || this.setpointTop != setpointTop) {
       setTopPIDGains(pTop, fTop, setpointTop);
       System.out.println("Updating Values");
-    }
+    }*/
   }
 
   public void setLauncherTop(double speed){
@@ -286,9 +286,9 @@ public class Launcher extends SubsystemBase {
     bottomRoller.config_kP(0, p);
     bottomRoller.config_kF(0, f);
 
-    SmartDashboard.putNumber("Bottom Launcher P", p);
+    /*SmartDashboard.putNumber("Bottom Launcher P", p);
     SmartDashboard.putNumber("Bottom Launcher F", f);
-    SmartDashboard.putNumber("Bottom Launcher Setpoint", setpoint);
+    SmartDashboard.putNumber("Bottom Launcher Setpoint", setpoint);*/
   }
 
   public void setTopPIDGains(double p, double f, double setpoint) {
@@ -299,9 +299,9 @@ public class Launcher extends SubsystemBase {
     topRoller.config_kP(0, p);
     topRoller.config_kF(0, f);
 
-    SmartDashboard.putNumber("Top Launcher P", p);
+    /*SmartDashboard.putNumber("Top Launcher P", p);
     SmartDashboard.putNumber("Top Launcher F", f);
-    SmartDashboard.putNumber("Top Launcher Setpoint", setpoint);
+    SmartDashboard.putNumber("Top Launcher Setpoint", setpoint);*/
   }
 
   /**

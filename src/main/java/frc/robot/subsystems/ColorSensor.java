@@ -84,11 +84,11 @@ public class ColorSensor extends SubsystemBase {
   }
 
   public void updateShuffleboard() {
-    SmartDashboard.putNumber("Color Sensor Red", getRedValue());
-    SmartDashboard.putNumber("Color Sensor Green", getGreenValue());
-    SmartDashboard.putNumber("Color Sensor Blue", getBlueValue());
-    SmartDashboard.putNumber("Color Sensor IR", getIRValue());
-    SmartDashboard.putNumber("Color Sensor Proximity", getProxValue());
+    // SmartDashboard.putNumber("Color Sensor Red", getRedValue());
+    // SmartDashboard.putNumber("Color Sensor Green", getGreenValue());
+    // SmartDashboard.putNumber("Color Sensor Blue", getBlueValue());
+    // SmartDashboard.putNumber("Color Sensor IR", getIRValue());
+    // SmartDashboard.putNumber("Color Sensor Proximity", getProxValue());
     SmartDashboard.putString("Ball Detected", getDetectedBallColor().getName());
   }
 

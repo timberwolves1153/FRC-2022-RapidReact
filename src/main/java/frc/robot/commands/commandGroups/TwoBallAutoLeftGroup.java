@@ -22,37 +22,30 @@ import frc.robot.subsystems.Launcher;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class TwoBallAutoLeftGroup extends SequentialCommandGroup {
   /** Creates a new TwoBallAutoLeftGroup. */
-  public TwoBallAutoLeftGroup(Trajectory manualTrajectory1, Supplier<RamseteCommand> ramseteCommand1, Launcher launcher, Collector collector, Drive drive) {
+  public TwoBallAutoLeftGroup(Trajectory fourBallAutoTrajectory1, Supplier<RamseteCommand> ramseteCommand1, Launcher launcher, Collector collector, Drive drive) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
+      new InstantCommand(()-> System.out.println("Running Three Ball Auto")),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
+      new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> collector.feederOn(), collector),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(195, drive),
+      new InstantCommand(()-> collector.feederOn(), collector),
+      new WaitCommand(1),
+      new InstantCommand(()-> collector.feederOff(), collector),
+      new InstantCommand(()-> collector.moverOff(), collector),
+      new TurnForDegrees(170, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
-      new InstantCommand(() -> collector.collectorStop(), collector),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
-      ramseteCommand1.get(),
-      new TurnForDegrees(165, drive),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
-      ramseteCommand1.get(),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> collector.feederOn(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> collector.collectorStop(), collector),
-      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> collector.collectIntake(), collector),
+      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
+      ramseteCommand1.get(),
+      new InstantCommand(() -> launcher.pidOff(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
-      new InstantCommand(()-> collector.singulatorStop(), collector)
+      new InstantCommand(()-> collector.singulatorStop(), collector),
+      new InstantCommand(()-> collector.collectorStop(), collector)
     );
   }
 }

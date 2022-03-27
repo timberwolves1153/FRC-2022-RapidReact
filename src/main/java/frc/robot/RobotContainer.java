@@ -180,7 +180,7 @@ public class RobotContainer {
     collectForDistance = new CollectForDistance(5, collector);
     //smartShoot = new SmartShoot(collector, colorSensor, launcher);
     winchDownCommand = new WinchDown(climber);
-    shoot = new Shoot(launcher, limelight);
+    shoot = new Shoot(false, launcher, limelight);
 
     autoCommandChooser = new SendableChooser<Command>();
     allianceColor = new SendableChooser<BallColor>();
@@ -272,8 +272,8 @@ public class RobotContainer {
     );*/
 
     twoBallAutoCommandGroupLeft = new TwoBallAutoLeftGroup(
-      manualTrajectory1, 
-      () -> generateRamseteCommandFromTrajectory(manualTrajectory1), 
+      fourBallAutoTrajectory1, 
+      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1), 
       launcher, collector, drive);
 
     fourBallAutoCommandGroup = new SequentialCommandGroup(
@@ -339,11 +339,13 @@ public class RobotContainer {
 
     threeBallAutoCommandGroup = new SequentialCommandGroup(
       new InstantCommand(()-> System.out.println("Running Three Ball Auto")),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.DEAD_ZONE), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
+      new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(()-> collector.feederOn(), collector),
       new WaitCommand(1),
       new InstantCommand(()-> collector.feederOff(), collector),
+      new InstantCommand(()-> collector.moverOff(), collector),
       new TurnForDegrees(170, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.moverForward(), collector),
@@ -351,14 +353,16 @@ public class RobotContainer {
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1),
-      new TurnForDegrees(105, drive),
+      new TurnForDegrees(100, drive),
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
       generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2),
       new InstantCommand(()-> collector.moverOff(), collector),
-      new InstantCommand(()-> collector.collectorStop(), collector),
-      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kForward)),
+    //  new InstantCommand(()-> collector.collectorStop(), collector),
+     // new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kForward)),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
-      new TurnForDegrees(95, drive), 
+      new TurnForDegrees(105, drive), 
+      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory3.getInitialPose())),
+      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory3),
      // new TurnWithLimeLight(drive, limelight),
       //generateRamseteCommandFromTrajectory(threeBallAutoTrajectory3),
       new InstantCommand(()-> collector.moverForward(), collector),
@@ -478,8 +482,8 @@ public class RobotContainer {
     driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
     driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
 
-    driveRightJoystickButton.whenPressed(turnWithLimeLight);
-    driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
+    driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.turnWithLimelight(limelight), drive));
+    driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.arcadeDrive(0, 0), drive));
 
     driveLeftJoystickButton.whileHeld(collectForDistance);
     //driveLeftJoystickButton.whenReleased(() -> collector.cancel());
