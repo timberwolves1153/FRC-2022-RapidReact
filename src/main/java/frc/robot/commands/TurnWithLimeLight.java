@@ -37,7 +37,7 @@ public class TurnWithLimeLight extends PIDCommand {
           if (limeLight.getTargetValues() == null) {
             drive.arcadeDrive(0, 0.5);
           } else {
-            drive.arcadeDrive(0, -1 * output);
+            drive.arcadeDrive(0, -output);
           }
         }, 
         drive,

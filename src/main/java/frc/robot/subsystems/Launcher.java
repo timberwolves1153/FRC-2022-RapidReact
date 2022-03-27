@@ -71,7 +71,7 @@ public class Launcher extends SubsystemBase {
 
   private boolean pidEnabled = false;
 
-  private boolean overrideLimelight = false;
+  private boolean overrideLimelight = true;
 
   private static final double[] TOPROLLER_SETPOINT = {
     14000, 
@@ -130,7 +130,7 @@ public class Launcher extends SubsystemBase {
   private double pBottom, fBottom, setpointBottom,
                  pTop, fTop, setpointTop;
 
-  private ShooterPosition defaultPosition = ShooterPosition.LOWER_HUB;
+  private ShooterPosition defaultPosition = ShooterPosition.UPPER_HUB;
   private ShooterPosition selectedPosition = defaultPosition;
 
   private static final double MAX_OUTPUT = 1;

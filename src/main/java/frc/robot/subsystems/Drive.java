@@ -109,7 +109,7 @@ public class Drive extends SubsystemBase {
 
   public void turnWithLimelight(Limelight limelight) {
     if(limelight.targetExists()) {
-      arcadeDrive(0, limelight.getController().calculate(limelight.getTargetX(), limelight.getController().getSetpoint()));
+      arcadeDrive(0, -limelight.getController().calculate(limelight.getTargetX(), limelight.getController().getSetpoint()));
     } else {
       arcadeDrive(0, 0.5);
     }

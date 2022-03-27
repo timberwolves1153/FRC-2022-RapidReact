@@ -389,7 +389,7 @@ public class RobotContainer {
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(()-> drive.resetOdometry(gatewayPathTrajectory1.getInitialPose())),
       generateRamseteCommandFromTrajectory(gatewayPathTrajectory1),
-      new TurnForDegrees(170, drive),
+      new TurnForDegrees(160, drive),
       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),

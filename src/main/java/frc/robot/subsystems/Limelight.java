@@ -212,5 +212,11 @@ public class Limelight extends PIDSubsystem {
 	@Override
 	public void periodic() {
 		super.periodic();
+
+		NetworkTableEntry pipelineEntry = table.getEntry("pipeline");
+
+		if(pipelineEntry.getDouble(0) != 1) {
+			setPipeline(1);
+		}
 	}
 }
