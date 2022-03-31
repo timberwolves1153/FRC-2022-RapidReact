@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
@@ -27,15 +26,15 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.ClimbForDistance;
-import frc.robot.commands.CollectForDistance;
 import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.TurnForDegrees;
 import frc.robot.commands.TurnWithLimeLight;
-import frc.robot.commands.WaitCommand;
 import frc.robot.commands.WinchDown;
+import frc.robot.commands.commandGroups.FourBallAutoGroup;
+import frc.robot.commands.commandGroups.GatekeepAutoGroup;
+import frc.robot.commands.commandGroups.ThreeBallAutoGroup;
 import frc.robot.commands.commandGroups.TwoBallAutoLeftGroup;
 import frc.robot.commands.commandGroups.TwoBallAutoRightGroup;
 import frc.robot.subsystems.Climber;
@@ -86,7 +85,6 @@ public class RobotContainer {
   private JoystickButton opStart;
 
   private ClimbForDistance climbForDistance;
-  private CollectForDistance collectForDistance;
   //private SmartShoot smartShoot;
   private WinchDown winchDownCommand;
   private TurnWithLimeLight turnWithLimeLight;
@@ -110,16 +108,16 @@ public class RobotContainer {
 
   private Trajectory manualTrajectory1;
 
-  private Trajectory gatewayPathTrajectory1;
-  private Trajectory gatewayPathTrajectory2;
-  private Trajectory gatewayPathTrajectory3;
+  private Trajectory gatekeepPathTrajectory1;
+  private Trajectory gatekeepPathTrajectory2;
+  private Trajectory gatekeepPathTrajectory3;
 
   private Trajectory threeBallAutoTrajectory3;
  
   private SequentialCommandGroup twoBallAutoCommandGroupRight;
   private SequentialCommandGroup twoBallAutoCommandGroupLeft;
   private SequentialCommandGroup fourBallAutoCommandGroup;
-  private SequentialCommandGroup gateKeepAutoCommandGroup;
+  private SequentialCommandGroup gatekeepAutoCommandGroup;
   private SequentialCommandGroup threeBallAutoCommandGroup;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
@@ -138,7 +136,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(){
-
     //declares the drive joystick as an XboxController in port 0 on the Driver Station
     driveStick = new XboxController(0);
     opStick = new XboxController(1);
@@ -177,7 +174,6 @@ public class RobotContainer {
 
     turnWithLimeLight = new TurnWithLimeLight(drive, limelight);
     climbForDistance = new ClimbForDistance(5, climber);
-    collectForDistance = new CollectForDistance(5, collector);
     //smartShoot = new SmartShoot(collector, colorSensor, launcher);
     winchDownCommand = new WinchDown(climber);
     shoot = new Shoot(false, launcher, limelight);
@@ -203,83 +199,125 @@ public class RobotContainer {
     // Configure the buttons to start new commands when they are pressed or released
     
     generateTrajectories();
-    
-    /*twoBallAutoCommandGroupRight = new SequentialCommandGroup(
-      new InstantCommand(() -> System.out.println("Running Partial Auto")),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> collector.feederOn(), collector),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(155, drive),
-      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
-      new InstantCommand(() -> collector.collectIntake(), collector),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
-      generateRamseteCommandFromTrajectory(manualTrajectory1),
-      new TurnForDegrees(185, drive),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
-      generateRamseteCommandFromTrajectory(manualTrajectory1),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> collector.feederOn(), collector),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> collector.collectorStop(), collector),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> collector.feederOff(), collector),
-      new InstantCommand(()-> collector.moverOff(), collector),
-      new InstantCommand(()-> collector.singulatorStop(), collector)
-    );*/
 
+    generateCommandGroups();
+      
+    autoCommandChooser.setDefaultOption("Two Ball Auto Right", twoBallAutoCommandGroupRight);
+    autoCommandChooser.addOption("Two Ball Auto Left", twoBallAutoCommandGroupLeft);
+    autoCommandChooser.addOption("Four Ball", fourBallAutoCommandGroup);
+    autoCommandChooser.addOption("Three Ball", threeBallAutoCommandGroup);
+    autoCommandChooser.addOption("Gatekeep", gatekeepAutoCommandGroup);
+
+    allianceColor.setDefaultOption("Blue", BallColor.BLUE);
+    allianceColor.addOption("Red", BallColor.RED);
+
+    SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
+    SmartDashboard.putData("Alliance Color", allianceColor);
+
+    configureButtonBindings();
+  }
+
+  /**
+   * Use this method to define your button->command mappings. Buttons can be created by
+   * instantiating a {@link GenericHID} or one of its subclasses ({@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   */
+  private void configureButtonBindings() {
+    driveLeftBumper.whenPressed(winchDownCommand);
+    driveLeftBumper.whenReleased(() -> winchDownCommand.cancel());
+
+    driveRightBumper.whenPressed(new InstantCommand(() -> climber.winchUp(), climber));
+    driveRightBumper.whenReleased(new InstantCommand(() -> climber.stop(), climber));
+
+    driveA.whenPressed(new InstantCommand(() -> climber.toggleSolenoid(), climber));
+    
+    driveB.whenPressed(new InstantCommand(() -> climber.setWinchPosition(climber.getEncoderTicksFromPosition(12)), climber));
+    driveB.whenReleased(new InstantCommand(() -> climber.setWinch(0), climber));
+
+    driveBack.whenPressed(new InstantCommand(() -> climber.setLeft(0.4), climber));
+    driveBack.whenReleased(new InstantCommand(() -> climber.setLeft(0), climber));
+
+    driveStart.whenPressed(new InstantCommand(() -> climber.setRight(0.4), climber));
+    driveStart.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
+
+    driveX.whenPressed(new InstantCommand(() -> climber.setLeft(-0.4), climber));
+    driveX.whenReleased(new InstantCommand(() -> climber.setLeft(0), climber));
+
+    driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
+    driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
+
+    driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.turnWithLimelight(limelight), drive));
+    driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.arcadeDrive(0, 0), drive));
+
+    opY.whenPressed(shoot);
+    opY.whenReleased(() -> shoot.cancel());
+
+    opStart.whenPressed(() -> launcher.toggleLimelightOverride());
+
+    opPovUp.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_UPPER), launcher));
+    opPovDown.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_LOWER), launcher));
+    opPovLeft.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_ZONE), launcher));
+    opPovRight.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_LINE_HIGH), launcher));
+
+    opLeftBumper.whenPressed(new InstantCommand(() -> {
+      collector.collectIntake();
+      collector.setSolenoid(DoubleSolenoid.Value.kReverse);
+    }, collector));
+
+    opLeftBumper.whenReleased(new InstantCommand(() -> {
+      collector.collectorStop();
+      collector.setSolenoid(DoubleSolenoid.Value.kForward);
+    }, collector));
+
+    opRightBumper.whenPressed(new InstantCommand(() -> {
+      collector.collectOutake();
+      collector.setSolenoid(DoubleSolenoid.Value.kReverse);
+    }, collector));
+
+    opRightBumper.whenReleased(new InstantCommand(() -> {
+      collector.collectorStop();
+      collector.setSolenoid(DoubleSolenoid.Value.kForward);
+    }, collector));
+
+    // opB.whenPressed(new InstantCommand(() -> collector.feederOn()));
+    // opB.whileHeld(new InstantCommand(() -> {
+    //   collector.smartBallShoot();
+    //   launcher.smart();
+    // }, collector));
+    // opB.whenReleased(new InstantCommand(() -> {
+    //   collector.feederOff();
+    //   collector.moverOff();
+    // }, collector, launcher));
+    
+    opA.whenPressed(new InstantCommand(() -> collector.toggleSolenoid(), collector));
+
+    opLeftBumper.whenPressed(new InstantCommand(() -> collector.collectIntake(), collector));
+    opLeftBumper.whenReleased(new InstantCommand(() -> collector.collectorStop(), collector));
+
+    opRightBumper.whenPressed(new InstantCommand(() -> collector.collectOutake(), collector));
+    opRightBumper.whenReleased(new InstantCommand(() -> collector.collectorStop(), collector));
+
+    //change back to while held when smart shooting is being used.
+    opB.whenPressed(new InstantCommand(()-> collector.feederOn(), collector));
+    opB.whenReleased(new InstantCommand(()-> collector.feederOff(), collector));
+  }
+
+  private void generateCommandGroups() {
     twoBallAutoCommandGroupRight = new TwoBallAutoRightGroup(
       manualTrajectory1, 
       () -> generateRamseteCommandFromTrajectory(manualTrajectory1), 
       launcher, collector, drive);
-
-    /*twoBallAutoCommandGroupLeft = new SequentialCommandGroup(
-      new InstantCommand(() -> System.out.println("Running Partial Auto")),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> collector.feederOn(), collector),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(195, drive),
-      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
-      new InstantCommand(() -> collector.collectorStop(), collector),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
-      generateRamseteCommandFromTrajectory(manualTrajectory1),
-      new TurnForDegrees(165, drive),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
-      generateRamseteCommandFromTrajectory(manualTrajectory1),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> collector.feederOn(), collector),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> collector.collectorStop(), collector),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> collector.feederOff(), collector),
-      new InstantCommand(()-> collector.moverOff(), collector),
-      new InstantCommand(()-> collector.singulatorStop(), collector)
-    );*/
 
     twoBallAutoCommandGroupLeft = new TwoBallAutoLeftGroup(
       fourBallAutoTrajectory1, 
       () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1), 
       launcher, collector, drive);
 
-    fourBallAutoCommandGroup = new SequentialCommandGroup(
-       new InstantCommand(() -> System.out.println("Running Partial Auto")),
-       new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
-       new InstantCommand(() -> launcher.pidOn(), launcher),
+    /*fourBallAutoCommandGroup = new SequentialCommandGroup(
+      new InstantCommand(() -> System.out.println("Running Partial Auto")),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
+      new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(() -> collector.moverForward(), collector),
@@ -326,233 +364,134 @@ public class RobotContainer {
     //   new InstantCommand(()-> collector.moverOff(), collector),
     //   new InstantCommand(()-> collector.singulatorStop(), collector),
     //   new InstantCommand(()-> collector.collectorStop(), collector)
-     );
+     );*/
 
-    threeBallAutoCommandGroup = new SequentialCommandGroup(
-      new InstantCommand(()-> System.out.println("Running Three Ball Auto")),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.pidOn(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(()-> collector.feederOn(), collector),
-      new WaitCommand(1),
-      new InstantCommand(()-> collector.feederOff(), collector),
-      new InstantCommand(()-> collector.moverOff(), collector),
-      new TurnForDegrees(170, drive),
-      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new InstantCommand(() -> collector.collectIntake(), collector),
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
-      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1),
-      new TurnForDegrees(100, drive),
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
-      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2),
-      new InstantCommand(()-> collector.moverOff(), collector),
-    //  new InstantCommand(()-> collector.collectorStop(), collector),
-     // new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kForward)),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
-      new TurnForDegrees(105, drive), 
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory3.getInitialPose())),
-      generateRamseteCommandFromTrajectory(fourBallAutoTrajectory3),
-     // new TurnWithLimeLight(drive, limelight),
-      //generateRamseteCommandFromTrajectory(threeBallAutoTrajectory3),
-      new InstantCommand(()-> collector.moverForward(), collector),
-      new InstantCommand(()-> collector.feederOn(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> launcher.pidOff(), launcher),
-      new InstantCommand(() -> collector.feederOff(), collector),
-      new InstantCommand(()-> collector.moverOff(), collector),
-      new InstantCommand(()-> collector.singulatorStop(), collector),
-      new InstantCommand(()-> collector.collectorStop(), collector)
+    fourBallAutoCommandGroup = new FourBallAutoGroup(
+      fourBallAutoTrajectory1, 
+      fourBallAutoTrajectory2, 
+      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1), 
+      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2), 
+      collector, 
+      launcher, 
+      drive
     );
 
-    gateKeepAutoCommandGroup = new SequentialCommandGroup(
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> launcher.pidOn(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> collector.feederOn(), collector),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(2),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(185, drive),
-      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
-      new InstantCommand(() -> collector.collectIntake(), collector),
-      new InstantCommand(()-> drive.resetOdometry(gatewayPathTrajectory1.getInitialPose())),
-      generateRamseteCommandFromTrajectory(gatewayPathTrajectory1),
-      new TurnForDegrees(160, drive),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
-      new InstantCommand(() -> launcher.pidOn(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() -> collector.feederOn(), collector),
-      new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new WaitCommand(1.5),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> collector.feederOff(), collector),
-      new InstantCommand(() -> collector.moverOff(), collector),
-      new TurnForDegrees(-85, drive),
-      new InstantCommand(()-> drive.resetOdometry(gatewayPathTrajectory2.getInitialPose())),
-      generateRamseteCommandFromTrajectory(gatewayPathTrajectory2),
-      new TurnForDegrees(-120, drive),
-      new InstantCommand(() -> collector.collectOutake(), collector),
-      new InstantCommand(() -> collector.singulatorOutake(), collector),
-      new InstantCommand(() -> collector.moverReverse(), collector),
-      new WaitCommand(0.25),
-      new TurnForDegrees(-50, drive),
-      new InstantCommand(() -> drive.resetOdometry(gatewayPathTrajectory3.getInitialPose())),
-      generateRamseteCommandFromTrajectory(gatewayPathTrajectory3),
-      new WaitCommand(0.5),
-      new InstantCommand(() -> collector.collectOutake(), collector),
-      new InstantCommand(() -> collector.singulatorOutake(), collector),
-      new InstantCommand(() -> collector.moverReverse(), collector),
-      new WaitCommand(1),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
-      new InstantCommand(() -> collector.collectIntake(), collector),
-      new InstantCommand(() -> launcher.stop(), launcher),
-      new InstantCommand(() -> collector.feederOff(), collector),
-      new InstantCommand(() -> collector.moverOff(), collector),
-      new InstantCommand(() -> collector.singulatorStop(), collector)
+    threeBallAutoCommandGroup = new ThreeBallAutoGroup(
+      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1), 
+      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2), 
+      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory3), 
+      fourBallAutoTrajectory1, 
+      fourBallAutoTrajectory2, 
+      fourBallAutoTrajectory3, 
+      collector, 
+      drive, 
+      launcher
     );
-      
-    autoCommandChooser.setDefaultOption("Two Ball Auto Right", twoBallAutoCommandGroupRight);
-    autoCommandChooser.addOption("Two Ball Auto Left", twoBallAutoCommandGroupLeft);
-    autoCommandChooser.addOption("Four Ball", fourBallAutoCommandGroup);
-    autoCommandChooser.addOption("Three Ball", threeBallAutoCommandGroup);
-    autoCommandChooser.addOption("Gatekeep", gateKeepAutoCommandGroup);
 
-    allianceColor.setDefaultOption("Blue", BallColor.BLUE);
-    allianceColor.addOption("Red", BallColor.RED);
+    gatekeepAutoCommandGroup = new GatekeepAutoGroup(
+      () -> generateRamseteCommandFromTrajectory(gatekeepPathTrajectory1), 
+      () -> generateRamseteCommandFromTrajectory(gatekeepPathTrajectory2),
+      () -> generateRamseteCommandFromTrajectory(gatekeepPathTrajectory3),
+      gatekeepPathTrajectory1, 
+      gatekeepPathTrajectory2, 
+      gatekeepPathTrajectory3, 
+      collector, 
+      drive, 
+      launcher
+    );
 
-    SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
-    SmartDashboard.putData("Alliance Color", allianceColor);
+    // threeBallAutoCommandGroup = new SequentialCommandGroup(
+    //   new InstantCommand(()-> System.out.println("Running Three Ball Auto")),
+    //   new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+    //   new InstantCommand(() -> launcher.pidOn(), launcher),
+    //   new InstantCommand(() -> collector.moverForward(), collector),
+    //   new InstantCommand(()-> collector.feederOn(), collector),
+    //   new WaitCommand(1),
+    //   new InstantCommand(()-> collector.feederOff(), collector),
+    //   new InstantCommand(()-> collector.moverOff(), collector),
+    //   new TurnForDegrees(170, drive),
+    //   new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
+    //   new InstantCommand(() -> collector.moverForward(), collector),
+    //   new InstantCommand(() -> collector.singulatorIntake(), collector),
+    //   new InstantCommand(() -> collector.collectIntake(), collector),
+    //   new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
+    //   generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1),
+    //   new TurnForDegrees(100, drive),
+    //   new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
+    //   generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2),
+    //   new InstantCommand(()-> collector.moverOff(), collector),
+    // //  new InstantCommand(()-> collector.collectorStop(), collector),
+    //  // new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kForward)),
+    //   new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
+    //   new TurnForDegrees(105, drive), 
+    //   new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory3.getInitialPose())),
+    //   generateRamseteCommandFromTrajectory(fourBallAutoTrajectory3),
+    //  // new TurnWithLimeLight(drive, limelight),
+    //   //generateRamseteCommandFromTrajectory(threeBallAutoTrajectory3),
+    //   new InstantCommand(()-> collector.moverForward(), collector),
+    //   new InstantCommand(()-> collector.feederOn(), collector),
+    //   new WaitCommand(2),
+    //   new InstantCommand(() -> launcher.pidOff(), launcher),
+    //   new InstantCommand(() -> collector.feederOff(), collector),
+    //   new InstantCommand(()-> collector.moverOff(), collector),
+    //   new InstantCommand(()-> collector.singulatorStop(), collector),
+    //   new InstantCommand(()-> collector.collectorStop(), collector)
+    // );
 
-    configureButtonBindings();
-  }
-
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    
-   // driveLeftBumper.whenPressed(new InstantCommand(() -> collector.collectForward(), collector));
-   // driveLeftBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
-
-
-    // driveRightBumper.whenPressed(new InstantCommand(() -> collector.collectReverse(), collector));
-    // driveRightBumper.whenReleased(new InstantCommand(() -> collector.stop(), collector));
-
-
-    // driveB.whenPressed(new InstantCommand(() -> drive.resetEncoders(), drive));
-
-    driveLeftBumper.whenPressed(winchDownCommand);
-    driveLeftBumper.whenReleased(() -> winchDownCommand.cancel());
-
-    driveRightBumper.whenPressed(new InstantCommand(() -> climber.winchUp(), climber));
-    driveRightBumper.whenReleased(new InstantCommand(() -> climber.stop(), climber));
-
-    driveA.whenPressed(new InstantCommand(() -> climber.toggleSolenoid(), climber));
-    
-    driveB.whenPressed(new InstantCommand(() -> climber.setWinchPosition(climber.getEncoderTicksFromPosition(12)), climber));
-    driveB.whenReleased(new InstantCommand(() -> climber.setWinch(0), climber));
-
-    //driveA.whenPressed(climbForDistance);
-    //driveA.whenReleased(() -> climbForDistance.cancel());
-
-    driveBack.whenPressed(new InstantCommand(() -> climber.setLeft(0.4), climber));
-    driveBack.whenReleased(new InstantCommand(() -> climber.setLeft(0), climber));
-
-    driveStart.whenPressed(new InstantCommand(() -> climber.setRight(0.4), climber));
-    driveStart.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
-
-    driveX.whenPressed(new InstantCommand(() -> climber.setLeft(-0.4), climber));
-    driveX.whenReleased(new InstantCommand(() -> climber.setLeft(0), climber));
-
-    driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
-    driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
-
-    driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.turnWithLimelight(limelight), drive));
-    driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.arcadeDrive(0, 0), drive));
-
-    driveLeftJoystickButton.whileHeld(collectForDistance);
-    //driveLeftJoystickButton.whenReleased(() -> collector.cancel());
-
-    // opY.whenPressed(new InstantCommand(() -> launcher.setLauncherForPosition()));
-    // opY.whenReleased(new InstantCommand(() -> launcher.stop()));
-
-    //  opY.whenPressed(new InstantCommand(() -> launcher.pidOn(), launcher));
-    //  opY.whenReleased(new InstantCommand(() -> launcher.pidOff(), launcher));
-
-    opY.whenPressed(shoot);
-    opY.whenReleased(() -> shoot.cancel());
-
-    opStart.whenPressed(() -> launcher.toggleLimelightOverride());
-
-    opPovUp.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.UPPER_HUB), launcher));
-    opPovDown.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.LOWER_HUB), launcher));
-    opPovLeft.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.DEAD_ZONE), launcher));
-    opPovRight.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_HIGH), launcher));
-
-    opLeftBumper.whenPressed(new InstantCommand(() -> {
-      collector.collectIntake();
-      collector.setSolenoid(DoubleSolenoid.Value.kReverse);
-    }, collector));
-
-    opLeftBumper.whenReleased(new InstantCommand(() -> {
-      collector.collectorStop();
-      collector.setSolenoid(DoubleSolenoid.Value.kForward);
-    }, collector));
-
-
-    opRightBumper.whenPressed(new InstantCommand(() -> {
-      collector.collectOutake();
-      collector.setSolenoid(DoubleSolenoid.Value.kReverse);
-    }, collector));
-
-    opRightBumper.whenReleased(new InstantCommand(() -> {
-      collector.collectorStop();
-      collector.setSolenoid(DoubleSolenoid.Value.kForward);
-    }, collector));
-
-    // opY.whenPressed(new InstantCommand(() -> launcher.setLauncher(0.23, 0.30), launcher));
-    // opY.whenReleased(new InstantCommand(() -> launcher.setLauncher(0.00, 0.00), launcher));
-
-    // opY.whenPressed(new InstantCommand(() -> launcher.setLauncher(1, 1), launcher));
-    // opY.whenReleased(new InstantCommand(() -> launcher.setLauncher(0, 0), launcher));
-
-    // opB.whenPressed(new InstantCommand(() -> collector.feederOn()));
-    // opB.whileHeld(new InstantCommand(() -> {
-    //   collector.smartBallShoot();
-    //   launcher.smart();
-    // }, collector));
-    // opB.whenReleased(new InstantCommand(() -> {
-    //   collector.feederOff();
-    //   collector.moverOff();
-    // }, collector, launcher));
-
-    //  opY.whenPressed(smartShoot);
-    //  opY.whenReleased(() -> smartShoot.cancel());
-    
-    opA.whenPressed(new InstantCommand(() -> collector.toggleSolenoid(), collector));
-
-    opLeftBumper.whenPressed(new InstantCommand(() -> collector.collectIntake(), collector));
-    opLeftBumper.whenReleased(new InstantCommand(() -> collector.collectorStop(), collector));
-
-    opRightBumper.whenPressed(new InstantCommand(() -> collector.collectOutake(), collector));
-    opRightBumper.whenReleased(new InstantCommand(() -> collector.collectorStop(), collector));
-    //change back to while held when smart shooting is being used.
-    opB.whenPressed(new InstantCommand(()-> collector.feederOn(), collector));
-    opB.whenReleased(new InstantCommand(()-> collector.feederOff(), collector));
-
+    // gateKeepAutoCommandGroup = new SequentialCommandGroup(
+    //   new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+    //   new InstantCommand(() -> launcher.pidOn(), launcher),
+    //   new InstantCommand(() -> collector.moverForward(), collector),
+    //   new InstantCommand(() -> collector.feederOn(), collector),
+    //   new InstantCommand(() -> collector.singulatorIntake(), collector),
+    //   new WaitCommand(2),
+    //   new InstantCommand(() -> launcher.stop(), launcher),
+    //   new InstantCommand(() -> collector.feederOff(), collector),
+    //   new TurnForDegrees(185, drive),
+    //   new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
+    //   new InstantCommand(() -> collector.collectIntake(), collector),
+    //   new InstantCommand(()-> drive.resetOdometry(gatewayPathTrajectory1.getInitialPose())),
+    //   generateRamseteCommandFromTrajectory(gatewayPathTrajectory1),
+    //   new TurnForDegrees(160, drive),
+    //   new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_HIGH), launcher),
+    //   new InstantCommand(() -> launcher.pidOn(), launcher),
+    //   new InstantCommand(() -> collector.moverForward(), collector),
+    //   new InstantCommand(() -> collector.feederOn(), collector),
+    //   new InstantCommand(() -> collector.singulatorIntake(), collector),
+    //   new WaitCommand(1.5),
+    //   new InstantCommand(() -> launcher.stop(), launcher),
+    //   new InstantCommand(() -> collector.feederOff(), collector),
+    //   new InstantCommand(() -> collector.moverOff(), collector),
+    //   new TurnForDegrees(-85, drive),
+    //   new InstantCommand(()-> drive.resetOdometry(gatewayPathTrajectory2.getInitialPose())),
+    //   generateRamseteCommandFromTrajectory(gatewayPathTrajectory2),
+    //   new TurnForDegrees(-120, drive),
+    //   new InstantCommand(() -> collector.collectOutake(), collector),
+    //   new InstantCommand(() -> collector.singulatorOutake(), collector),
+    //   new InstantCommand(() -> collector.moverReverse(), collector),
+    //   new WaitCommand(0.25),
+    //   new TurnForDegrees(-50, drive),
+    //   new InstantCommand(() -> drive.resetOdometry(gatewayPathTrajectory3.getInitialPose())),
+    //   generateRamseteCommandFromTrajectory(gatewayPathTrajectory3),
+    //   new WaitCommand(0.5),
+    //   new InstantCommand(() -> collector.collectOutake(), collector),
+    //   new InstantCommand(() -> collector.singulatorOutake(), collector),
+    //   new InstantCommand(() -> collector.moverReverse(), collector),
+    //   new WaitCommand(1),
+    //   new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+    //   new InstantCommand(() -> collector.collectIntake(), collector),
+    //   new InstantCommand(() -> launcher.stop(), launcher),
+    //   new InstantCommand(() -> collector.feederOff(), collector),
+    //   new InstantCommand(() -> collector.moverOff(), collector),
+    //   new InstantCommand(() -> collector.singulatorStop(), collector)
+    // );
   }
 
   /**
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
-    //drive.updateShuffleboard();
+    drive.updateShuffleboard();
     launcher.updateShuffleboard();
     colorSensor.updateShuffleboard();
     climber.updateShuffleboard();
@@ -586,9 +525,9 @@ public class RobotContainer {
       fourBallAutoTrajectory3 = generateTrajectoryFromJSON(fourBallAutoPath3);
       fourBallAutoTrajectory4 = generateTrajectoryFromJSON(fourBallAutoPath4);
       threeBallAutoTrajectory3 = generateTrajectoryFromJSON(threeBallAutoPath3);
-      gatewayPathTrajectory1 = generateTrajectoryFromJSON(gatewayPath1);
-      gatewayPathTrajectory2 = generateTrajectoryFromJSON(gatewayPath2);
-      gatewayPathTrajectory3 = generateTrajectoryFromJSON(gatewayPath3);
+      gatekeepPathTrajectory1 = generateTrajectoryFromJSON(gatewayPath1);
+      gatekeepPathTrajectory2 = generateTrajectoryFromJSON(gatewayPath2);
+      gatekeepPathTrajectory3 = generateTrajectoryFromJSON(gatewayPath3);
     } catch (IOException e) {
       System.out.println("Could not read trajectory file.");
     }
@@ -603,26 +542,26 @@ public class RobotContainer {
 
   public RamseteCommand generateRamseteCommandFromTrajectory(Trajectory trajectory) {
     return new RamseteCommand(
-        trajectory,
-        drive::getPose,
-        new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
-        new SimpleMotorFeedforward(
-            Constants.ksVolts,
-            Constants.kvVoltSecondsPerMeter,
-            Constants.kaVoltSecondsSquaredPerMeter),
-        Constants.kDriveKinematics,
-        drive::getWheelSpeeds,
-        new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
-        new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
-        // RamseteCommand passes volts to the callback
-        (leftVolts, rightVolts) -> {
-          //System.out.println("Left Volts   " + leftVolts + "               Right Volts:  " + rightVolts);
-          SmartDashboard.putNumber("Left Volts ", leftVolts);
-          SmartDashboard.putNumber("Right Volts ", rightVolts);
-          drive.tankDriveVolts(leftVolts, rightVolts);
-        },
-        drive
-      );
+      trajectory,
+      drive::getPose,
+      new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
+      new SimpleMotorFeedforward(
+          Constants.ksVolts,
+          Constants.kvVoltSecondsPerMeter,
+          Constants.kaVoltSecondsSquaredPerMeter),
+      Constants.kDriveKinematics,
+      drive::getWheelSpeeds,
+      new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
+      new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
+      // RamseteCommand passes volts to the callback
+      (leftVolts, rightVolts) -> {
+        //System.out.println("Left Volts   " + leftVolts + "               Right Volts:  " + rightVolts);
+        SmartDashboard.putNumber("Left Volts ", leftVolts);
+        SmartDashboard.putNumber("Right Volts ", rightVolts);
+        drive.tankDriveVolts(leftVolts, rightVolts);
+      },
+      drive
+    );
   }
 
   public BallColor getSelectedAllianceColor() {
@@ -635,6 +574,10 @@ public class RobotContainer {
 
   public Launcher getLauncher() {
     return launcher;
+  }
+
+  public Drive getDrive() {
+    return drive;
   }
 
   /**

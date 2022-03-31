@@ -61,7 +61,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.getDrive().setCoast();
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -70,6 +72,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_robotContainer.getDrive().setBrake();
     
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -85,7 +88,7 @@ public class Robot extends TimedRobot {
   public void autonomousExit() {
       // TODO Auto-generated method stub
       super.autonomousExit();
-      m_robotContainer.getLauncher().setGainPreset(ShooterPosition.UPPER_HUB);
+      m_robotContainer.getLauncher().setGainPreset(ShooterPosition.FENDER_UPPER);
   }
 
   @Override
@@ -97,6 +100,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    m_robotContainer.getDrive().setBrake();
   }
 
   /** This function is called periodically during operator control. */
@@ -107,6 +112,7 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    m_robotContainer.getDrive().setBrake();
   }
 
   /** This function is called periodically during test mode. */

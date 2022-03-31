@@ -11,44 +11,57 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.lib.Gains;
 
 public class Launcher extends SubsystemBase {
   public enum ShooterPosition {
-    LOWER_HUB(0, "Lower Hub"), UPPER_HUB(1, "Upper Hub"), TARMAC_LOW(2, "Tarmac Low"), TARMAC_HIGH(3, "Tarmac High"), HALF_COURT(4, "Half Court"),  DEAD_ZONE(5, "Dead Zone"),  INVALID(6, "Invalid");
+    FENDER_LOWER(0, "Fender Lower"), FENDER_UPPER(1, "Fender Upper"), TARMAC_LOW(2, "Tarmac Low"), TARMAC_LINE_HIGH(3, "Tarmac Line High"), HALF_COURT(4, "Half Court"),  TARMAC_ZONE(5, "Tarmac Zone"),  INVALID(6, "Invalid");
 
-    private int value;
+    private int index;
     private String name;
+
+    private Gains bottomGains;
+
+    private Gains topGains;
     
-    private ShooterPosition(int value, String name) {
-      this.value = value;
+    private ShooterPosition(int index, String name) {
+      this.index = index;
       this.name = name;
     }
 
-    public int getPosition() {
-      return value;
+    public int getIndex() {
+      return index;
     }
 
     public String getName() {
       return name;
     }
 
+    public Gains getBottomGains() {
+      return bottomGains;
+    }
+
+    public Gains getTopGains() {
+      return topGains;
+    }
+
     public static ShooterPosition fromInt(int value) {
       for(ShooterPosition position : values()) {
-        if(position.value == value) {
+        if(position.index == value) {
           return position;
         }
       }
       return INVALID;
     }
 
-    public static int getHighestValue() {
-      int highestVal = 0;
+    public static int getHighestIndex() {
+      int highestIndex = 0;
       for(ShooterPosition position : values()) {
-        if(position.value > highestVal) {
-          highestVal = position.value;
+        if(position.index > highestIndex) {
+          highestIndex = position.index;
         }
       }
-      return highestVal - 2;
+      return highestIndex - 2;
     }
   }
 
@@ -130,7 +143,7 @@ public class Launcher extends SubsystemBase {
   private double pBottom, fBottom, setpointBottom,
                  pTop, fTop, setpointTop;
 
-  private ShooterPosition defaultPosition = ShooterPosition.UPPER_HUB;
+  private ShooterPosition defaultPosition = ShooterPosition.FENDER_UPPER;
   private ShooterPosition selectedPosition = defaultPosition;
 
   private static final double MAX_OUTPUT = 1;
@@ -174,10 +187,10 @@ public class Launcher extends SubsystemBase {
     topRoller.configNominalOutputForward(0);
     topRoller.configNominalOutputReverse(0);
 
-    bottomRoller.config_kP(0, BOTTOMROLLER_P[selectedPosition.getPosition()], 100);
-    bottomRoller.config_kF(0, BOTTOMROLLER_F[selectedPosition.getPosition()], 100);
-    topRoller.config_kP(0, TOPROLLER_P[selectedPosition.getPosition()], 100);
-    topRoller.config_kF(0, TOPROLLER_F[selectedPosition.getPosition()], 100);
+    bottomRoller.config_kP(0, BOTTOMROLLER_P[selectedPosition.getIndex()], 100);
+    bottomRoller.config_kF(0, BOTTOMROLLER_F[selectedPosition.getIndex()], 100);
+    topRoller.config_kP(0, TOPROLLER_P[selectedPosition.getIndex()], 100);
+    topRoller.config_kF(0, TOPROLLER_F[selectedPosition.getIndex()], 100);
   }
 
   public void updateShuffleboard() {
@@ -225,11 +238,11 @@ public class Launcher extends SubsystemBase {
   }
   
   public void setLauncherForPosition() {
-    if(selectedPosition.equals(ShooterPosition.LOWER_HUB)) {
+    if(selectedPosition.equals(ShooterPosition.FENDER_LOWER)) {
       setLauncherTop(0.23);
       setLauncherBottom(0.23);
     }
-    if(selectedPosition.equals(ShooterPosition.UPPER_HUB)) {
+    if(selectedPosition.equals(ShooterPosition.FENDER_UPPER)) {
       setLauncherTop(0.47);
       setLauncherBottom(0.47);
     }
@@ -262,7 +275,7 @@ public class Launcher extends SubsystemBase {
    * @param shooterPosition Indicates the shooter position for which PID values will be updated
    */
   public void setGainPreset(ShooterPosition shooterPosition) {
-    int pos = shooterPosition.getPosition();
+    int pos = shooterPosition.getIndex();
     selectedPosition = shooterPosition;
 
     // I and D values are not pulled from an array since these values are always zero
@@ -332,8 +345,8 @@ public class Launcher extends SubsystemBase {
   }
 
   public void cycleGainPreset(Direction direction) {
-    int highestVal = ShooterPosition.getHighestValue();
-    int nextPosition = selectedPosition.getPosition() + direction.getDirection();
+    int highestVal = ShooterPosition.getHighestIndex();
+    int nextPosition = selectedPosition.getIndex() + direction.getDirection();
     if(nextPosition < 0) {
       selectedPosition = ShooterPosition.fromInt(highestVal);
     } else if(nextPosition > highestVal) {
@@ -349,10 +362,10 @@ public class Launcher extends SubsystemBase {
   }
 
   public double getTopSetPoint() {
-    return TOPROLLER_SETPOINT[selectedPosition.getPosition()];
+    return TOPROLLER_SETPOINT[selectedPosition.getIndex()];
   }
   public double getBottomSetPoint() {
-    return BOTTOMROLLER_SETPOINT[selectedPosition.getPosition()];
+    return BOTTOMROLLER_SETPOINT[selectedPosition.getIndex()];
   }
 
   public boolean isAtTopSetpoint() {

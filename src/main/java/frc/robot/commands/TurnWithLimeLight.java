@@ -18,7 +18,6 @@ public class TurnWithLimeLight extends PIDCommand {
   private boolean canFinishCommand = false;
   private int counter = 1;
 
-  private Limelight limelight;
   private Drive drive;
   /**
    * Creates a new TurnWithLimelight.
@@ -46,7 +45,6 @@ public class TurnWithLimeLight extends PIDCommand {
     // Configure additional PID options by calling `getController` here.
     getController().setTolerance(5, 5);
     getController().enableContinuousInput(-29.8, 29.8);
-    this.limelight = limeLight;
     this.drive = drive;
   }
   @Override

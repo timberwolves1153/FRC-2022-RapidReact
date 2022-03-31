@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.DoubleConsumer;
-
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.*;
@@ -46,6 +44,8 @@ public class Drive extends SubsystemBase {
 
   private Field2d field2d;
 
+  private NeutralMode currentMode;
+
   /** Creates a new Drive. */
   public Drive() {
     leftMaster = new WPI_TalonFX(0);
@@ -60,6 +60,8 @@ public class Drive extends SubsystemBase {
     rightFollower.setNeutralMode(NeutralMode.Brake);
     leftMaster.setNeutralMode(NeutralMode.Brake);
     leftFollower.setNeutralMode(NeutralMode.Brake);
+
+    currentMode = NeutralMode.Brake;
 
     leftGroup = new MotorControllerGroup(leftMaster, leftFollower);
     rightGroup = new MotorControllerGroup(rightMaster, rightFollower);
@@ -199,6 +201,28 @@ public class Drive extends SubsystemBase {
    */
   public double getLeftEncoderVelocity() {
     return leftEncoder.getIntegratedSensorVelocity();
+  }
+
+  public void setCoast() {
+    rightMaster.setNeutralMode(NeutralMode.Coast);
+    rightFollower.setNeutralMode(NeutralMode.Coast);
+    leftMaster.setNeutralMode(NeutralMode.Coast);
+    leftFollower.setNeutralMode(NeutralMode.Coast);
+
+    currentMode = NeutralMode.Coast;
+  }
+
+  public void setBrake() {
+    rightMaster.setNeutralMode(NeutralMode.Brake);
+    rightFollower.setNeutralMode(NeutralMode.Brake);
+    leftMaster.setNeutralMode(NeutralMode.Brake);
+    leftFollower.setNeutralMode(NeutralMode.Brake);
+
+    currentMode = NeutralMode.Brake;
+  }
+
+  public NeutralMode getCurrentNeutralMode() {
+    return currentMode;
   }
 
   /**

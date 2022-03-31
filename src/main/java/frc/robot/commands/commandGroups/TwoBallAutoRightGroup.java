@@ -25,7 +25,7 @@ public class TwoBallAutoRightGroup extends SequentialCommandGroup {
   public TwoBallAutoRightGroup(Trajectory manualTrajectory1, Supplier<RamseteCommand> manualRamseteCommand1, Launcher launcher, Collector collector, Drive drive) {
     addCommands(
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.FENDER_UPPER), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.feederOn(), collector),
@@ -41,7 +41,7 @@ public class TwoBallAutoRightGroup extends SequentialCommandGroup {
       new TurnForDegrees(185, drive),
       new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
       manualRamseteCommand1.get(),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.FENDER_UPPER), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.feederOn(), collector),
