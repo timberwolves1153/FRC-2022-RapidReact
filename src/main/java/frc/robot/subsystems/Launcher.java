@@ -11,149 +11,30 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.lib.Gains;
+import frc.robot.lib.Direction;
+import frc.robot.lib.ShooterPosition;
 
 public class Launcher extends SubsystemBase {
-  public enum ShooterPosition {
-    FENDER_LOWER(0, "Fender Lower"), FENDER_UPPER(1, "Fender Upper"), TARMAC_LOW(2, "Tarmac Low"), TARMAC_LINE_HIGH(3, "Tarmac Line High"), HALF_COURT(4, "Half Court"),  TARMAC_ZONE(5, "Tarmac Zone"),  INVALID(6, "Invalid");
-
-    private int index;
-    private String name;
-
-    private Gains bottomGains;
-
-    private Gains topGains;
-    
-    private ShooterPosition(int index, String name) {
-      this.index = index;
-      this.name = name;
-    }
-
-    public int getIndex() {
-      return index;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Gains getBottomGains() {
-      return bottomGains;
-    }
-
-    public Gains getTopGains() {
-      return topGains;
-    }
-
-    public static ShooterPosition fromInt(int value) {
-      for(ShooterPosition position : values()) {
-        if(position.index == value) {
-          return position;
-        }
-      }
-      return INVALID;
-    }
-
-    public static int getHighestIndex() {
-      int highestIndex = 0;
-      for(ShooterPosition position : values()) {
-        if(position.index > highestIndex) {
-          highestIndex = position.index;
-        }
-      }
-      return highestIndex - 2;
-    }
-  }
-
-  public enum Direction {
-    kForwards(1), kBackwards(-1);
-
-    private int direction;
-
-    private Direction(int direction) {
-      this.direction = direction;
-    }
-
-    public int getDirection() {
-      return direction;
-    }
-  }
-
   private WPI_TalonFX bottomRoller;
   private WPI_TalonFX topRoller;
 
   private boolean pidEnabled = false;
 
   private boolean overrideLimelight = true;
-
-  private static final double[] TOPROLLER_SETPOINT = {
-    14000, 
-    16000, 
-    12500,
-    11000,
-    12000,
-    15000
-  };
-  private static final double[] BOTTOMROLLER_SETPOINT = {
-    5000, 
-    5000, 
-    9000,
-    9500,
-    1000,
-    7500
-  };
-  private static final double[] TOPROLLER_P = {
-    0.01, 
-    0.01, 
-    0.01, 
-    0.01,
-    0.01,
-    0.01
-  };
-  private static final double[] TOPROLLER_F = {
-    (0.30 * 1023.0 / TOPROLLER_SETPOINT[0]), 
-    ((TOPROLLER_SETPOINT[1] / 20800) * 1023.0 / TOPROLLER_SETPOINT[1]), 
-    ((TOPROLLER_SETPOINT[2] / 20800) * 1023.0 / TOPROLLER_SETPOINT[2]), 
-    ((TOPROLLER_SETPOINT[3] / 20800) * 1023.0 / TOPROLLER_SETPOINT[3]),
-    ((TOPROLLER_SETPOINT[4] / 20800) * 1023.0 / TOPROLLER_SETPOINT[4]),
-    ((TOPROLLER_SETPOINT[5] / 20800) * 1023.0 / TOPROLLER_SETPOINT[5]),
-
-
-
-  };
-  private static final double[] BOTTOMROLLER_P = {
-    0.01, 
-    0.01, 
-    0.01, 
-    0.0075,
-    0.01,
-    0.01
-  };
-  private static final double[] BOTTOMROLLER_F = {
-    (0.23 * 1023.0 / BOTTOMROLLER_SETPOINT[0]), 
-    ((BOTTOMROLLER_SETPOINT[1] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[1]), 
-    ((BOTTOMROLLER_SETPOINT[2] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[2]), 
-    ((BOTTOMROLLER_SETPOINT[3] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[3]),
-    ((BOTTOMROLLER_SETPOINT[4] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[4]),
-    ((BOTTOMROLLER_SETPOINT[5] / 20800) * 1023.0 / BOTTOMROLLER_SETPOINT[5]),
-  };
   
   //Setpoint Values: 3400, 4100, 4500
 
   private double pBottom, fBottom, setpointBottom,
                  pTop, fTop, setpointTop;
 
-  private ShooterPosition defaultPosition = ShooterPosition.FENDER_UPPER;
+  private ShooterPosition defaultPosition = ShooterPosition.FENDER_HIGH;
   private ShooterPosition selectedPosition = defaultPosition;
 
   private static final double MAX_OUTPUT = 1;
   private static final double MIN_OUTPUT = -1;
-
-
   
   /** Creates a new Shooter. */
   public Launcher() {
-    
     bottomRoller = new WPI_TalonFX(21);
     topRoller = new WPI_TalonFX(22);
 
@@ -187,24 +68,24 @@ public class Launcher extends SubsystemBase {
     topRoller.configNominalOutputForward(0);
     topRoller.configNominalOutputReverse(0);
 
-    bottomRoller.config_kP(0, BOTTOMROLLER_P[selectedPosition.getIndex()], 100);
-    bottomRoller.config_kF(0, BOTTOMROLLER_F[selectedPosition.getIndex()], 100);
-    topRoller.config_kP(0, TOPROLLER_P[selectedPosition.getIndex()], 100);
-    topRoller.config_kF(0, TOPROLLER_F[selectedPosition.getIndex()], 100);
+    bottomRoller.config_kP(0, selectedPosition.getBottomGains().getP(), 100);
+    bottomRoller.config_kF(0, selectedPosition.getBottomGains().getF(), 100);
+    topRoller.config_kP(0, selectedPosition.getTopGains().getP(), 100);
+    topRoller.config_kF(0, selectedPosition.getTopGains().getF(), 100);
   }
 
   public void updateShuffleboard() {
-    // SmartDashboard.putNumber("Bottom Shooter Velocity", bottomRoller.getSelectedSensorVelocity());
-    // SmartDashboard.putNumber("Bottom Shooter Power", bottomRoller.get());
-    // SmartDashboard.putNumber("Bottom Shooter Value", bottomRoller.getSelectedSensorPosition());
-    // SmartDashboard.putNumber("Top Shooter Velocity", topRoller.getSelectedSensorVelocity());
-    // SmartDashboard.putNumber("Top Shooter Power", topRoller.get());
-    // SmartDashboard.putNumber("Top Shooter Value", topRoller.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Bottom Shooter Velocity", bottomRoller.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("Bottom Shooter Power", bottomRoller.get());
+    SmartDashboard.putNumber("Bottom Shooter Value", bottomRoller.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Top Shooter Velocity", topRoller.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("Top Shooter Power", topRoller.get());
+    SmartDashboard.putNumber("Top Shooter Value", topRoller.getSelectedSensorPosition());
     
     SmartDashboard.putString("Launcher Position", selectedPosition.getName());
     SmartDashboard.putBoolean("Launcher Override", getOverride());
 
-    /*double pBottom = SmartDashboard.getNumber("Bottom Launcher P", this.pBottom);
+    double pBottom = SmartDashboard.getNumber("Bottom Launcher P", this.pBottom);
     double fBottom = SmartDashboard.getNumber("Bottom Launcher F", this.fBottom);
     double setpointBottom = SmartDashboard.getNumber("Bottom Launcher Setpoint", this.setpointBottom);
 
@@ -221,7 +102,7 @@ public class Launcher extends SubsystemBase {
     if (this.pTop != pTop || this.fTop != fTop || this.setpointTop != setpointTop) {
       setTopPIDGains(pTop, fTop, setpointTop);
       System.out.println("Updating Values");
-    }*/
+    }
   }
 
   public void setLauncherTop(double speed){
@@ -238,11 +119,11 @@ public class Launcher extends SubsystemBase {
   }
   
   public void setLauncherForPosition() {
-    if(selectedPosition.equals(ShooterPosition.FENDER_LOWER)) {
+    if(selectedPosition.equals(ShooterPosition.FENDER_LOW)) {
       setLauncherTop(0.23);
       setLauncherBottom(0.23);
     }
-    if(selectedPosition.equals(ShooterPosition.FENDER_UPPER)) {
+    if(selectedPosition.equals(ShooterPosition.FENDER_HIGH)) {
       setLauncherTop(0.47);
       setLauncherBottom(0.47);
     }
@@ -275,19 +156,15 @@ public class Launcher extends SubsystemBase {
    * @param shooterPosition Indicates the shooter position for which PID values will be updated
    */
   public void setGainPreset(ShooterPosition shooterPosition) {
-    int pos = shooterPosition.getIndex();
     selectedPosition = shooterPosition;
-
-    // I and D values are not pulled from an array since these values are always zero
-    setTopPIDGains(TOPROLLER_P[pos], TOPROLLER_F[pos], TOPROLLER_SETPOINT[pos]);
-    setBottomPIDGains(BOTTOMROLLER_P[pos], BOTTOMROLLER_F[pos], BOTTOMROLLER_SETPOINT[pos]);
+    
+    setTopPIDGains(shooterPosition.getTopGains().getP(), shooterPosition.getTopGains().getF(), shooterPosition.getTopSetpoint());
+    setBottomPIDGains(shooterPosition.getBottomGains().getP(), shooterPosition.getBottomGains().getF(), shooterPosition.getBottomSetpoint());
   }
 
   /**
    * Sets all tuning parameters for the rotation-regulating PID
    * @param p P gain
-   * @param i I gain
-   * @param d D gain
    * @param f Feed-forward gain
    * @param setpoint RPM setpoint
    */
@@ -299,9 +176,9 @@ public class Launcher extends SubsystemBase {
     bottomRoller.config_kP(0, p);
     bottomRoller.config_kF(0, f);
 
-    /*SmartDashboard.putNumber("Bottom Launcher P", p);
+    SmartDashboard.putNumber("Bottom Launcher P", p);
     SmartDashboard.putNumber("Bottom Launcher F", f);
-    SmartDashboard.putNumber("Bottom Launcher Setpoint", setpoint);*/
+    SmartDashboard.putNumber("Bottom Launcher Setpoint", setpoint);
   }
 
   public void setTopPIDGains(double p, double f, double setpoint) {
@@ -312,9 +189,9 @@ public class Launcher extends SubsystemBase {
     topRoller.config_kP(0, p);
     topRoller.config_kF(0, f);
 
-    /*SmartDashboard.putNumber("Top Launcher P", p);
+    SmartDashboard.putNumber("Top Launcher P", p);
     SmartDashboard.putNumber("Top Launcher F", f);
-    SmartDashboard.putNumber("Top Launcher Setpoint", setpoint);*/
+    SmartDashboard.putNumber("Top Launcher Setpoint", setpoint);
   }
 
   /**
@@ -362,10 +239,10 @@ public class Launcher extends SubsystemBase {
   }
 
   public double getTopSetPoint() {
-    return TOPROLLER_SETPOINT[selectedPosition.getIndex()];
+    return selectedPosition.getTopSetpoint();
   }
   public double getBottomSetPoint() {
-    return BOTTOMROLLER_SETPOINT[selectedPosition.getIndex()];
+    return selectedPosition.getBottomSetpoint();
   }
 
   public boolean isAtTopSetpoint() {

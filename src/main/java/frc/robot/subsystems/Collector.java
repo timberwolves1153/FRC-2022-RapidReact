@@ -22,14 +22,18 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
 public class Collector extends SubsystemBase {
   private WPI_TalonFX collect;
+
   private DoubleSolenoid doubleSolenoid1;
+  private DoubleSolenoid doubleSolenoid2;
+
   private CANSparkMax mover;
   private CANSparkMax singulator;
+
   private DigitalInput moverBannerSensor;
   private DigitalInput feederBannerSensor;
+
   private CANSparkMax feeder;
 
   /** Creates a new Collector.*/
@@ -39,11 +43,12 @@ public class Collector extends SubsystemBase {
     mover = new CANSparkMax(12, MotorType.kBrushless);
     feeder = new CANSparkMax(20, MotorType.kBrushless);
 
-    doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 4, 5);
+    //doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 4, 5);
+    doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
+    doubleSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
     moverBannerSensor = new DigitalInput(1);
     feederBannerSensor = new DigitalInput(0);
     
-
     mover.restoreFactoryDefaults();
     collect.configFactoryDefault();
     singulator.restoreFactoryDefaults();
@@ -73,7 +78,9 @@ public class Collector extends SubsystemBase {
     collect.setNeutralMode(NeutralMode.Brake);
 
     collect.setInverted(InvertType.InvertMotorOutput);
-    collect.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 100);  
+
+    collect.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 100);
+
     collect.configNominalOutputForward(0, 100);
     collect.configNominalOutputReverse(0, 100);
     collect.configPeakOutputForward(1, 100);
@@ -124,7 +131,6 @@ public class Collector extends SubsystemBase {
     singulator.set(-1);
   }
   
-
   public void singulatorOutake() {
     singulator.set(1);
   }
@@ -142,16 +148,6 @@ public class Collector extends SubsystemBase {
   public void set(double speed) {
     collect.set(speed);
   }
-
-  // public void smartBallShoot(){
-  //   feeder.set(-0.5);
-  //   singulatorIntake();
-  //   if(moverSeesBall() && !feederSeesBall()){
-  //     mover.set(0.5);
-  //   }else{
-  //     mover.set(0);
-  //   }
-  // }
 
   public void resetRightCollectorEncoders(){
     collect.setSelectedSensorPosition(0, 0, 100);
@@ -191,15 +187,21 @@ public class Collector extends SubsystemBase {
 
   public void setSolenoid(DoubleSolenoid.Value value) {
     doubleSolenoid1.set(value);
+    doubleSolenoid2.set(value);
   }
 
-  public DoubleSolenoid.Value getSolenoidState() {
+  public DoubleSolenoid.Value getSolenoid1State() {
     return doubleSolenoid1.get();
+  }
+
+  public DoubleSolenoid.Value getSolenoid2State() {
+    return doubleSolenoid2.get();
   }
 
   public void toggleSolenoid(){
     doubleSolenoid1.toggle();
-    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff)) {
+    doubleSolenoid2.toggle();
+    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff) && doubleSolenoid2.get().equals(DoubleSolenoid.Value.kOff)) {
       setSolenoid(DoubleSolenoid.Value.kForward);
     }
   }

@@ -7,8 +7,8 @@ package frc.robot.commands;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.lib.Direction;
 import frc.robot.subsystems.Launcher;
-import frc.robot.subsystems.Launcher.Direction;
 
 
 public class DefaultLauncher extends CommandBase {

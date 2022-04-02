@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.TurnForDegrees;
+import frc.robot.lib.ShooterPosition;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Launcher;
@@ -24,12 +25,12 @@ import frc.robot.subsystems.Launcher;
 public class GatekeepAutoGroup extends SequentialCommandGroup {
   /** Creates a new GateKeepAutoGroup. */
   public GatekeepAutoGroup(
-    Supplier<RamseteCommand> gatekeepRamseteCommand1, 
-    Supplier<RamseteCommand> gatekeepRamseteCommand2, 
-    Supplier<RamseteCommand> gatekeepRamseteCommand3, 
     Trajectory gatekeepPathTrajectory1, 
     Trajectory gatekeepPathTrajectory2, 
     Trajectory gatekeepPathTrajectory3, 
+    Supplier<RamseteCommand> gatekeepRamseteCommand1, 
+    Supplier<RamseteCommand> gatekeepRamseteCommand2, 
+    Supplier<RamseteCommand> gatekeepRamseteCommand3,
     Collector collector, 
     Drive drive, 
     Launcher launcher
@@ -37,7 +38,7 @@ public class GatekeepAutoGroup extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.FENDER_UPPER), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_HIGH), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.feederOn(), collector),
@@ -51,7 +52,7 @@ public class GatekeepAutoGroup extends SequentialCommandGroup {
       new InstantCommand(()-> drive.resetOdometry(gatekeepPathTrajectory1.getInitialPose())),
       gatekeepRamseteCommand1.get(),
       new TurnForDegrees(160, drive),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_LINE_HIGH), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_LINE_HIGH), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.feederOn(), collector),
@@ -76,7 +77,7 @@ public class GatekeepAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.singulatorOutake(), collector),
       new InstantCommand(() -> collector.moverReverse(), collector),
       new WaitCommand(1),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.FENDER_UPPER), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_HIGH), launcher),
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),

@@ -8,7 +8,7 @@ import edu.wpi.first.util.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.Launcher.ShooterPosition;
+import frc.robot.lib.ShooterPosition;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -86,9 +86,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-      // TODO Auto-generated method stub
       super.autonomousExit();
-      m_robotContainer.getLauncher().setGainPreset(ShooterPosition.FENDER_UPPER);
+      m_robotContainer.getLauncher().setGainPreset(ShooterPosition.FENDER_HIGH);
   }
 
   @Override

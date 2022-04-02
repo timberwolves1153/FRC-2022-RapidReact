@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.TurnForDegrees;
+import frc.robot.lib.ShooterPosition;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Launcher;
@@ -32,7 +33,7 @@ public class FourBallAutoGroup extends SequentialCommandGroup {
     Drive drive
   ) {
     addCommands(
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.TARMAC_LINE_HIGH), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_LINE_HIGH), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.collectIntake(), collector),

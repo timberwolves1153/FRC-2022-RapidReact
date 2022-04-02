@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.TurnForDegrees;
+import frc.robot.lib.ShooterPosition;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Launcher;
@@ -25,7 +26,7 @@ public class TwoBallAutoRightGroup extends SequentialCommandGroup {
   public TwoBallAutoRightGroup(Trajectory manualTrajectory1, Supplier<RamseteCommand> manualRamseteCommand1, Launcher launcher, Collector collector, Drive drive) {
     addCommands(
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.FENDER_UPPER), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_HIGH), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.feederOn(), collector),
@@ -41,7 +42,7 @@ public class TwoBallAutoRightGroup extends SequentialCommandGroup {
       new TurnForDegrees(185, drive),
       new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
       manualRamseteCommand1.get(),
-      new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.FENDER_UPPER), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_HIGH), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.feederOn(), collector),

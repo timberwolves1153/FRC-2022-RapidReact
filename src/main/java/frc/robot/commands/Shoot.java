@@ -5,9 +5,9 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.lib.ShooterPosition;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.Launcher.ShooterPosition;
 
 public class Shoot extends CommandBase {
   private Launcher launcher;
@@ -37,7 +37,7 @@ public class Shoot extends CommandBase {
 
     if(!launcher.getOverride()) {
       if(limelight.calcDistance() < 50) {
-        launcher.setGainPreset(ShooterPosition.FENDER_UPPER);
+        launcher.setGainPreset(ShooterPosition.FENDER_HIGH);
       } else if(limelight.calcDistance() > 50 && limelight.calcDistance() < 95) {
         launcher.setGainPreset(ShooterPosition.TARMAC_ZONE);
       } else if(limelight.calcDistance() > 95) {
@@ -45,9 +45,7 @@ public class Shoot extends CommandBase {
       }
     }
   }
-
-
-
+  
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {

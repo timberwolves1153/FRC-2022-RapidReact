@@ -13,8 +13,10 @@ import frc.robot.lib.led.BlinkingPattern;
 import frc.robot.lib.led.ChaosPattern;
 import frc.robot.lib.led.ChasePattern;
 import frc.robot.lib.led.IntensityPattern;
+import frc.robot.lib.led.RainbowPattern;
 import frc.robot.lib.led.ScannerPattern;
 import frc.robot.lib.led.SolidColorPattern;
+import frc.robot.lib.led.TrobotAddressableLEDPattern;
 
 public class LEDLights extends SubsystemBase {
   private AddressableLED m_led;
@@ -30,24 +32,25 @@ public class LEDLights extends SubsystemBase {
   private IntensityPattern intensityPattern;
   private ScannerPattern scannerPattern;
   private BlinkingPattern blinkingPattern;
+  private RainbowPattern rainbowPattern;
+
   /** Creates a new LEDLights. */
   public LEDLights() {
     m_led = new AddressableLED(9);
     m_ledBuffer = new AddressableLEDBuffer(32);
     m_led.setLength(m_ledBuffer.getLength());
 
-    // solidPattern = new SolidColorPattern(new Color(255/255.0, 20/255.0, 147/255.0));
     solidPattern = new SolidColorPattern(Color.kAliceBlue);
     chasePattern = new ChasePattern(chaseColors, 32);
     chaosPattern = new ChaosPattern();
     scannerPattern = new ScannerPattern(Color.kRed, Color.kBlack, 5);
     blinkingPattern = new BlinkingPattern(Color.kHotPink, .5);
+    rainbowPattern = new RainbowPattern();
 
     m_led.start();
   }
 
   public void setRGB(int r, int g, int b) {
-    Color tempColor = new Color(r, g, b);
     for (var i = 0; i < m_ledBuffer.getLength(); i++) {
       m_ledBuffer.setRGB(i, r, g, b);
     }
@@ -55,8 +58,8 @@ public class LEDLights extends SubsystemBase {
     m_led.setData(m_ledBuffer);
   }
 
-  public void setLEDPattern() {
-    scannerPattern.setLEDs(m_ledBuffer);
+  public void setLEDPattern(TrobotAddressableLEDPattern pattern) {
+    pattern.setLEDs(m_ledBuffer);
   }
 
   private void rainbow() {
@@ -86,10 +89,6 @@ public class LEDLights extends SubsystemBase {
     }
      else {
       setRGB(255, 20, 147);
-  //  setLEDPattern();
-  //  m_led.setData(m_ledBuffer);
-
-  //   }
-   }
-}
+    }
+  }
 }

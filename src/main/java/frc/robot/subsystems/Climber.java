@@ -45,8 +45,6 @@ public class Climber extends SubsystemBase {
     doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
     doubleSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
 
-
-
     leftMagnetSensor = new DigitalInput(2);
     rightMagnetSensor = new DigitalInput(3);
 
@@ -59,13 +57,11 @@ public class Climber extends SubsystemBase {
   }
 
   public void updateShuffleboard(){
-    /*
     SmartDashboard.putNumber("rightEncoder", getRightEncoder());
     SmartDashboard.putNumber("leftEncoder", getLeftEncoder());
     SmartDashboard.putNumber("Accelerometer X", getAccelerationX());
     SmartDashboard.putNumber("Accelerometer Y", getAccelerationY());
     SmartDashboard.putNumber("Accelerometer Z", getAccelerationZ());
-    */
 
     SmartDashboard.putBoolean("Right Magnet", getRightMagnetSensorValue());
     SmartDashboard.putBoolean("Left Magnet", getLeftMagnetSensorValue());

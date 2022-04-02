@@ -10,7 +10,6 @@ public class RainbowPattern implements TrobotAddressableLEDPattern{
 	private int m_firstHue = 0;
 	public RainbowPattern(){
 		super();
-		
 	}
 
 	@Override
