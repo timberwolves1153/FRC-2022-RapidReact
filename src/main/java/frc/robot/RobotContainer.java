@@ -31,6 +31,7 @@ import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TurnWithLimeLight;
+import frc.robot.commands.TurnWithLimelightV2;
 import frc.robot.commands.WinchDown;
 import frc.robot.commands.commandGroups.FourBallAutoGroup;
 import frc.robot.commands.commandGroups.GatekeepAutoGroup;
@@ -87,7 +88,7 @@ public class RobotContainer {
   private ClimbForDistance climbForDistance;
   //private SmartShoot smartShoot;
   private WinchDown winchDownCommand;
-  private TurnWithLimeLight turnWithLimeLight;
+  private TurnWithLimelightV2 turnWithLimeLight;
   private Shoot shoot;
   
   //Instantiates all subsystems
@@ -172,7 +173,7 @@ public class RobotContainer {
     opPovLeft = new POVButton(opStick, 270);
     opPovRight = new POVButton(opStick, 90);
 
-    turnWithLimeLight = new TurnWithLimeLight(drive, limelight);
+    turnWithLimeLight = new TurnWithLimelightV2(drive, limelight);
     climbForDistance = new ClimbForDistance(5, climber);
     //smartShoot = new SmartShoot(collector, colorSensor, launcher);
     winchDownCommand = new WinchDown(climber);
@@ -247,8 +248,11 @@ public class RobotContainer {
     driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
     driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
 
-    driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.turnWithLimelight(limelight), drive));
-    driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.arcadeDrive(0, 0), drive));
+    // driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.turnWithLimelight(limelight), drive));
+    // driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.arcadeDrive(0, 0), drive));
+
+    driveRightJoystickButton.whenPressed(turnWithLimeLight);
+    driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
 
     opY.whenPressed(shoot);
     opY.whenReleased(() -> shoot.cancel());
@@ -317,8 +321,10 @@ public class RobotContainer {
     fourBallAutoCommandGroup = new FourBallAutoGroup(
       fourBallAutoTrajectory1, 
       fourBallAutoTrajectory2, 
+      fourBallAutoTrajectory4,
       () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1), 
       () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2), 
+      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory4), 
       collector, 
       launcher, 
       drive
