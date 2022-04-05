@@ -33,6 +33,7 @@ import frc.robot.commands.Shoot;
 import frc.robot.commands.TurnWithLimeLight;
 import frc.robot.commands.TurnWithLimelightV2;
 import frc.robot.commands.WinchDown;
+import frc.robot.commands.commandGroups.FiveBallAutoGroup;
 import frc.robot.commands.commandGroups.FourBallAutoGroup;
 import frc.robot.commands.commandGroups.GatekeepAutoGroup;
 import frc.robot.commands.commandGroups.ThreeBallAutoGroup;
@@ -106,6 +107,10 @@ public class RobotContainer {
   private Trajectory fourBallAutoTrajectory3;
   private Trajectory fourBallAutoTrajectory4;
   private Trajectory fourBallAutoTrajectory5;
+  private Trajectory fiveBallAutoTrajectory1;
+  private Trajectory fiveBallAutoTrajectory2;
+  private Trajectory fiveBallAutoTrajectory3;
+
 
   private Trajectory manualTrajectory1;
 
@@ -120,6 +125,7 @@ public class RobotContainer {
   private SequentialCommandGroup fourBallAutoCommandGroup;
   private SequentialCommandGroup gatekeepAutoCommandGroup;
   private SequentialCommandGroup threeBallAutoCommandGroup;
+  private SequentialCommandGroup fiveBallAutoCommandGroup;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
   private String fourBallAutoPath1 = "pathplanner/generatedJSON/FourBallAutoPath1.wpilib.json";
@@ -131,6 +137,9 @@ public class RobotContainer {
   private String gatewayPath2 = "pathplanner/generatedJSON/GatewayPath2.wpilib.json";
   private String gatewayPath3 = "pathplanner/generatedJSON/GatewayPath3.wpilib.json";
   private String threeBallAutoPath3 = "pathplanner/generatedJSON/ThreeBallAutoPath3.wpilib.json";
+  private String fiveBallAutoPath1 = "pathplanner/generatedJSON/FiveBallAutoPath1.wpilib.json";
+  private String fiveBallAutoPath2 = "pathplanner/generatedJSON/FiveBallAutoPath2.wpilib.json";
+  private String fiveBallAutoPath3 = "pathplanner/generatedJSON/FiveBallAutoPath3.wpilib.json";
 
   private SendableChooser<Command> autoCommandChooser;
   public SendableChooser<BallColor> allianceColor;
@@ -208,6 +217,8 @@ public class RobotContainer {
     autoCommandChooser.addOption("Four Ball", fourBallAutoCommandGroup);
     autoCommandChooser.addOption("Three Ball", threeBallAutoCommandGroup);
     autoCommandChooser.addOption("Gatekeep", gatekeepAutoCommandGroup);
+    autoCommandChooser.addOption("Five Ball", fiveBallAutoCommandGroup);
+
 
     allianceColor.setDefaultOption("Blue", BallColor.BLUE);
     allianceColor.addOption("Red", BallColor.RED);
@@ -354,6 +365,18 @@ public class RobotContainer {
       launcher
     );
 
+    fiveBallAutoCommandGroup = new FiveBallAutoGroup(
+      fiveBallAutoTrajectory1, 
+      fiveBallAutoTrajectory2, 
+      fiveBallAutoTrajectory3,
+      () -> generateRamseteCommandFromTrajectory(fiveBallAutoTrajectory1), 
+      () -> generateRamseteCommandFromTrajectory(fiveBallAutoTrajectory2),
+      () -> generateRamseteCommandFromTrajectory(fiveBallAutoTrajectory3),
+      collector, 
+      launcher,
+      drive
+    );
+
     // threeBallAutoCommandGroup = new SequentialCommandGroup(
     //   new InstantCommand(()-> System.out.println("Running Three Ball Auto")),
     //   new InstantCommand(() -> launcher.setGainPreset(Launcher.ShooterPosition.UPPER_HUB), launcher),
@@ -482,6 +505,10 @@ public class RobotContainer {
       gatekeepPathTrajectory1 = generateTrajectoryFromJSON(gatewayPath1);
       gatekeepPathTrajectory2 = generateTrajectoryFromJSON(gatewayPath2);
       gatekeepPathTrajectory3 = generateTrajectoryFromJSON(gatewayPath3);
+      fiveBallAutoTrajectory1 = generateTrajectoryFromJSON(fiveBallAutoPath1);
+      fiveBallAutoTrajectory2 = generateTrajectoryFromJSON(fiveBallAutoPath2);
+      fiveBallAutoTrajectory3 = generateTrajectoryFromJSON(fiveBallAutoPath3);
+
     } catch (IOException e) {
       System.out.println("Could not read trajectory file.");
     }
@@ -532,6 +559,14 @@ public class RobotContainer {
 
   public Drive getDrive() {
     return drive;
+  }
+
+  public XboxController getDriveStick(){
+    return driveStick;
+  }
+
+  public XboxController getOpStick(){
+    return opStick;
   }
 
   /**

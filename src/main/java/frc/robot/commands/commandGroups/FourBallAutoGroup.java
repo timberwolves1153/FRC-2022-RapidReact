@@ -44,21 +44,21 @@ public class FourBallAutoGroup extends SequentialCommandGroup {
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
       fourBallRamseteCommand1.get(),
       new InstantCommand(() -> collector.moverOff(), collector),
-      new TurnForDegrees(180, drive),
+      new TurnForDegrees(175, drive),
       new InstantCommand(() -> collector.feederOn(), collector),
       new InstantCommand(() -> collector.moverForward(), collector),
       new WaitCommand(1),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
       fourBallRamseteCommand2.get(),
-      new InstantCommand(() -> collector.moverOff(), collector),
-      new TurnForDegrees(180, drive),
-      fourBallRamseteCommand4.get(),
-      new InstantCommand(() -> collector.collectorStop(), collector),
-      new InstantCommand(() -> launcher.pidOn(), launcher),
-      new InstantCommand(() -> collector.moverForward(), collector),
-      new InstantCommand(() ->  collector.feederOn(), collector),
-      new WaitCommand(1),
+      // new InstantCommand(() -> collector.moverOff(), collector),
+      // new TurnForDegrees(180, drive),
+      // fourBallRamseteCommand4.get(),
+      // new InstantCommand(() -> collector.collectorStop(), collector),
+      // new InstantCommand(() -> launcher.pidOn(), launcher),
+      // new InstantCommand(() -> collector.moverForward(), collector),
+      // new InstantCommand(() ->  collector.feederOn(), collector),
+      // new WaitCommand(1),
       new InstantCommand(() -> launcher.pidOff(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
@@ -85,10 +85,5 @@ public class FourBallAutoGroup extends SequentialCommandGroup {
     //   new InstantCommand(()-> collector.singulatorStop(), collector),
     //   new InstantCommand(()-> collector.collectorStop(), collector)
     );
-  }
-
-  public FourBallAutoGroup(Trajectory fourBallAutoTrajectory1, Trajectory fourBallAutoTrajectory2,
-      Trajectory fourBallAutoTrajectory4, Supplier<RamseteCommand> supplier, Supplier<RamseteCommand> supplier2,
-      Object object, Collector collector, Launcher launcher, Drive drive) {
   }
 }

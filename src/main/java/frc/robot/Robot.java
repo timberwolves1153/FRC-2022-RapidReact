@@ -61,12 +61,23 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {
-   // m_robotContainer.getDrive().setCoast();
+  public void disabledInit() {}
+
+  @Override
+  public void disabledPeriodic() {
+    if(m_robotContainer.getDriveStick().getAButtonPressed() || m_robotContainer.getOpStick().getAButtonPressed()){
+      m_robotContainer.getDrive().setCoast();
+    }
+    if(m_robotContainer.getDriveStick().getAButtonReleased() || m_robotContainer.getOpStick().getAButtonReleased()){
+      m_robotContainer.getDrive().setBrake();
+    }
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledExit() {
+      super.disabledExit();
+      m_robotContainer.getDrive().setBrake();
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
