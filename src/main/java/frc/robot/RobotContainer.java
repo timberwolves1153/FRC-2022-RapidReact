@@ -6,12 +6,16 @@ package frc.robot;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -111,7 +115,6 @@ public class RobotContainer {
   private Trajectory fiveBallAutoTrajectory2;
   private Trajectory fiveBallAutoTrajectory3;
 
-
   private Trajectory manualTrajectory1;
 
   private Trajectory gatekeepPathTrajectory1;
@@ -119,6 +122,9 @@ public class RobotContainer {
   private Trajectory gatekeepPathTrajectory3;
 
   private Trajectory threeBallAutoTrajectory3;
+  private Trajectory tuningTrajectory;
+
+  private Trajectory tuningTrajectory2;
  
   private SequentialCommandGroup twoBallAutoCommandGroupRight;
   private SequentialCommandGroup twoBallAutoCommandGroupLeft;
@@ -140,6 +146,7 @@ public class RobotContainer {
   private String fiveBallAutoPath1 = "pathplanner/generatedJSON/FiveBallAutoPath1.wpilib.json";
   private String fiveBallAutoPath2 = "pathplanner/generatedJSON/FiveBallAutoPath2.wpilib.json";
   private String fiveBallAutoPath3 = "pathplanner/generatedJSON/FiveBallAutoPath3.wpilib.json";
+  private String tuningPath = "pathplanner/generatedJSON/TuningPath.wpilib.json";
 
   private SendableChooser<Command> autoCommandChooser;
   public SendableChooser<BallColor> allianceColor;
@@ -218,7 +225,10 @@ public class RobotContainer {
     autoCommandChooser.addOption("Three Ball", threeBallAutoCommandGroup);
     autoCommandChooser.addOption("Gatekeep", gatekeepAutoCommandGroup);
     autoCommandChooser.addOption("Five Ball", fiveBallAutoCommandGroup);
-
+    autoCommandChooser.addOption("Tuning Path", new SequentialCommandGroup(
+      new InstantCommand(() -> drive.resetOdometry(tuningTrajectory2.getInitialPose()), drive),
+      generateRamseteCommandFromTrajectory(tuningTrajectory2)
+    ));
 
     allianceColor.setDefaultOption("Blue", BallColor.BLUE);
     allianceColor.addOption("Red", BallColor.RED);
@@ -264,6 +274,9 @@ public class RobotContainer {
 
     driveRightJoystickButton.whenPressed(turnWithLimeLight);
     driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
+
+    // driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(8.74, 5.54, new Rotation2d(69.34 * (Math.PI / 180))))));
+    driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(0, 0, new Rotation2d()))));
 
     opY.whenPressed(shoot);
     opY.whenReleased(() -> shoot.cancel());
@@ -469,11 +482,11 @@ public class RobotContainer {
    */
   public void updateShuffleboard() {
     drive.updateShuffleboard();
-    launcher.updateShuffleboard();
-    colorSensor.updateShuffleboard();
-    climber.updateShuffleboard();
+    //launcher.updateShuffleboard();
+    //colorSensor.updateShuffleboard();
+    //climber.updateShuffleboard();
     //collector.updateShuffleboard();
-    limelight.updateShuffleBoard();
+    //limelight.updateShuffleBoard();
   }
 
   public void generateTrajectories(){
@@ -491,9 +504,13 @@ public class RobotContainer {
                 Constants.kMaxSpeedMetersPerSecond,
                 Constants.kMaxAccelerationMetersPerSecondSquared)
             // Add kinematics to ensure max speed is actually obeyed
-            .setKinematics(Constants.kDriveKinematics)
-            // Apply the voltage constraint
-            .addConstraint(autoVoltageConstraint);
+            .setKinematics(Constants.kDriveKinematics);
+
+    tuningTrajectory2 = TrajectoryGenerator.generateTrajectory(List.of(
+      new Pose2d(),
+      new Pose2d(3, 0, new Rotation2d())
+    ), 
+    config);
 
     try {
       manualTrajectory1 = generateTrajectoryFromJSON(manualPath1);
@@ -508,6 +525,7 @@ public class RobotContainer {
       fiveBallAutoTrajectory1 = generateTrajectoryFromJSON(fiveBallAutoPath1);
       fiveBallAutoTrajectory2 = generateTrajectoryFromJSON(fiveBallAutoPath2);
       fiveBallAutoTrajectory3 = generateTrajectoryFromJSON(fiveBallAutoPath3);
+      tuningTrajectory = generateTrajectoryFromJSON(tuningPath);
 
     } catch (IOException e) {
       System.out.println("Could not read trajectory file.");

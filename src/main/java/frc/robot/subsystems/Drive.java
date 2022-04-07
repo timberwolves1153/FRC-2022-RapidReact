@@ -12,12 +12,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.lib.Units;
 
 public class Drive extends SubsystemBase {
   private WPI_TalonFX rightMaster;
@@ -80,6 +82,8 @@ public class Drive extends SubsystemBase {
     odometry = new DifferentialDriveOdometry(new Rotation2d(imu.getAngle()));
 
     field2d = new Field2d();
+
+    SmartDashboard.putData("Field", field2d);
   }
 
   /**
@@ -243,15 +247,17 @@ public class Drive extends SubsystemBase {
     SmartDashboard.putNumber("Odometry X", pose.getX());
     SmartDashboard.putNumber("Odometry Y", pose.getY());
     SmartDashboard.putNumber("Odometry Rotation", pose.getRotation().getDegrees());
+  }
 
-    SmartDashboard.putData("Field", field2d);
+  public void setFieldTrajectory(String pathName, Trajectory traj) {
+    field2d.getObject(pathName).setTrajectory(traj);
   }
 
   @Override
   public void periodic() {
     pose = odometry.update(Rotation2d.fromDegrees(imu.getAngle()), 
-    -getLeftEncoderPosition() * 0.4788 / 23514.07407407407, 
-    getRightEncoderPosition() * 0.4788 / 23514.07407407407);
+    Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderPosition())), 
+    Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderPosition())));
 
     field2d.setRobotPose(pose);
   }

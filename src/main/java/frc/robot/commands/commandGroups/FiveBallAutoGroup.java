@@ -37,6 +37,11 @@ public class FiveBallAutoGroup extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
+      new InstantCommand(() -> {
+        drive.setFieldTrajectory("fiveBallAuto1", fiveBallAutoTrajectory1);
+        drive.setFieldTrajectory("fiveBallAuto2", fiveBallAutoTrajectory2);
+        drive.setFieldTrajectory("fiveBallAuto3", fiveBallAutoTrajectory3);
+      }, drive),
       new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_LINE_HIGH), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
@@ -51,15 +56,15 @@ public class FiveBallAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.moverForward(), collector),
       new WaitCommand(1),
       new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(120, drive),
-      new InstantCommand(()-> drive.resetOdometry(fiveBallAutoTrajectory2.getInitialPose())),
+      new TurnForDegrees(-85, drive),
+      new InstantCommand(() -> drive.resetOdometry(fiveBallAutoTrajectory2.getInitialPose())),
       fiveBallRamseteCommand2.get(),
-      new TurnForDegrees(180, drive),
-      new InstantCommand(()-> collector.moverOff(), collector),
-      new InstantCommand(()-> drive.resetOdometry(fiveBallAutoTrajectory3.getInitialPose())),
-      fiveBallRamseteCommand3.get(),
-      new InstantCommand(() -> collector.feederOn(), collector),
-      new InstantCommand(() -> collector.moverForward(), collector),
+      // new TurnForDegrees(180, drive),
+      // new InstantCommand(()-> collector.moverOff(), collector),
+      // new InstantCommand(()-> drive.resetOdometry(fiveBallAutoTrajectory3.getInitialPose())),
+      // fiveBallRamseteCommand3.get(),
+      // new InstantCommand(() -> collector.feederOn(), collector),
+      // new InstantCommand(() -> collector.moverForward(), collector),
       new WaitCommand(2),
       new InstantCommand(() -> launcher.pidOff(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),

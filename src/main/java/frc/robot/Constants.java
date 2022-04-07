@@ -19,12 +19,13 @@ public final class Constants {
     // public static final double kvVoltSecondsPerMeter = 2.5557;
     // public static final double kaVoltSecondsSquaredPerMeter = 0.25684;
 
+    // Final Constants
     public static final double ksVolts = 0.58668;
     public static final double kvVoltSecondsPerMeter = 2.5632;
     public static final double kaVoltSecondsSquaredPerMeter = 0.31239;
 
-    public static final double kPDriveVel = 0.0000005;
-    public static final double kDDriveVel = 0.001;
+    public static final double kPDriveVel = 0.0;
+    public static final double kDDriveVel = 0.0;
 
     // public static final double kTrackwidthMeters = 0.694;
     public static final double kTrackwidthMeters = 0.635;
@@ -37,8 +38,13 @@ public final class Constants {
 
     public static final double kRamseteB = 2;
     public static final double kRamseteZeta = 0.7;
-
     
     public static final double POSITION_TOLERANCE = 5.0;
     public static final double VELOCITY_TOLERANCE = 5.0;
+
+    public static final double DT_GEAR_RATIO = (62.0 / 9.0) * (30.0 / 18.0);
+    public static final double ENCODER_TICKS_PER_FALCON_REV = 2048.0;
+    public static final double ENCODER_TICKS_PER_DT_WHEEL_REVOLUTION = ENCODER_TICKS_PER_FALCON_REV * DT_GEAR_RATIO;
+
+    public static final double DT_WHEEL_DIAMETER = 6.0 / 39.37;
 }
