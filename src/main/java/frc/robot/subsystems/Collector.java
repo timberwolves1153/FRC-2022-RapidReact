@@ -43,9 +43,9 @@ public class Collector extends SubsystemBase {
     mover = new CANSparkMax(12, MotorType.kBrushless);
     feeder = new CANSparkMax(20, MotorType.kBrushless);
 
-    //doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 4, 5);
-    doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
-    doubleSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
+    doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 4, 5);
+    // doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
+    // doubleSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
     moverBannerSensor = new DigitalInput(1);
     feederBannerSensor = new DigitalInput(0);
     
@@ -187,21 +187,21 @@ public class Collector extends SubsystemBase {
 
   public void setSolenoid(DoubleSolenoid.Value value) {
     doubleSolenoid1.set(value);
-    doubleSolenoid2.set(value);
+   // doubleSolenoid2.set(value);
   }
 
-  public DoubleSolenoid.Value getSolenoid1State() {
+  public DoubleSolenoid.Value getSolenoidState() {
     return doubleSolenoid1.get();
   }
 
-  public DoubleSolenoid.Value getSolenoid2State() {
-    return doubleSolenoid2.get();
-  }
+  // public DoubleSolenoid.Value getSolenoid2State() {
+  //   return doubleSolenoid2.get();
+  // }
 
   public void toggleSolenoid(){
     doubleSolenoid1.toggle();
-    doubleSolenoid2.toggle();
-    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff) && doubleSolenoid2.get().equals(DoubleSolenoid.Value.kOff)) {
+   // doubleSolenoid2.toggle();
+    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff) /*&& doubleSolenoid2.get().equals(DoubleSolenoid.Value.kOff)*/) {
       setSolenoid(DoubleSolenoid.Value.kForward);
     }
   }

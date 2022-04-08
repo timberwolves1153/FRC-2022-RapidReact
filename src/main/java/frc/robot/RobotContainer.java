@@ -18,6 +18,7 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -504,7 +505,8 @@ public class RobotContainer {
                 Constants.kMaxSpeedMetersPerSecond,
                 Constants.kMaxAccelerationMetersPerSecondSquared)
             // Add kinematics to ensure max speed is actually obeyed
-            .setKinematics(Constants.kDriveKinematics);
+            .setKinematics(Constants.kDriveKinematics)
+            .addConstraint(autoVoltageConstraint);
 
     tuningTrajectory2 = TrajectoryGenerator.generateTrajectory(List.of(
       new Pose2d(),
@@ -540,24 +542,43 @@ public class RobotContainer {
   }
 
   public RamseteCommand generateRamseteCommandFromTrajectory(Trajectory trajectory) {
+    RamseteController controller = new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta);
+    
+    PIDController leftController = new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel);
+    PIDController rightController = new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel);
+
+    var table = NetworkTableInstance.getDefault().getTable("troubleshooting");
+    var leftReference = table.getEntry("left_reference");
+    var leftMeasurement = table.getEntry("left_measurement");
+    var rightReference = table.getEntry("right_reference");
+    var rightMeasurement = table.getEntry("right_measurement");
+
     return new RamseteCommand(
       trajectory,
       drive::getPose,
-      new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
+      //new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
+      controller,
       new SimpleMotorFeedforward(
           Constants.ksVolts,
           Constants.kvVoltSecondsPerMeter,
           Constants.kaVoltSecondsSquaredPerMeter),
       Constants.kDriveKinematics,
       drive::getWheelSpeeds,
-      new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
-      new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
+      // new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
+      // new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
+      leftController,
+      rightController,
       // RamseteCommand passes volts to the callback
       (leftVolts, rightVolts) -> {
-        //System.out.println("Left Volts   " + leftVolts + "               Right Volts:  " + rightVolts);
-        SmartDashboard.putNumber("Left Volts ", leftVolts);
-        SmartDashboard.putNumber("Right Volts ", rightVolts);
+        // SmartDashboard.putNumber("Left Volts ", leftVolts);
+        // SmartDashboard.putNumber("Right Volts ", rightVolts);
         drive.tankDriveVolts(leftVolts, rightVolts);
+
+        leftMeasurement.setNumber(drive.getWheelSpeeds().leftMetersPerSecond);
+        leftReference.setNumber(leftController.getSetpoint());
+
+        rightMeasurement.setNumber(drive.getWheelSpeeds().rightMetersPerSecond);
+        rightReference.setNumber(rightController.getSetpoint());
       },
       drive
     );

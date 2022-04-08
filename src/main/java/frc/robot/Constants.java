@@ -20,11 +20,15 @@ public final class Constants {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.25684;
 
     // Final Constants
-    public static final double ksVolts = 0.58668;
-    public static final double kvVoltSecondsPerMeter = 2.5632;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.31239;
+    // public static final double ksVolts = 0.58668;
+    // public static final double kvVoltSecondsPerMeter = 2.5632;
+    // public static final double kaVoltSecondsSquaredPerMeter = 0.31239;
 
-    public static final double kPDriveVel = 0.0;
+    public static final double ksVolts = 0.6499;
+    public static final double kvVoltSecondsPerMeter = 2.5338;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.30225;
+
+    public static final double kPDriveVel = 0.005;
     public static final double kDDriveVel = 0.0;
 
     // public static final double kTrackwidthMeters = 0.694;
@@ -36,7 +40,7 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 2;
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
 
-    public static final double kRamseteB = 2;
+    public static final double kRamseteB = 2.0; //0.10
     public static final double kRamseteZeta = 0.7;
     
     public static final double POSITION_TOLERANCE = 5.0;

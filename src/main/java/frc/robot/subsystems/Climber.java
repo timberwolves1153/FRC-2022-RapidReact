@@ -41,9 +41,9 @@ public class Climber extends SubsystemBase {
     winchLeft =  new WPI_TalonFX(30);
     winchRight =  new WPI_TalonFX(31);
     
-    //doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 6, 7);
-    doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
-    doubleSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+    doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 6, 7);
+    // doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+    // doubleSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
 
     leftMagnetSensor = new DigitalInput(2);
     rightMagnetSensor = new DigitalInput(3);
@@ -137,39 +137,39 @@ public class Climber extends SubsystemBase {
 
   public void set(DoubleSolenoid.Value value) {
     doubleSolenoid1.set(value);
-    doubleSolenoid2.set(value);
+   // doubleSolenoid2.set(value);
   }
 
   public DoubleSolenoid.Value getSolenoid1State() {
     return doubleSolenoid1.get();
   }
 
-  public DoubleSolenoid.Value getSolenoid2State() {
-    return doubleSolenoid2.get();
-  }
+  // public DoubleSolenoid.Value getSolenoid2State() {
+  //   return doubleSolenoid2.get();
+  // }
 
 
 
   public void toggleSolenoid(){
-    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff) && doubleSolenoid2.get().equals(DoubleSolenoid.Value.kOff)) {
+    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff)/* && doubleSolenoid2.get().equals(DoubleSolenoid.Value.kOff)*/) {
       doubleSolenoid1.set(DoubleSolenoid.Value.kForward);
-      doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
+    //  doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
     } else {
       doubleSolenoid1.toggle();
-      doubleSolenoid2.toggle();
+     // doubleSolenoid2.toggle();
     }
   }
 
   public void pistonReverse(){
     doubleSolenoid1.set(DoubleSolenoid.Value.kReverse);
-    doubleSolenoid2.set(DoubleSolenoid.Value.kReverse);
+  //  doubleSolenoid2.set(DoubleSolenoid.Value.kReverse);
 
 
   }
 
   public void pistonForward(){
     doubleSolenoid1.set(DoubleSolenoid.Value.kForward);
-    doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
+   // doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
   }
 
   //This is a helper method that clarifies what winching up means in the context of the set method; 

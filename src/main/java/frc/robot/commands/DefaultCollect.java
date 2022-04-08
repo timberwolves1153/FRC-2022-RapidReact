@@ -31,8 +31,8 @@ public class DefaultCollect extends CommandBase {
   @Override
   public void execute() {
     if(leftTrigger.getAsDouble() > 0.1) {
-      //if(collector.getSolenoidState().equals(DoubleSolenoid.Value.kReverse)) {
-        if(collector.getSolenoid1State().equals(DoubleSolenoid.Value.kReverse) && collector.getSolenoid2State().equals(DoubleSolenoid.Value.kReverse)) {
+      if(collector.getSolenoidState().equals(DoubleSolenoid.Value.kReverse)) {
+        //if(collector.getSolenoid1State().equals(DoubleSolenoid.Value.kReverse) && collector.getSolenoid2State().equals(DoubleSolenoid.Value.kReverse)) {
         collector.singulatorIntake();
       } else {
         collector.singulatorStop();
@@ -41,8 +41,8 @@ public class DefaultCollect extends CommandBase {
       //collector.smartBallCollect();
     }
     if(rightTrigger.getAsDouble() > 0.1) {
-      //if(collector.getSolenoidState().equals(DoubleSolenoid.Value.kReverse)){
-      if(collector.getSolenoid1State().equals(DoubleSolenoid.Value.kReverse) && collector.getSolenoid2State().equals(DoubleSolenoid.Value.kReverse)) {
+      if(collector.getSolenoidState().equals(DoubleSolenoid.Value.kReverse)){
+      //if(collector.getSolenoid1State().equals(DoubleSolenoid.Value.kReverse)  && collector.getSolenoid2State().equals(DoubleSolenoid.Value.kReverse)) {
         collector.singulatorOutake();
       } else {
         collector.singulatorStop();

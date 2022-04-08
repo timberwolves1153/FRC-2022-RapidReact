@@ -3,13 +3,17 @@
     "SmartDashboard": {
       "Field": {
         "open": true
-      },
+      }
+    },
+    "troubleshooting": {
       "open": true
     },
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Collector": "Subsystem",
       "/LiveWindow/ColorSensor": "Subsystem",
       "/LiveWindow/Limelight/PID Controller": "PIDController",
+      "/LiveWindow/Rumble": "Subsystem",
       "/LiveWindow/Ungrouped/DifferentialDrive[1]": "DifferentialDrive",
       "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
       "/LiveWindow/Ungrouped/DigitalInput[1]": "Digital Input",
@@ -36,6 +40,8 @@
       "/LiveWindow/Ungrouped/PIDController[25]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[26]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[27]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[28]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[29]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[2]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[3]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[4]": "PIDController",
@@ -62,10 +68,8 @@
         },
         "height": 8.229599952697754,
         "image": "C:\\Users\\1153\\Downloads\\2022-field.png",
-        "width": 16.459199905395508,
-        "window": {
-          "visible": true
-        }
+        "units": "meters",
+        "width": 16.459199905395508
       }
     }
   },
@@ -77,12 +81,74 @@
     "Plot <0>": {
       "plots": [
         {
-          "height": 332
+          "height": 404,
+          "name": "Left Measurement",
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/troubleshooting/left_measurement"
+            }
+          ],
+          "viewTime": 30.0
+        },
+        {
+          "height": 404,
+          "name": "Left Reference",
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/troubleshooting/left_reference"
+            }
+          ],
+          "viewTime": 30.0
         }
-      ],
-      "window": {
-        "visible": false
-      }
+      ]
+    },
+    "Plot <1>": {
+      "plots": [
+        {
+          "height": 398,
+          "name": "Right Measurement",
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/troubleshooting/right_measurement"
+            }
+          ],
+          "viewTime": 30.0
+        },
+        {
+          "height": 398,
+          "name": "Right Reference",
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/troubleshooting/right_reference"
+            }
+          ],
+          "viewTime": 30.0
+        }
+      ]
     }
   }
 }

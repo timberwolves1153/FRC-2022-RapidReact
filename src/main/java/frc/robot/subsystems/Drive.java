@@ -155,8 +155,10 @@ public class Drive extends SubsystemBase {
     // that by the gear ratio of motor rotations to wheel rotations (25 motor turns / 3 wheel turns) to get 17066.66666666666 encoder ticks per wheel rotation. The circumference of
     // of the wheel (0.3192 meters) is placed over the total encoder ticks to create a ratio of (0.3192 / 17066.66666666666) which when multiplied by any encoder value in terms of
     // encoder ticks will provide the equivalent distance traveled in meters.
-    return new DifferentialDriveWheelSpeeds(getLeftEncoderVelocity() * 0.4788 / 23514.07407407407, 
-                                            -getRightEncoderVelocity() * 0.4788 / 23514.07407407407);
+    return new DifferentialDriveWheelSpeeds(
+      Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderVelocity())), 
+      Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderVelocity()))
+    );
   }
 
   /**
@@ -196,7 +198,7 @@ public class Drive extends SubsystemBase {
    * @return right encoder velocity in encoder ticks per second
    */
   public double getRightEncoderVelocity() {
-    return rightEncoder.getIntegratedSensorVelocity();
+    return rightEncoder.getIntegratedSensorVelocity() * 10;
   }
 
   /**
@@ -204,7 +206,7 @@ public class Drive extends SubsystemBase {
    * @return Left encoder velocity in encoder ticks per second
    */
   public double getLeftEncoderVelocity() {
-    return leftEncoder.getIntegratedSensorVelocity();
+    return leftEncoder.getIntegratedSensorVelocity() * 10;
   }
 
   public void setCoast() {
@@ -233,16 +235,18 @@ public class Drive extends SubsystemBase {
    * Contains all Shuffleboard print statements
    */
   public void updateShuffleboard() {
-    SmartDashboard.putNumber("Right Encoder Position", -getRightEncoderPosition());
-    SmartDashboard.putNumber("Left Encoder Position", getLeftEncoderPosition());
-    SmartDashboard.putNumber("Right Encoder Velocity", -getRightEncoderVelocity() * 0.4788 / 23514.07407407407);
-    SmartDashboard.putNumber("Left Encoder Velocity", getLeftEncoderVelocity() * 0.4788 / 23514.07407407407);
-    SmartDashboard.putNumber("Right Encoder Distance", -getRightEncoderPosition() * 0.4788 / 23514.07407407407);
-    SmartDashboard.putNumber("Left Encoder Distance", getLeftEncoderPosition() * 0.4788 / 23514.07407407407);
+    SmartDashboard.putNumber("Right Encoder Position", getRightEncoderPosition());
+    SmartDashboard.putNumber("Left Encoder Position", -getLeftEncoderPosition());
+    SmartDashboard.putNumber("Right t/s", getRightEncoderVelocity());
+    SmartDashboard.putNumber("Left t/s", -getLeftEncoderVelocity());
+    SmartDashboard.putNumber("Right m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderVelocity())));
+    SmartDashboard.putNumber("Left m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderVelocity())));
+    SmartDashboard.putNumber("Right Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderPosition())));
+    SmartDashboard.putNumber("Left Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderPosition())));
 
-    SmartDashboard.putNumber("Gyro Heading Z", imu.getAngle());
-    SmartDashboard.putNumber("Gyro Complementary X", imu.getXComplementaryAngle());
-    SmartDashboard.putNumber("Gryo Complementary Y", imu.getYComplementaryAngle());
+    // SmartDashboard.putNumber("Gyro Heading Z", imu.getAngle());
+    // SmartDashboard.putNumber("Gyro Complementary X", imu.getXComplementaryAngle());
+    // SmartDashboard.putNumber("Gryo Complementary Y", imu.getYComplementaryAngle());
 
     SmartDashboard.putNumber("Odometry X", pose.getX());
     SmartDashboard.putNumber("Odometry Y", pose.getY());
