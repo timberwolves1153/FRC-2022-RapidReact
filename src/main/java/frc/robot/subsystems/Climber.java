@@ -45,8 +45,8 @@ public class Climber extends SubsystemBase {
     // doubleSolenoid1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
     // doubleSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
 
-    leftMagnetSensor = new DigitalInput(2);
-    rightMagnetSensor = new DigitalInput(3);
+    leftMagnetSensor = new DigitalInput(3);
+    rightMagnetSensor = new DigitalInput(2);
 
     accelerometer = new BuiltInAccelerometer();
     xAccelFilter = LinearFilter.movingAverage(10);
@@ -151,18 +151,18 @@ public class Climber extends SubsystemBase {
 
 
   public void toggleSolenoid(){
-    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff)/* && doubleSolenoid2.get().equals(DoubleSolenoid.Value.kOff)*/) {
+    if(doubleSolenoid1.get().equals(DoubleSolenoid.Value.kOff) /*&& doubleSolenoid2.get().equals(DoubleSolenoid.Value.kOff)*/) {
       doubleSolenoid1.set(DoubleSolenoid.Value.kForward);
-    //  doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
+   // doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
     } else {
       doubleSolenoid1.toggle();
-     // doubleSolenoid2.toggle();
+    //  doubleSolenoid2.toggle();
     }
   }
 
   public void pistonReverse(){
     doubleSolenoid1.set(DoubleSolenoid.Value.kReverse);
-  //  doubleSolenoid2.set(DoubleSolenoid.Value.kReverse);
+   // doubleSolenoid2.set(DoubleSolenoid.Value.kReverse);
 
 
   }

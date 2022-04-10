@@ -24,23 +24,31 @@ public final class Constants {
     // public static final double kvVoltSecondsPerMeter = 2.5632;
     // public static final double kaVoltSecondsSquaredPerMeter = 0.31239;
 
-    public static final double ksVolts = 0.6499;
-    public static final double kvVoltSecondsPerMeter = 2.5338;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.30225;
+    // //public static final double ksVolts = 0.6499;
+     public static final double ksVolts = 0.86221;
+     
+    // //public static final double kvVoltSecondsPerMeter = 2.5338;
+     public static final double kvVoltSecondsPerMeter = 2.605;
+     
+    public static final double kaVoltSecondsSquaredPerMeter = 0.76326;
+    //  public static final double kaVoltSecondsSquaredPerMeter = 0.23929;
+    
 
-    public static final double kPDriveVel = 0.005;
-    public static final double kDDriveVel = 0.0;
+
+    public static final double kPDriveVel = -1.0001;
+    public static final double kDDriveVel = 0.1;
 
     // public static final double kTrackwidthMeters = 0.694;
-    public static final double kTrackwidthMeters = 0.635;
-    public static final double kRobotLength = 0.79;
+    //public static final double kTrackwidthMeters = 0.635;
+    public static final double kTrackwidthMeters = 0.18644;
+    public static final double kRobotLength = 0.96;
     public static final DifferentialDriveKinematics kDriveKinematics = 
         new DifferentialDriveKinematics(kTrackwidthMeters);
     
-    public static final double kMaxSpeedMetersPerSecond = 2;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+    public static final double kMaxSpeedMetersPerSecond = 2.0;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 1.0;
 
-    public static final double kRamseteB = 2.0; //0.10
+    public static final double kRamseteB = 2.0; // 0.10
     public static final double kRamseteZeta = 0.7;
     
     public static final double POSITION_TOLERANCE = 5.0;

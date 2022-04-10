@@ -278,6 +278,7 @@ public class RobotContainer {
 
     // driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(8.74, 5.54, new Rotation2d(69.34 * (Math.PI / 180))))));
     driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(0, 0, new Rotation2d()))));
+    
 
     opY.whenPressed(shoot);
     opY.whenReleased(() -> shoot.cancel());
@@ -482,12 +483,12 @@ public class RobotContainer {
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
-    drive.updateShuffleboard();
-    //launcher.updateShuffleboard();
+    //drive.updateShuffleboard();
+    launcher.updateShuffleboard();
     //colorSensor.updateShuffleboard();
-    //climber.updateShuffleboard();
+   // climber.updateShuffleboard();
     //collector.updateShuffleboard();
-    //limelight.updateShuffleBoard();
+    limelight.updateShuffleBoard();
   }
 
   public void generateTrajectories(){
@@ -543,6 +544,7 @@ public class RobotContainer {
 
   public RamseteCommand generateRamseteCommandFromTrajectory(Trajectory trajectory) {
     RamseteController controller = new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta);
+   // controller.setEnabled(false);
     
     PIDController leftController = new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel);
     PIDController rightController = new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel);
@@ -554,6 +556,7 @@ public class RobotContainer {
     var rightMeasurement = table.getEntry("right_measurement");
 
     return new RamseteCommand(
+     
       trajectory,
       drive::getPose,
       //new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
@@ -570,8 +573,8 @@ public class RobotContainer {
       rightController,
       // RamseteCommand passes volts to the callback
       (leftVolts, rightVolts) -> {
-        // SmartDashboard.putNumber("Left Volts ", leftVolts);
-        // SmartDashboard.putNumber("Right Volts ", rightVolts);
+        SmartDashboard.putNumber("Left Volts ", leftVolts);
+        SmartDashboard.putNumber("Right Volts ", rightVolts);
         drive.tankDriveVolts(leftVolts, rightVolts);
 
         leftMeasurement.setNumber(drive.getWheelSpeeds().leftMetersPerSecond);
