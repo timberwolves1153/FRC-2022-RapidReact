@@ -273,8 +273,11 @@ public class RobotContainer {
     // driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.turnWithLimelight(limelight), drive));
     // driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.arcadeDrive(0, 0), drive));
 
-    driveRightJoystickButton.whenPressed(turnWithLimeLight);
-    driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
+    // driveRightJoystickButton.whenPressed(turnWithLimeLight);
+    // driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
+
+    driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.tankDriveVolts(2.6852, 2.6852), drive));
+    driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.tankDriveVolts(0, 0), drive));
 
     // driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(8.74, 5.54, new Rotation2d(69.34 * (Math.PI / 180))))));
     driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(0, 0, new Rotation2d()))));
@@ -483,7 +486,7 @@ public class RobotContainer {
    * Master method for updating the updateShuffleboard() method in each subsystem
    */
   public void updateShuffleboard() {
-    //drive.updateShuffleboard();
+    drive.updateShuffleboard();
     launcher.updateShuffleboard();
     //colorSensor.updateShuffleboard();
    // climber.updateShuffleboard();
@@ -542,9 +545,9 @@ public class RobotContainer {
     return trajectory;
   }
 
-  public RamseteCommand generateRamseteCommandFromTrajectory(Trajectory trajectory) {
+  public Command generateRamseteCommandFromTrajectory(Trajectory trajectory) {
     RamseteController controller = new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta);
-   // controller.setEnabled(false);
+    controller.setEnabled(false);
     
     PIDController leftController = new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel);
     PIDController rightController = new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel);
@@ -556,7 +559,6 @@ public class RobotContainer {
     var rightMeasurement = table.getEntry("right_measurement");
 
     return new RamseteCommand(
-     
       trajectory,
       drive::getPose,
       //new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
@@ -584,7 +586,7 @@ public class RobotContainer {
         rightReference.setNumber(rightController.getSetpoint());
       },
       drive
-    );
+    ).beforeStarting(new InstantCommand(() -> drive.resetOdometry(trajectory.getInitialPose()), drive));
   }
 
   public BallColor getSelectedAllianceColor() {

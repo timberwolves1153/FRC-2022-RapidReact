@@ -8,8 +8,8 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.TurnForDegrees;
@@ -23,7 +23,13 @@ import frc.robot.subsystems.Launcher;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class TwoBallAutoRightGroup extends SequentialCommandGroup {
   /** Creates a new TwoBallAutoRightGroup. */
-  public TwoBallAutoRightGroup(Trajectory manualTrajectory1, Supplier<RamseteCommand> manualRamseteCommand1, Launcher launcher, Collector collector, Drive drive) {
+  public TwoBallAutoRightGroup(
+    Trajectory manualTrajectory1, 
+    Supplier<Command> manualRamseteCommand1, 
+    Launcher launcher, 
+    Collector collector, 
+    Drive drive
+  ) {
     addCommands(
       new InstantCommand(() -> System.out.println("Running Partial Auto")),
       new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_HIGH), launcher),
@@ -37,10 +43,10 @@ public class TwoBallAutoRightGroup extends SequentialCommandGroup {
       new TurnForDegrees(155, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.collectIntake(), collector),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
       manualRamseteCommand1.get(),
       new TurnForDegrees(185, drive),
-      new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(manualTrajectory1.getInitialPose())),
       manualRamseteCommand1.get(),
       new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_HIGH), launcher),
       new InstantCommand(() -> launcher.setLauncherForPosition(), launcher),

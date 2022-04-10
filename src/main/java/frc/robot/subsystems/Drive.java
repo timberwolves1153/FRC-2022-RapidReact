@@ -151,10 +151,6 @@ public class Drive extends SubsystemBase {
    * @return DifferentialDriveWheelSpeeds object containing the speed of each robot side in meters per second
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    // The 0.3192 / 17066.66666666666 is a conversion factor from encoder ticks to meters. It is obtained by taking the encoder ticks per motor rotation (2048) and multiplying
-    // that by the gear ratio of motor rotations to wheel rotations (25 motor turns / 3 wheel turns) to get 17066.66666666666 encoder ticks per wheel rotation. The circumference of
-    // of the wheel (0.3192 meters) is placed over the total encoder ticks to create a ratio of (0.3192 / 17066.66666666666) which when multiplied by any encoder value in terms of
-    // encoder ticks will provide the equivalent distance traveled in meters.
     return new DifferentialDriveWheelSpeeds(
       Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderVelocity())), 
       Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderVelocity()))
@@ -235,14 +231,14 @@ public class Drive extends SubsystemBase {
    * Contains all Shuffleboard print statements
    */
   public void updateShuffleboard() {
-    SmartDashboard.putNumber("Right Encoder Position", getRightEncoderPosition());
-    SmartDashboard.putNumber("Left Encoder Position", -getLeftEncoderPosition());
-    SmartDashboard.putNumber("Right t/s", getRightEncoderVelocity());
-    SmartDashboard.putNumber("Left t/s", -getLeftEncoderVelocity());
-    SmartDashboard.putNumber("Right m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderVelocity())));
+    // SmartDashboard.putNumber("Right Encoder Position", getRightEncoderPosition());
+    // SmartDashboard.putNumber("Left Encoder Position", -getLeftEncoderPosition());
+    // SmartDashboard.putNumber("Left t/s", -getLeftEncoderVelocity());
+    // SmartDashboard.putNumber("Right t/s", getRightEncoderVelocity());
     SmartDashboard.putNumber("Left m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderVelocity())));
-    SmartDashboard.putNumber("Right Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderPosition())));
-    SmartDashboard.putNumber("Left Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderPosition())));
+    SmartDashboard.putNumber("Right m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderVelocity())));
+    // SmartDashboard.putNumber("Right Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderPosition())));
+    // SmartDashboard.putNumber("Left Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderPosition())));
 
     // SmartDashboard.putNumber("Gyro Heading Z", imu.getAngle());
     // SmartDashboard.putNumber("Gyro Complementary X", imu.getXComplementaryAngle());

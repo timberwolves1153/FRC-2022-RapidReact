@@ -8,8 +8,8 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.TurnForDegrees;
@@ -28,9 +28,9 @@ public class GatekeepAutoGroup extends SequentialCommandGroup {
     Trajectory gatekeepPathTrajectory1, 
     Trajectory gatekeepPathTrajectory2, 
     Trajectory gatekeepPathTrajectory3, 
-    Supplier<RamseteCommand> gatekeepRamseteCommand1, 
-    Supplier<RamseteCommand> gatekeepRamseteCommand2, 
-    Supplier<RamseteCommand> gatekeepRamseteCommand3,
+    Supplier<Command> gatekeepRamseteCommand1, 
+    Supplier<Command> gatekeepRamseteCommand2, 
+    Supplier<Command> gatekeepRamseteCommand3,
     Collector collector, 
     Drive drive, 
     Launcher launcher
@@ -49,7 +49,7 @@ public class GatekeepAutoGroup extends SequentialCommandGroup {
       new TurnForDegrees(185, drive),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.collectIntake(), collector),
-      new InstantCommand(()-> drive.resetOdometry(gatekeepPathTrajectory1.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(gatekeepPathTrajectory1.getInitialPose())),
       gatekeepRamseteCommand1.get(),
       new TurnForDegrees(160, drive),
       new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_LINE_HIGH), launcher),
@@ -62,7 +62,7 @@ public class GatekeepAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(() -> collector.moverOff(), collector),
       new TurnForDegrees(-85, drive),
-      new InstantCommand(()-> drive.resetOdometry(gatekeepPathTrajectory2.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(gatekeepPathTrajectory2.getInitialPose())),
       gatekeepRamseteCommand2.get(),
       new TurnForDegrees(-120, drive),
       new InstantCommand(() -> collector.collectOutake(), collector),
@@ -70,7 +70,7 @@ public class GatekeepAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.moverReverse(), collector),
       new WaitCommand(0.25),
       new TurnForDegrees(-50, drive),
-      new InstantCommand(() -> drive.resetOdometry(gatekeepPathTrajectory3.getInitialPose())),
+      //new InstantCommand(() -> drive.resetOdometry(gatekeepPathTrajectory3.getInitialPose())),
       gatekeepRamseteCommand3.get(),
       new WaitCommand(0.5),
       new InstantCommand(() -> collector.collectOutake(), collector),

@@ -9,8 +9,8 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.TurnForDegrees;
@@ -28,9 +28,9 @@ public class FiveBallAutoGroup extends SequentialCommandGroup {
   Trajectory fiveBallAutoTrajectory1,
   Trajectory fiveBallAutoTrajectory2,
   Trajectory fiveBallAutoTrajectory3,
-  Supplier<RamseteCommand> fiveBallRamseteCommand1, 
-  Supplier<RamseteCommand> fiveBallRamseteCommand2, 
-  Supplier<RamseteCommand> fiveBallRamseteCommand3, 
+  Supplier<Command> fiveBallRamseteCommand1, 
+  Supplier<Command> fiveBallRamseteCommand2, 
+  Supplier<Command> fiveBallRamseteCommand3, 
   Collector collector, 
   Launcher launcher, 
   Drive drive) {
@@ -48,7 +48,7 @@ public class FiveBallAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new InstantCommand(()-> drive.resetOdometry(fiveBallAutoTrajectory1.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(fiveBallAutoTrajectory1.getInitialPose())),
       fiveBallRamseteCommand1.get(),
       new InstantCommand(() -> collector.moverOff(), collector),
       new TurnForDegrees(180, drive),
@@ -57,7 +57,7 @@ public class FiveBallAutoGroup extends SequentialCommandGroup {
       new WaitCommand(1),
       new InstantCommand(() -> collector.feederOff(), collector),
       new TurnForDegrees(-85, drive),
-      new InstantCommand(() -> drive.resetOdometry(fiveBallAutoTrajectory2.getInitialPose())),
+      //new InstantCommand(() -> drive.resetOdometry(fiveBallAutoTrajectory2.getInitialPose())),
       fiveBallRamseteCommand2.get(),
       // new TurnForDegrees(180, drive),
       // new InstantCommand(()-> collector.moverOff(), collector),

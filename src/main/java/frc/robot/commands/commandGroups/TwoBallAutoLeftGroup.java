@@ -8,8 +8,8 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.TurnForDegrees;
@@ -23,7 +23,13 @@ import frc.robot.subsystems.Launcher;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class TwoBallAutoLeftGroup extends SequentialCommandGroup {
   /** Creates a new TwoBallAutoLeftGroup. */
-  public TwoBallAutoLeftGroup(Trajectory fourBallAutoTrajectory1, Supplier<RamseteCommand> ramseteCommand1, Launcher launcher, Collector collector, Drive drive) {
+  public TwoBallAutoLeftGroup(
+    Trajectory fourBallAutoTrajectory1, 
+    Supplier<Command> ramseteCommand1, 
+    Launcher launcher, 
+    Collector collector, 
+    Drive drive
+  ) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
@@ -40,7 +46,7 @@ public class TwoBallAutoLeftGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new InstantCommand(() -> collector.collectIntake(), collector),
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
       ramseteCommand1.get(),
       new InstantCommand(() -> launcher.pidOff(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),

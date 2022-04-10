@@ -8,8 +8,8 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.TurnForDegrees;
@@ -27,9 +27,9 @@ public class FourBallAutoGroup extends SequentialCommandGroup {
     Trajectory fourBallAutoTrajectory1, 
     Trajectory fourBallAutoTrajectory2,
     Trajectory fourBallAutoTrajectory4,
-    Supplier<RamseteCommand> fourBallRamseteCommand1, 
-    Supplier<RamseteCommand> fourBallRamseteCommand2,
-    Supplier<RamseteCommand> fourBallRamseteCommand4,
+    Supplier<Command> fourBallRamseteCommand1, 
+    Supplier<Command> fourBallRamseteCommand2,
+    Supplier<Command> fourBallRamseteCommand4,
     Collector collector, 
     Launcher launcher, 
     Drive drive
@@ -41,7 +41,7 @@ public class FourBallAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.collectIntake(), collector),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
       fourBallRamseteCommand1.get(),
       new InstantCommand(() -> collector.moverOff(), collector),
       new TurnForDegrees(175, drive),
@@ -49,7 +49,7 @@ public class FourBallAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.moverForward(), collector),
       new WaitCommand(1),
       new InstantCommand(() -> collector.feederOff(), collector),
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
       fourBallRamseteCommand2.get(),
       // new InstantCommand(() -> collector.moverOff(), collector),
       // new TurnForDegrees(180, drive),

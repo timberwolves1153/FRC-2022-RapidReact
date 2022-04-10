@@ -8,8 +8,8 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.TurnForDegrees;
@@ -27,9 +27,9 @@ public class ThreeBallAutoGroup extends SequentialCommandGroup {
     Trajectory fourBallAutoTrajectory1, 
     Trajectory fourBallAutoTrajectory2, 
     Trajectory fourBallAutoTrajectory3, 
-    Supplier<RamseteCommand> fourBallRamseteCommand1, 
-    Supplier<RamseteCommand> fourBallRamseteCommand2, 
-    Supplier<RamseteCommand> fourBallRameseteCommand3,
+    Supplier<Command> fourBallRamseteCommand1, 
+    Supplier<Command> fourBallRamseteCommand2, 
+    Supplier<Command> fourBallRameseteCommand3,
     Collector collector, 
     Drive drive, 
     Launcher launcher
@@ -48,17 +48,17 @@ public class ThreeBallAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new InstantCommand(() -> collector.collectIntake(), collector),
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory1.getInitialPose())),
       fourBallRamseteCommand1.get(),
       new TurnForDegrees(100, drive),
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
       fourBallRamseteCommand2.get(),
       new InstantCommand(()-> collector.moverOff(), collector),
     //  new InstantCommand(()-> collector.collectorStop(), collector),
      // new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kForward)),
       new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_LINE_HIGH), launcher),
       new TurnForDegrees(105, drive), 
-      new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory3.getInitialPose())),
+      //new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory3.getInitialPose())),
       fourBallRameseteCommand3.get(),
      // new TurnWithLimeLight(drive, limelight),
       //generateRamseteCommandFromTrajectory(threeBallAutoTrajectory3),

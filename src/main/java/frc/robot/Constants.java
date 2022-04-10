@@ -25,22 +25,20 @@ public final class Constants {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.31239;
 
     // //public static final double ksVolts = 0.6499;
-     public static final double ksVolts = 0.86221;
+     public static final double ksVolts = 0.81014;
      
     // //public static final double kvVoltSecondsPerMeter = 2.5338;
-     public static final double kvVoltSecondsPerMeter = 2.605;
+     public static final double kvVoltSecondsPerMeter = 2.6852;
      
-    public static final double kaVoltSecondsSquaredPerMeter = 0.76326;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.37202;
     //  public static final double kaVoltSecondsSquaredPerMeter = 0.23929;
     
-
-
-    public static final double kPDriveVel = -1.0001;
-    public static final double kDDriveVel = 0.1;
+    public static final double kPDriveVel = 0; //-1.0001
+    public static final double kDDriveVel = 0; //0.1
 
     // public static final double kTrackwidthMeters = 0.694;
     //public static final double kTrackwidthMeters = 0.635;
-    public static final double kTrackwidthMeters = 0.18644;
+    public static final double kTrackwidthMeters = 0.6223;
     public static final double kRobotLength = 0.96;
     public static final DifferentialDriveKinematics kDriveKinematics = 
         new DifferentialDriveKinematics(kTrackwidthMeters);
