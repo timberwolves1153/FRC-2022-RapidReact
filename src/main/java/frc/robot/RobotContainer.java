@@ -226,10 +226,7 @@ public class RobotContainer {
     autoCommandChooser.addOption("Three Ball", threeBallAutoCommandGroup);
     autoCommandChooser.addOption("Gatekeep", gatekeepAutoCommandGroup);
     autoCommandChooser.addOption("Five Ball", fiveBallAutoCommandGroup);
-    autoCommandChooser.addOption("Tuning Path", new SequentialCommandGroup(
-      new InstantCommand(() -> drive.resetOdometry(tuningTrajectory2.getInitialPose()), drive),
-      generateRamseteCommandFromTrajectory(tuningTrajectory2)
-    ));
+    autoCommandChooser.addOption("Tuning Path", generateRamseteCommandFromTrajectory(tuningTrajectory2));
 
     allianceColor.setDefaultOption("Blue", BallColor.BLUE);
     allianceColor.addOption("Red", BallColor.RED);
@@ -461,7 +458,6 @@ public class RobotContainer {
 
   public Command generateRamseteCommandFromTrajectory(Trajectory trajectory) {
     RamseteController controller = new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta);
-    controller.setEnabled(false);
     
     PIDController leftController = new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel);
     PIDController rightController = new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel);

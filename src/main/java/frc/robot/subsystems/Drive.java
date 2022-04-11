@@ -6,7 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
-import com.ctre.phoenix.motorcontrol.can.*;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -15,7 +15,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,15 +29,9 @@ public class Drive extends SubsystemBase {
   private TalonFXSensorCollection rightEncoder;
   private TalonFXSensorCollection leftEncoder;
 
-  private MotorControllerGroup leftGroup;
-  private MotorControllerGroup rightGroup;
-
   private DifferentialDrive differentialDrive;
 
-  //private ADIS16470_IMU imu;
   private ADIS16470_IMU imu;
-
-  //private AHRS imu;
   
   private DifferentialDriveOdometry odometry;
   
@@ -55,6 +48,9 @@ public class Drive extends SubsystemBase {
     rightMaster = new WPI_TalonFX(2);
     rightFollower = new WPI_TalonFX(3);
 
+    rightFollower.follow(rightMaster);
+    leftFollower.follow(leftMaster);
+
     rightEncoder = new TalonFXSensorCollection(rightMaster);
     leftEncoder = new TalonFXSensorCollection(leftMaster);
 
@@ -65,19 +61,14 @@ public class Drive extends SubsystemBase {
 
     currentMode = NeutralMode.Brake;
 
-    leftGroup = new MotorControllerGroup(leftMaster, leftFollower);
-    rightGroup = new MotorControllerGroup(rightMaster, rightFollower);
+    rightMaster.setInverted(true);
+    rightFollower.setInverted(true);
 
-    //Note this change; implement this into your own code to ensure that the robot doesn't turn when it's supposed to drive forward
-    rightGroup.setInverted(true);
-
-    differentialDrive = new DifferentialDrive(leftGroup, rightGroup);
+    differentialDrive = new DifferentialDrive(leftMaster, rightMaster);
 
     pose = new Pose2d();
 
     imu = new ADIS16470_IMU();
-
-    //imu = new AHRS(Port.kUSB); 
 
     odometry = new DifferentialDriveOdometry(new Rotation2d(imu.getAngle()));
 
@@ -108,8 +99,8 @@ public class Drive extends SubsystemBase {
    * @param rightVolts Right motor controller group volts
    */
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    leftGroup.setVoltage(-leftVolts);
-    rightGroup.setVoltage(-rightVolts);
+    leftMaster.setVoltage(-leftVolts);
+    rightMaster.setVoltage(-rightVolts);
     feed();
   }
 
@@ -152,7 +143,7 @@ public class Drive extends SubsystemBase {
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     return new DifferentialDriveWheelSpeeds(
-      Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderVelocity())), 
+      Units.falconRotationsToMeters(Units.falconTicksToRotations(getLeftEncoderVelocity())), 
       Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderVelocity()))
     );
   }
@@ -186,7 +177,7 @@ public class Drive extends SubsystemBase {
    * @return left encoder cumulative position in encoder ticks
    */
   public double getLeftEncoderPosition() {
-    return leftEncoder.getIntegratedSensorPosition();
+    return -leftEncoder.getIntegratedSensorPosition();
   }
 
   /**
@@ -202,7 +193,7 @@ public class Drive extends SubsystemBase {
    * @return Left encoder velocity in encoder ticks per second
    */
   public double getLeftEncoderVelocity() {
-    return leftEncoder.getIntegratedSensorVelocity() * 10;
+    return -leftEncoder.getIntegratedSensorVelocity() * 10;
   }
 
   public void setCoast() {
@@ -231,15 +222,15 @@ public class Drive extends SubsystemBase {
    * Contains all Shuffleboard print statements
    */
   public void updateShuffleboard() {
-    // SmartDashboard.putNumber("Right Encoder Position", getRightEncoderPosition());
-    // SmartDashboard.putNumber("Left Encoder Position", -getLeftEncoderPosition());
-    // SmartDashboard.putNumber("Left t/s", -getLeftEncoderVelocity());
-    // SmartDashboard.putNumber("Right t/s", getRightEncoderVelocity());
-    SmartDashboard.putNumber("Left m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderVelocity())));
+    SmartDashboard.putNumber("Left Encoder Position", getLeftEncoderPosition());
+    SmartDashboard.putNumber("Right Encoder Position", getRightEncoderPosition());
+    SmartDashboard.putNumber("Left t/s", getLeftEncoderVelocity());
+    SmartDashboard.putNumber("Right t/s", getRightEncoderVelocity());
+    SmartDashboard.putNumber("Left m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(getLeftEncoderVelocity())));
     SmartDashboard.putNumber("Right m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderVelocity())));
-    // SmartDashboard.putNumber("Right Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderPosition())));
-    // SmartDashboard.putNumber("Left Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderPosition())));
-
+    SmartDashboard.putNumber("Left Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(getLeftEncoderPosition())));
+    SmartDashboard.putNumber("Right Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderPosition())));
+    
     // SmartDashboard.putNumber("Gyro Heading Z", imu.getAngle());
     // SmartDashboard.putNumber("Gyro Complementary X", imu.getXComplementaryAngle());
     // SmartDashboard.putNumber("Gryo Complementary Y", imu.getYComplementaryAngle());
@@ -256,7 +247,7 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
     pose = odometry.update(Rotation2d.fromDegrees(imu.getAngle()), 
-    Units.falconRotationsToMeters(Units.falconTicksToRotations(-getLeftEncoderPosition())), 
+    Units.falconRotationsToMeters(Units.falconTicksToRotations(getLeftEncoderPosition())), 
     Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderPosition())));
 
     field2d.setRobotPose(pose);
