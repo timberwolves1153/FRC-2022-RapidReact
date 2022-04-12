@@ -117,9 +117,9 @@ public class Drive extends SubsystemBase {
    * @param pose desired odometry starting Pose2d
    */
   public void resetOdometry(Pose2d pose) {
-    resetEncoders();
     resetImu();
-    odometry.resetPosition(pose, new Rotation2d(imu.getAngle()));
+    resetEncoders();
+    odometry.resetPosition(pose, new Rotation2d(getHeading()));
   }
 
   /**

@@ -107,6 +107,7 @@ public class RobotContainer {
   private Limelight limelight;
   private Rumble rumble;
 
+  private Trajectory twoBallAutoTrajectory1;
   private Trajectory fourBallAutoTrajectory1;
   private Trajectory fourBallAutoTrajectory2;
   private Trajectory fourBallAutoTrajectory3;
@@ -122,6 +123,8 @@ public class RobotContainer {
   private Trajectory gatekeepPathTrajectory2;
   private Trajectory gatekeepPathTrajectory3;
 
+  private Trajectory threeBallAutoTrajectory1;
+  private Trajectory threeBallAutoTrajectory2;
   private Trajectory threeBallAutoTrajectory3;
   private Trajectory tuningTrajectory;
 
@@ -135,6 +138,7 @@ public class RobotContainer {
   private SequentialCommandGroup fiveBallAutoCommandGroup;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
+  private String twoBallAutoPath1 = "TwoBallAutoPath1";
   private String fourBallAutoPath1 = "pathplanner/generatedJSON/FourBallAutoPath1.wpilib.json";
   private String fourBallAutoPath2 = "pathplanner/generatedJSON/FourBallAutoPath2.wpilib.json";
   private String fourBallAutoPath3 = "pathplanner/generatedJSON/FourBallAutoPath3.wpilib.json";
@@ -143,6 +147,8 @@ public class RobotContainer {
   private String gatewayPath1 = "pathplanner/generatedJSON/GatewayPath1.wpilib.json";
   private String gatewayPath2 = "pathplanner/generatedJSON/GatewayPath2.wpilib.json";
   private String gatewayPath3 = "pathplanner/generatedJSON/GatewayPath3.wpilib.json";
+  private String threeBallAutoPath1 = "pathplanner/generatedJSON/ThreeBallAutoPath1.wpilib.json";
+  private String threeBallAutoPath2 = "pathplanner/generatedJSON/ThreeBallAutoPath2.wpilib.json";
   private String threeBallAutoPath3 = "pathplanner/generatedJSON/ThreeBallAutoPath3.wpilib.json";
   private String fiveBallAutoPath1 = "pathplanner/generatedJSON/FiveBallAutoPath1.wpilib.json";
   private String fiveBallAutoPath2 = "pathplanner/generatedJSON/FiveBallAutoPath2.wpilib.json";
@@ -190,7 +196,7 @@ public class RobotContainer {
     opPovLeft = new POVButton(opStick, 270);
     opPovRight = new POVButton(opStick, 90);
 
-    turnWithLimeLight = new TurnWithLimelightV2(drive, limelight);
+    turnWithLimeLight = new TurnWithLimelightV2(4, drive, limelight);
     climbForDistance = new ClimbForDistance(5, climber);
     //smartShoot = new SmartShoot(collector, colorSensor, launcher);
     winchDownCommand = new WinchDown(climber);
@@ -270,11 +276,11 @@ public class RobotContainer {
     // driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.turnWithLimelight(limelight), drive));
     // driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.arcadeDrive(0, 0), drive));
 
-    // driveRightJoystickButton.whenPressed(turnWithLimeLight);
-    // driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
+    driveRightJoystickButton.whenPressed(turnWithLimeLight);
+    driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
 
-    driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.tankDriveVolts(2.6852, 2.6852), drive));
-    driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.tankDriveVolts(0, 0), drive));
+    // driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.tankDriveVolts(2.6852, 2.6852), drive));
+    // driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.tankDriveVolts(0, 0), drive));
 
     // driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(8.74, 5.54, new Rotation2d(69.34 * (Math.PI / 180))))));
     driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(0, 0, new Rotation2d()))));
@@ -336,8 +342,8 @@ public class RobotContainer {
   private void generateCommandGroups() {
     twoBallAutoCommandGroupRight = new TwoBallAutoRightGroup(
       manualTrajectory1, 
-      () -> generateRamseteCommandFromTrajectory(manualTrajectory1), 
-      launcher, collector, drive);
+      () -> generateRamseteCommandFromTrajectory(twoBallAutoTrajectory1), 
+      launcher, collector, drive, limelight);
 
     twoBallAutoCommandGroupLeft = new TwoBallAutoLeftGroup(
       fourBallAutoTrajectory1, 
@@ -357,15 +363,16 @@ public class RobotContainer {
     );
 
     threeBallAutoCommandGroup = new ThreeBallAutoGroup(
-      fourBallAutoTrajectory1, 
-      fourBallAutoTrajectory2, 
-      fourBallAutoTrajectory3,
-      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1), 
-      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2), 
-      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory3),
+      threeBallAutoTrajectory1, 
+      threeBallAutoTrajectory2, 
+      threeBallAutoTrajectory3,
+      () -> generateRamseteCommandFromTrajectory(threeBallAutoTrajectory1), 
+      () -> generateRamseteCommandFromTrajectory(threeBallAutoTrajectory2), 
+      () -> generateRamseteCommandFromTrajectory(threeBallAutoTrajectory3),
       collector, 
       drive, 
-      launcher
+      launcher,
+      limelight
     );
 
     gatekeepAutoCommandGroup = new GatekeepAutoGroup(
@@ -405,6 +412,10 @@ public class RobotContainer {
     limelight.updateShuffleBoard();
   }
 
+  public String buildTrajectoryPathString(String fileName) {
+    return String.format("pathplanner/generatedJSON/%s.wpilib.json", fileName);
+  }
+
   public void generateTrajectories(){
     var autoVoltageConstraint =
         new DifferentialDriveVoltageConstraint(
@@ -431,10 +442,13 @@ public class RobotContainer {
 
     try {
       manualTrajectory1 = generateTrajectoryFromJSON(manualPath1);
+      twoBallAutoTrajectory1 = generateTrajectoryFromJSON(buildTrajectoryPathString(twoBallAutoPath1));
       fourBallAutoTrajectory1 = generateTrajectoryFromJSON(fourBallAutoPath1);
       fourBallAutoTrajectory2 = generateTrajectoryFromJSON(fourBallAutoPath2);
       fourBallAutoTrajectory3 = generateTrajectoryFromJSON(fourBallAutoPath3);
       fourBallAutoTrajectory4 = generateTrajectoryFromJSON(fourBallAutoPath4);
+      threeBallAutoTrajectory1 = generateTrajectoryFromJSON(threeBallAutoPath1);
+      threeBallAutoTrajectory2 = generateTrajectoryFromJSON(threeBallAutoPath2);
       threeBallAutoTrajectory3 = generateTrajectoryFromJSON(threeBallAutoPath3);
       gatekeepPathTrajectory1 = generateTrajectoryFromJSON(gatewayPath1);
       gatekeepPathTrajectory2 = generateTrajectoryFromJSON(gatewayPath2);

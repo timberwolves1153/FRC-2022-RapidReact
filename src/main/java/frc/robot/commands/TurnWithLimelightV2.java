@@ -4,9 +4,7 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Limelight;
 
@@ -18,10 +16,14 @@ public class TurnWithLimelightV2 extends CommandBase {
   private double sign;
   private double startingDegrees;
 
+  private double maxRunTimeSeconds;
+  private double startTime;
+
   /** Creates a new TurnWithLimelightV2. */
-  public TurnWithLimelightV2(Drive drive, Limelight limelight) {
+  public TurnWithLimelightV2(double maxRunTimeSeconds, Drive drive, Limelight limelight) {
     this.drive = drive;
     this.limelight = limelight;
+    this.maxRunTimeSeconds = maxRunTimeSeconds;
 
     addRequirements(limelight, drive);
   }
@@ -33,31 +35,39 @@ public class TurnWithLimelightV2 extends CommandBase {
     sign = Math.copySign(1, degrees);
 
     startingDegrees = drive.getHeading();
+
+    startTime = System.currentTimeMillis();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     double speed;
+    System.out.println(limelight.targetExists());
 
-    if(!finishedTurning()) {
-      if(Math.abs(limelight.getTargetValues().x) > 10) {
-        speed = 0.5;
-      } else if(Math.abs(limelight.getTargetValues().x) > 5) {
-        speed = 0.4;
-      } else {
-        speed = 0.3;
-      }
+    if(limelight.targetExists()) {
+      if(!finishedTurning()) {
+        if(Math.abs(limelight.getTargetValues().x) > 10) {
+          speed = 0.5;
+        } else if(Math.abs(limelight.getTargetValues().x) > 5) {
+          speed = 0.4;
+        } else {
+          speed = 0.32;
+        }
+    
+        drive.arcadeDrive(0, sign * speed);
   
-      drive.arcadeDrive(0, sign * speed);
-
+      } else {
+        drive.arcadeDrive(0, 0);
+        degrees = limelight.getTargetValues().x;
+        sign = Math.copySign(1, degrees);
+  
+        startingDegrees = drive.getHeading();
+      }
     } else {
-      drive.arcadeDrive(0, 0);
-      degrees = limelight.getTargetValues().x;
-      sign = Math.copySign(1, degrees);
-
-      startingDegrees = drive.getHeading();
+      drive.arcadeDrive(0, 0.5);
     }
+    
   }
 
   // Called once the command ends or is interrupted.
@@ -69,6 +79,9 @@ public class TurnWithLimelightV2 extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if(System.currentTimeMillis() - startTime > maxRunTimeSeconds * 1000) {
+      return true;
+    }
     if(limelight.getTargetValues().x > -3 && limelight.getTargetValues().x < 3 && finishedTurning()) 
       return true;
 
