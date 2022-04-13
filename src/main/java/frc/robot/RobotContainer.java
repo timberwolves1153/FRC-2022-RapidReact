@@ -116,6 +116,7 @@ public class RobotContainer {
   private Trajectory fiveBallAutoTrajectory1;
   private Trajectory fiveBallAutoTrajectory2;
   private Trajectory fiveBallAutoTrajectory3;
+ // private Trajectory fiveBallAutoTrajectory4;
 
   private Trajectory manualTrajectory1;
 
@@ -153,6 +154,7 @@ public class RobotContainer {
   private String fiveBallAutoPath1 = "pathplanner/generatedJSON/FiveBallAutoPath1.wpilib.json";
   private String fiveBallAutoPath2 = "pathplanner/generatedJSON/FiveBallAutoPath2.wpilib.json";
   private String fiveBallAutoPath3 = "pathplanner/generatedJSON/FiveBallAutoPath3.wpilib.json";
+  //private String fiveBallAutoPath4 = "pathplanner/generatedJSON/FiveBallAutoPath4.wpilib.json";
   private String tuningPath = "pathplanner/generatedJSON/TuningPath.wpilib.json";
 
   private SendableChooser<Command> autoCommandChooser;
@@ -391,9 +393,11 @@ public class RobotContainer {
       fiveBallAutoTrajectory1, 
       fiveBallAutoTrajectory2, 
       fiveBallAutoTrajectory3,
+      //fiveBallAutoTrajectory4,
       () -> generateRamseteCommandFromTrajectory(fiveBallAutoTrajectory1), 
       () -> generateRamseteCommandFromTrajectory(fiveBallAutoTrajectory2),
       () -> generateRamseteCommandFromTrajectory(fiveBallAutoTrajectory3),
+     // () -> generateRamseteCommandFromTrajectory(fiveBallAutoTrajectory4),
       collector, 
       launcher,
       drive
@@ -456,6 +460,7 @@ public class RobotContainer {
       fiveBallAutoTrajectory1 = generateTrajectoryFromJSON(fiveBallAutoPath1);
       fiveBallAutoTrajectory2 = generateTrajectoryFromJSON(fiveBallAutoPath2);
       fiveBallAutoTrajectory3 = generateTrajectoryFromJSON(fiveBallAutoPath3);
+     // fiveBallAutoTrajectory4 = generateTrajectoryFromJSON(fiveBallAutoPath4);
       tuningTrajectory = generateTrajectoryFromJSON(tuningPath);
 
     } catch (IOException e) {
