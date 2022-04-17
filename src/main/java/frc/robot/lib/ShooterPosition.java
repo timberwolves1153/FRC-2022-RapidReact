@@ -8,9 +8,10 @@ package frc.robot.lib;
 public enum ShooterPosition {
     FENDER_LOW(0, "Fender Low", 0.01, 0.01, 5000, 14000), 
     FENDER_HIGH(1, "Fender High", 0.01, 0.01, 5000, 16000),
-    TARMAC_LINE_HIGH(2, "Tarmac Line High", 0.0075, 0.01, 9500, 11000), 
-    TARMAC_ZONE(3, "Tarmac Zone", 0.01, 0.01, 7500, 15000), 
-    INVALID(4, "Invalid", 0, 0, 0, 0);
+    LINE(2, "Line", 0.0075, 0.01, 9500, 11000), 
+    TARMAC(3, "Tarmac", 0.01, 0.01, 7500, 15000), 
+    LAUNCHPAD(4, "Launchpad", 0.01, 0.01, 11000, 11500),
+    INVALID(5, "Invalid", 0, 0, 0, 0);
 
     private int index;
     private String name;

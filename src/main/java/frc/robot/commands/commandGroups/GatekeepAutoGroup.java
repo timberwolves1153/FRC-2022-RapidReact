@@ -52,7 +52,7 @@ public class GatekeepAutoGroup extends SequentialCommandGroup {
       //new InstantCommand(()-> drive.resetOdometry(gatekeepPathTrajectory1.getInitialPose())),
       gatekeepRamseteCommand1.get(),
       new TurnForDegrees(160, drive),
-      new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_LINE_HIGH), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.LAUNCHPAD), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.moverForward(), collector),
       new InstantCommand(() -> collector.feederOn(), collector),

@@ -36,12 +36,14 @@ public class Shoot extends CommandBase {
     launcher.pidOn();
 
     if(!launcher.getOverride()) {
-      if(limelight.calcDistance() < 50) {
+      if(limelight.calcDistance() < 53) {
         launcher.setGainPreset(ShooterPosition.FENDER_HIGH);
-      } else if(limelight.calcDistance() > 50 && limelight.calcDistance() < 95) {
-        launcher.setGainPreset(ShooterPosition.TARMAC_ZONE);
-      } else if(limelight.calcDistance() > 95) {
-        launcher.setGainPreset(ShooterPosition.TARMAC_LINE_HIGH);
+      } else if(limelight.calcDistance() > 53 && limelight.calcDistance() < 90) {
+        launcher.setGainPreset(ShooterPosition.TARMAC);
+      } else if(limelight.calcDistance() > 90 && limelight.calcDistance() < 120) {
+        launcher.setGainPreset(ShooterPosition.LINE);
+      } else if(limelight.calcDistance() > 120) {
+        launcher.setGainPreset(ShooterPosition.LAUNCHPAD);
       }
     }
   }

@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.util.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.lib.ShooterPosition;
@@ -98,7 +99,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousExit() {
       super.autonomousExit();
-      m_robotContainer.getLauncher().setGainPreset(ShooterPosition.FENDER_HIGH);
+     
   }
 
   @Override
@@ -112,6 +113,14 @@ public class Robot extends TimedRobot {
     }
 
     m_robotContainer.getDrive().setBrake();
+
+    m_robotContainer.getLauncher().pidOff();
+    m_robotContainer.getLauncher().setGainPreset(ShooterPosition.FENDER_HIGH);
+    m_robotContainer.getCollector().feederOff();
+    m_robotContainer.getCollector().moverOff();
+    m_robotContainer.getCollector().singulatorStop();
+    m_robotContainer.getCollector().collectorStop();
+    m_robotContainer.getCollector().setSolenoid(Value.kForward);
   }
 
   /** This function is called periodically during operator control. */

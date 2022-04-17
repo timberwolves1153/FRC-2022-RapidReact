@@ -25,7 +25,7 @@ public class TurnWithLimelightV2 extends CommandBase {
     this.limelight = limelight;
     this.maxRunTimeSeconds = maxRunTimeSeconds;
 
-    addRequirements(limelight, drive);
+    addRequirements(drive);
   }
 
   // Called when the command is initially scheduled.

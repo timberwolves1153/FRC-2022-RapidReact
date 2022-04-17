@@ -23,9 +23,9 @@ import frc.robot.subsystems.Limelight;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class TwoBallAutoRightGroup extends SequentialCommandGroup {
+public class TwoBallAutoLeftGroupV2 extends SequentialCommandGroup {
   /** Creates a new TwoBallAutoRightGroup. */
-  public TwoBallAutoRightGroup(
+  public TwoBallAutoLeftGroupV2(
     Trajectory manualTrajectory1, 
     Supplier<Command> manualRamseteCommand1, 
     Launcher launcher, 

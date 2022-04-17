@@ -11,7 +11,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -46,7 +45,7 @@ public class FiveBallAutoGroup extends SequentialCommandGroup {
       //   drive.setFieldTrajectory("fiveBallAuto2", fiveBallAutoTrajectory2);
       //   drive.setFieldTrajectory("fiveBallAuto3", fiveBallAutoTrajectory3);
       // }, drive),
-      new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_LINE_HIGH), launcher),
+      new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.LINE), launcher),
       new InstantCommand(() -> launcher.pidOn(), launcher),
       new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kReverse)),
       new InstantCommand(() -> collector.collectIntake(), collector),
@@ -63,6 +62,7 @@ public class FiveBallAutoGroup extends SequentialCommandGroup {
       new TurnForDegrees(-95, drive),
      // new InstantCommand(() -> drive.resetOdometry(fiveBallAutoTrajectory2.getInitialPose())),
       fiveBallRamseteCommand2.get(),
+      new WaitCommand(0.5),
       new TurnForDegrees(-155, drive),
       new InstantCommand(()-> collector.moverOff(), collector),
       //new InstantCommand(()-> drive.resetOdometry(fiveBallAutoTrajectory3.getInitialPose())),

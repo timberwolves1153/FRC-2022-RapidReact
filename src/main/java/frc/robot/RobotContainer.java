@@ -35,7 +35,6 @@ import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.TurnWithLimeLight;
 import frc.robot.commands.TurnWithLimelightV2;
 import frc.robot.commands.WinchDown;
 import frc.robot.commands.commandGroups.FiveBallAutoGroup;
@@ -92,7 +91,6 @@ public class RobotContainer {
   private JoystickButton opStart;
 
   private ClimbForDistance climbForDistance;
-  //private SmartShoot smartShoot;
   private WinchDown winchDownCommand;
   private TurnWithLimelightV2 turnWithLimeLight;
   private Shoot shoot;
@@ -200,7 +198,6 @@ public class RobotContainer {
 
     turnWithLimeLight = new TurnWithLimelightV2(4, drive, limelight);
     climbForDistance = new ClimbForDistance(5, climber);
-    //smartShoot = new SmartShoot(collector, colorSensor, launcher);
     winchDownCommand = new WinchDown(climber);
     shoot = new Shoot(false, launcher, limelight);
 
@@ -275,14 +272,8 @@ public class RobotContainer {
     driveY.whenPressed(new InstantCommand(() -> climber.setRight(-0.4), climber));
     driveY.whenReleased(new InstantCommand(() -> climber.setRight(0), climber));
 
-    // driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.turnWithLimelight(limelight), drive));
-    // driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.arcadeDrive(0, 0), drive));
-
     driveRightJoystickButton.whenPressed(turnWithLimeLight);
     driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
-
-    // driveRightJoystickButton.whileHeld(new InstantCommand(() -> drive.tankDriveVolts(2.6852, 2.6852), drive));
-    // driveRightJoystickButton.whenReleased(new InstantCommand(() -> drive.tankDriveVolts(0, 0), drive));
 
     // driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(8.74, 5.54, new Rotation2d(69.34 * (Math.PI / 180))))));
     driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(0, 0, new Rotation2d()))));
@@ -294,9 +285,9 @@ public class RobotContainer {
     opStart.whenPressed(() -> launcher.toggleLimelightOverride());
 
     opPovUp.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_HIGH)));
-    opPovDown.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_LOW)));
-    opPovLeft.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_ZONE)));
-    opPovRight.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC_LINE_HIGH)));
+    opPovDown.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.LAUNCHPAD)));
+    opPovLeft.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.TARMAC)));
+    opPovRight.whenPressed(new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.LINE)));
 
     opLeftBumper.whenPressed(new InstantCommand(() -> {
       collector.collectIntake();
@@ -355,13 +346,14 @@ public class RobotContainer {
     fourBallAutoCommandGroup = new FourBallAutoGroup(
       fourBallAutoTrajectory1, 
       fourBallAutoTrajectory2, 
-      fourBallAutoTrajectory4,
+      fourBallAutoTrajectory3,
       () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory1), 
       () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory2), 
-      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory4), 
+      () -> generateRamseteCommandFromTrajectory(fourBallAutoTrajectory3), 
       collector, 
       launcher, 
-      drive
+      drive,
+      limelight
     );
 
     threeBallAutoCommandGroup = new ThreeBallAutoGroup(
@@ -410,9 +402,9 @@ public class RobotContainer {
   public void updateShuffleboard() {
     drive.updateShuffleboard();
     launcher.updateShuffleboard();
-    //colorSensor.updateShuffleboard();
-   // climber.updateShuffleboard();
-    //collector.updateShuffleboard();
+    colorSensor.updateShuffleboard();
+    climber.updateShuffleboard();
+    collector.updateShuffleboard();
     limelight.updateShuffleBoard();
   }
 
@@ -490,7 +482,6 @@ public class RobotContainer {
     return new RamseteCommand(
       trajectory,
       drive::getPose,
-      //new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
       controller,
       new SimpleMotorFeedforward(
           Constants.ksVolts,
@@ -498,8 +489,6 @@ public class RobotContainer {
           Constants.kaVoltSecondsSquaredPerMeter),
       Constants.kDriveKinematics,
       drive::getWheelSpeeds,
-      // new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
-      // new PIDController(Constants.kPDriveVel, 0, Constants.kDDriveVel),
       leftController,
       rightController,
       // RamseteCommand passes volts to the callback
@@ -528,6 +517,9 @@ public class RobotContainer {
 
   public Launcher getLauncher() {
     return launcher;
+  }
+  public Collector getCollector() {
+    return collector;
   }
 
   public Drive getDrive() {

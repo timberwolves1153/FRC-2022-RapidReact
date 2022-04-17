@@ -164,6 +164,14 @@ public class Drive extends SubsystemBase {
     return pose;
   }
 
+  public double getRightSideDistanceMeters() {
+    return Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderPosition()));
+  }
+
+  public double getLeftSideDistanceMeters() {
+    return Units.falconRotationsToMeters(Units.falconTicksToRotations(getLeftEncoderPosition()));
+  }
+
   /**
    * Gets the right encoder cumulative position in encoder ticks
    * @return right encoder cumulative position in encoder ticks
@@ -222,14 +230,14 @@ public class Drive extends SubsystemBase {
    * Contains all Shuffleboard print statements
    */
   public void updateShuffleboard() {
-    SmartDashboard.putNumber("Left Encoder Position", getLeftEncoderPosition());
-    SmartDashboard.putNumber("Right Encoder Position", getRightEncoderPosition());
-    SmartDashboard.putNumber("Left t/s", getLeftEncoderVelocity());
-    SmartDashboard.putNumber("Right t/s", getRightEncoderVelocity());
-    SmartDashboard.putNumber("Left m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(getLeftEncoderVelocity())));
-    SmartDashboard.putNumber("Right m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderVelocity())));
-    SmartDashboard.putNumber("Left Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(getLeftEncoderPosition())));
-    SmartDashboard.putNumber("Right Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderPosition())));
+    // SmartDashboard.putNumber("Left Encoder Position", getLeftEncoderPosition());
+    // SmartDashboard.putNumber("Right Encoder Position", getRightEncoderPosition());
+    // SmartDashboard.putNumber("Left t/s", getLeftEncoderVelocity());
+    // SmartDashboard.putNumber("Right t/s", getRightEncoderVelocity());
+    // SmartDashboard.putNumber("Left m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(getLeftEncoderVelocity())));
+    // SmartDashboard.putNumber("Right m/s", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderVelocity())));
+    // SmartDashboard.putNumber("Left Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(getLeftEncoderPosition())));
+    // SmartDashboard.putNumber("Right Encoder Distance", Units.falconRotationsToMeters(Units.falconTicksToRotations(getRightEncoderPosition())));
     
     // SmartDashboard.putNumber("Gyro Heading Z", imu.getAngle());
     // SmartDashboard.putNumber("Gyro Complementary X", imu.getXComplementaryAngle());
