@@ -135,7 +135,7 @@ public class Collector extends SubsystemBase {
     singulator.set(1);
   }
 
-  public void singulatorStop() {
+  public void singulatorOff() {
     singulator.set(0);
   }
 

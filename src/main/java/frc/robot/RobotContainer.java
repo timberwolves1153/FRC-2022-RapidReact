@@ -34,12 +34,17 @@ import frc.robot.commands.ClimbForDistance;
 import frc.robot.commands.DefaultCollect;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DefaultLauncher;
+import frc.robot.commands.DriveForTime;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TurnWithLimelightV2;
 import frc.robot.commands.WinchDown;
 import frc.robot.commands.commandGroups.FiveBallAutoGroup;
 import frc.robot.commands.commandGroups.FourBallAutoGroup;
 import frc.robot.commands.commandGroups.GatekeepAutoGroup;
+import frc.robot.commands.commandGroups.OneBallAutoGroup;
+import frc.robot.commands.commandGroups.OneBallGatekeepHangarLeftAutoGroup;
+import frc.robot.commands.commandGroups.OneBallGatekeepHangarRightAutoGroup;
+import frc.robot.commands.commandGroups.OneBallGatekeepHubAutoGroup;
 import frc.robot.commands.commandGroups.ThreeBallAutoGroup;
 import frc.robot.commands.commandGroups.TwoBallAutoLeftGroup;
 import frc.robot.commands.commandGroups.TwoBallAutoRightGroup;
@@ -105,6 +110,7 @@ public class RobotContainer {
   private Limelight limelight;
   private Rumble rumble;
 
+  private Trajectory oneBallAutoTrajectory;
   private Trajectory twoBallAutoTrajectory1;
   private Trajectory fourBallAutoTrajectory1;
   private Trajectory fourBallAutoTrajectory2;
@@ -129,6 +135,10 @@ public class RobotContainer {
 
   private Trajectory tuningTrajectory2;
  
+  private SequentialCommandGroup oneBallGatekeepHubCommandGroup;
+  private SequentialCommandGroup oneBallGatekeepHangerLeftCommandGroup;
+  private SequentialCommandGroup oneBallGatekeepHangerRightCommandGroup;
+  private SequentialCommandGroup oneBallAutoCommandGroup;
   private SequentialCommandGroup twoBallAutoCommandGroupRight;
   private SequentialCommandGroup twoBallAutoCommandGroupLeft;
   private SequentialCommandGroup fourBallAutoCommandGroup;
@@ -137,6 +147,7 @@ public class RobotContainer {
   private SequentialCommandGroup fiveBallAutoCommandGroup;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
+  private String oneBallGatekeepPath = "OneBallGatekeepPath";
   private String twoBallAutoPath1 = "TwoBallAutoPath1";
   private String fourBallAutoPath1 = "pathplanner/generatedJSON/FourBallAutoPath1.wpilib.json";
   private String fourBallAutoPath2 = "pathplanner/generatedJSON/FourBallAutoPath2.wpilib.json";
@@ -199,7 +210,7 @@ public class RobotContainer {
     turnWithLimeLight = new TurnWithLimelightV2(4, drive, limelight);
     climbForDistance = new ClimbForDistance(5, climber);
     winchDownCommand = new WinchDown(climber);
-    shoot = new Shoot(false, launcher, limelight);
+    shoot = new Shoot(launcher, limelight);
 
     autoCommandChooser = new SendableChooser<Command>();
     allianceColor = new SendableChooser<BallColor>();
@@ -225,12 +236,17 @@ public class RobotContainer {
 
     generateCommandGroups();
       
-    autoCommandChooser.setDefaultOption("Two Ball Auto Right", twoBallAutoCommandGroupRight);
+    autoCommandChooser.setDefaultOption("One Ball", oneBallAutoCommandGroup);
+    autoCommandChooser.addOption("One Ball Hub Gatekeep", oneBallGatekeepHubCommandGroup);
+    autoCommandChooser.addOption("One Ball Right Hangar Gatekeep", oneBallGatekeepHangerRightCommandGroup);
+    autoCommandChooser.addOption("One Ball Left Hangar Gatekeep", oneBallGatekeepHangerLeftCommandGroup);
+    autoCommandChooser.addOption("Two Ball Auto Right", twoBallAutoCommandGroupRight);
     autoCommandChooser.addOption("Two Ball Auto Left", twoBallAutoCommandGroupLeft);
     autoCommandChooser.addOption("Four Ball", fourBallAutoCommandGroup);
     autoCommandChooser.addOption("Three Ball", threeBallAutoCommandGroup);
     autoCommandChooser.addOption("Gatekeep", gatekeepAutoCommandGroup);
     autoCommandChooser.addOption("Five Ball", fiveBallAutoCommandGroup);
+    autoCommandChooser.addOption("Drive For Time", new DriveForTime(1, -1, drive));
     autoCommandChooser.addOption("Tuning Path", generateRamseteCommandFromTrajectory(tuningTrajectory2));
 
     allianceColor.setDefaultOption("Blue", BallColor.BLUE);
@@ -333,6 +349,30 @@ public class RobotContainer {
   }
 
   private void generateCommandGroups() {
+    oneBallAutoCommandGroup = new OneBallAutoGroup(
+      drive, 
+      launcher, 
+      collector, 
+      limelight
+    );
+
+    oneBallGatekeepHubCommandGroup = new OneBallGatekeepHubAutoGroup(
+      oneBallAutoTrajectory, 
+      () -> generateRamseteCommandFromTrajectory(oneBallAutoTrajectory), 
+      drive, launcher, limelight, collector);
+    
+    oneBallGatekeepHangerLeftCommandGroup = new OneBallGatekeepHangarLeftAutoGroup(
+      oneBallAutoTrajectory, 
+      () -> generateRamseteCommandFromTrajectory(oneBallAutoTrajectory), 
+      drive, launcher, limelight, collector
+    );
+
+    oneBallGatekeepHangerRightCommandGroup = new OneBallGatekeepHangarRightAutoGroup(
+      oneBallAutoTrajectory, 
+      () -> generateRamseteCommandFromTrajectory(oneBallAutoTrajectory), 
+      drive, launcher, limelight, collector
+    );
+
     twoBallAutoCommandGroupRight = new TwoBallAutoRightGroup(
       manualTrajectory1, 
       () -> generateRamseteCommandFromTrajectory(twoBallAutoTrajectory1), 
@@ -437,6 +477,7 @@ public class RobotContainer {
     config);
 
     try {
+      oneBallAutoTrajectory = generateTrajectoryFromJSON(buildTrajectoryPathString(oneBallGatekeepPath));
       manualTrajectory1 = generateTrajectoryFromJSON(manualPath1);
       twoBallAutoTrajectory1 = generateTrajectoryFromJSON(buildTrajectoryPathString(twoBallAutoPath1));
       fourBallAutoTrajectory1 = generateTrajectoryFromJSON(fourBallAutoPath1);

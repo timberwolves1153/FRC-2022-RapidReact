@@ -75,7 +75,7 @@ public class FourBallAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> launcher.pidOff(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
-      new InstantCommand(()-> collector.singulatorStop(), collector),
+      new InstantCommand(()-> collector.singulatorOff(), collector),
       new InstantCommand(()-> collector.collectorStop(), collector)
     );
   }

@@ -115,10 +115,10 @@ public class Robot extends TimedRobot {
     m_robotContainer.getDrive().setBrake();
 
     m_robotContainer.getLauncher().pidOff();
-    m_robotContainer.getLauncher().setGainPreset(ShooterPosition.FENDER_HIGH);
+    //m_robotContainer.getLauncher().setGainPreset(ShooterPosition.FENDER_HIGH);
     m_robotContainer.getCollector().feederOff();
     m_robotContainer.getCollector().moverOff();
-    m_robotContainer.getCollector().singulatorStop();
+    m_robotContainer.getCollector().singulatorOff();
     m_robotContainer.getCollector().collectorStop();
     m_robotContainer.getCollector().setSolenoid(Value.kForward);
   }

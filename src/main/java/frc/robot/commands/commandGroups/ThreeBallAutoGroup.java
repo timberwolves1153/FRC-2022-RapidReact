@@ -57,7 +57,7 @@ public class ThreeBallAutoGroup extends SequentialCommandGroup {
       //new InstantCommand(()-> drive.resetOdometry(fourBallAutoTrajectory2.getInitialPose())),
       threeBallRamseteCommand2.get(),
       new InstantCommand(()-> collector.moverOff(), collector),
-      new InstantCommand(()-> collector.singulatorStop(), collector),
+      new InstantCommand(()-> collector.singulatorOff(), collector),
     //  new InstantCommand(()-> collector.collectorStop(), collector),
      // new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kForward)),
       new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.LINE), launcher),
@@ -74,7 +74,7 @@ public class ThreeBallAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> launcher.pidOff(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
-      new InstantCommand(()-> collector.singulatorStop(), collector),
+      new InstantCommand(()-> collector.singulatorOff(), collector),
       new InstantCommand(()-> collector.collectorStop(), collector)
     );
   }

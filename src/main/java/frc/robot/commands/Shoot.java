@@ -14,14 +14,24 @@ public class Shoot extends CommandBase {
   private Limelight limelight;
   private boolean isAuto;
   private double initialTime;
+  private double runtimeMillis;
 
   /** Creates a new Shoot. */
-  public Shoot(boolean isAuto, Launcher launcher, Limelight limelight) {
+  public Shoot(boolean isAuto, double runtimeSeconds, Launcher launcher, Limelight limelight) {
     this.launcher = launcher;
     this.limelight = limelight;
     this.isAuto = isAuto;
+    this.runtimeMillis = runtimeSeconds * 1000;
 
     addRequirements(launcher, limelight);
+  }
+
+  public Shoot(double runtimeSeconds, Launcher launcher, Limelight limelight) {
+    this(true, runtimeSeconds, launcher, limelight);
+  }
+
+  public Shoot(Launcher launcher, Limelight limelight) {
+    this(false, 0, launcher, limelight);
   }
 
   // Called when the command is initially scheduled.
@@ -38,9 +48,9 @@ public class Shoot extends CommandBase {
     if(!launcher.getOverride()) {
       if(limelight.calcDistance() < 53) {
         launcher.setGainPreset(ShooterPosition.FENDER_HIGH);
-      } else if(limelight.calcDistance() > 53 && limelight.calcDistance() < 90) {
+      } else if(limelight.calcDistance() > 53 && limelight.calcDistance() < 83) {
         launcher.setGainPreset(ShooterPosition.TARMAC);
-      } else if(limelight.calcDistance() > 90 && limelight.calcDistance() < 120) {
+      } else if(limelight.calcDistance() > 83 && limelight.calcDistance() < 120) {
         launcher.setGainPreset(ShooterPosition.LINE);
       } else if(limelight.calcDistance() > 120) {
         launcher.setGainPreset(ShooterPosition.LAUNCHPAD);
@@ -58,7 +68,7 @@ public class Shoot extends CommandBase {
   @Override
   public boolean isFinished() {
     if(isAuto){
-      return System.currentTimeMillis() - initialTime > 2000;
+      return System.currentTimeMillis() - initialTime > runtimeMillis;
     } 
     return false;
   }

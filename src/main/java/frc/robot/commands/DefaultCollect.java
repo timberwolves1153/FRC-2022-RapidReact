@@ -35,7 +35,7 @@ public class DefaultCollect extends CommandBase {
         //if(collector.getSolenoid1State().equals(DoubleSolenoid.Value.kReverse) && collector.getSolenoid2State().equals(DoubleSolenoid.Value.kReverse)) {
         collector.singulatorIntake();
       } else {
-        collector.singulatorStop();
+        collector.singulatorOff();
       }
       collector.moverForward();
       //collector.smartBallCollect();
@@ -45,12 +45,12 @@ public class DefaultCollect extends CommandBase {
       //if(collector.getSolenoid1State().equals(DoubleSolenoid.Value.kReverse)  && collector.getSolenoid2State().equals(DoubleSolenoid.Value.kReverse)) {
         collector.singulatorOutake();
       } else {
-        collector.singulatorStop();
+        collector.singulatorOff();
       }
       collector.moverReverse();
     }
     if(leftTrigger.getAsDouble() < 0.1 && rightTrigger.getAsDouble() < 0.1) {
-      collector.singulatorStop();
+      collector.singulatorOff();
       collector.moverOff();
     }
   }

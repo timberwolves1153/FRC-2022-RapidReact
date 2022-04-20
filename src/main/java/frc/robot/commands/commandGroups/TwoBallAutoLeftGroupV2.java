@@ -64,7 +64,7 @@ public class TwoBallAutoLeftGroupV2 extends SequentialCommandGroup {
       new InstantCommand(() -> launcher.stop(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(()-> collector.moverOff(), collector),
-      new InstantCommand(()-> collector.singulatorStop(), collector)
+      new InstantCommand(()-> collector.singulatorOff(), collector)
     );
   }
 }
