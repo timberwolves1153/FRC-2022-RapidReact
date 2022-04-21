@@ -207,8 +207,6 @@ public class Launcher extends SubsystemBase {
   public void pidOn() {
     if (!pidEnabled) {
       pidEnabled = true;
-      bottomRoller.setIntegralAccumulator(0, 0, 100);
-      topRoller.setIntegralAccumulator(0, 0, 100);
     }
   }
 

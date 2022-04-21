@@ -22,6 +22,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -44,7 +45,8 @@ import frc.robot.commands.commandGroups.GatekeepAutoGroup;
 import frc.robot.commands.commandGroups.OneBallAutoGroup;
 import frc.robot.commands.commandGroups.OneBallGatekeepHangarLeftAutoGroup;
 import frc.robot.commands.commandGroups.OneBallGatekeepHangarRightAutoGroup;
-import frc.robot.commands.commandGroups.OneBallGatekeepHubAutoGroup;
+import frc.robot.commands.commandGroups.OneBallGatekeepHubLeftAutoGroup;
+import frc.robot.commands.commandGroups.OneBallGatekeepHubRightAutoGroup;
 import frc.robot.commands.commandGroups.ThreeBallAutoGroup;
 import frc.robot.commands.commandGroups.TwoBallAutoLeftGroup;
 import frc.robot.commands.commandGroups.TwoBallAutoRightGroup;
@@ -110,7 +112,8 @@ public class RobotContainer {
   private Limelight limelight;
   private Rumble rumble;
 
-  private Trajectory oneBallAutoTrajectory;
+  private Trajectory oneBallGatekeepRightTrajectory;
+  private Trajectory oneBallGatekeepLeftTrajectory;
   private Trajectory twoBallAutoTrajectory1;
   private Trajectory fourBallAutoTrajectory1;
   private Trajectory fourBallAutoTrajectory2;
@@ -135,7 +138,8 @@ public class RobotContainer {
 
   private Trajectory tuningTrajectory2;
  
-  private SequentialCommandGroup oneBallGatekeepHubCommandGroup;
+  private SequentialCommandGroup oneBallGatekeepHubRightCommandGroup;
+  private SequentialCommandGroup oneBallGatekeepHubLeftCommandGroup;
   private SequentialCommandGroup oneBallGatekeepHangerLeftCommandGroup;
   private SequentialCommandGroup oneBallGatekeepHangerRightCommandGroup;
   private SequentialCommandGroup oneBallAutoCommandGroup;
@@ -147,7 +151,8 @@ public class RobotContainer {
   private SequentialCommandGroup fiveBallAutoCommandGroup;
 
   private String manualPath1 = "pathplanner/generatedJSON/ManualPath1.wpilib.json";
-  private String oneBallGatekeepPath = "OneBallGatekeepPath";
+  private String oneBallGatekeepPathRight = "OneBallGatekeepPathRight";
+  private String oneBallGatekeepPathLeft = "OneBallGatekeepPathLeft";
   private String twoBallAutoPath1 = "TwoBallAutoPath1";
   private String fourBallAutoPath1 = "pathplanner/generatedJSON/FourBallAutoPath1.wpilib.json";
   private String fourBallAutoPath2 = "pathplanner/generatedJSON/FourBallAutoPath2.wpilib.json";
@@ -237,7 +242,8 @@ public class RobotContainer {
     generateCommandGroups();
       
     autoCommandChooser.setDefaultOption("One Ball", oneBallAutoCommandGroup);
-    autoCommandChooser.addOption("One Ball Hub Gatekeep", oneBallGatekeepHubCommandGroup);
+    autoCommandChooser.addOption("One Ball Hub Right Gatekeep", oneBallGatekeepHubRightCommandGroup);
+    autoCommandChooser.addOption("One Ball Hub Left Gatekeep", oneBallGatekeepHubLeftCommandGroup);
     autoCommandChooser.addOption("One Ball Right Hangar Gatekeep", oneBallGatekeepHangerRightCommandGroup);
     autoCommandChooser.addOption("One Ball Left Hangar Gatekeep", oneBallGatekeepHangerLeftCommandGroup);
     autoCommandChooser.addOption("Two Ball Auto Right", twoBallAutoCommandGroupRight);
@@ -251,6 +257,8 @@ public class RobotContainer {
 
     allianceColor.setDefaultOption("Blue", BallColor.BLUE);
     allianceColor.addOption("Red", BallColor.RED);
+
+    LiveWindow.disableAllTelemetry();
 
     SmartDashboard.putData("Auto Command Chooser", autoCommandChooser);
     SmartDashboard.putData("Alliance Color", allianceColor);
@@ -292,9 +300,8 @@ public class RobotContainer {
     driveRightJoystickButton.whenReleased(() -> turnWithLimeLight.cancel());
 
     // driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(8.74, 5.54, new Rotation2d(69.34 * (Math.PI / 180))))));
-    driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.resetOdometry(new Pose2d(0, 0, new Rotation2d()))));
+    driveLeftJoystickButton.whenPressed(new InstantCommand(() -> drive.toggleDriveSide(), drive));
     
-
     opY.whenPressed(shoot);
     opY.whenReleased(() -> shoot.cancel());
 
@@ -356,20 +363,25 @@ public class RobotContainer {
       limelight
     );
 
-    oneBallGatekeepHubCommandGroup = new OneBallGatekeepHubAutoGroup(
-      oneBallAutoTrajectory, 
-      () -> generateRamseteCommandFromTrajectory(oneBallAutoTrajectory), 
+    oneBallGatekeepHubRightCommandGroup = new OneBallGatekeepHubRightAutoGroup(
+      oneBallGatekeepRightTrajectory, 
+      () -> generateRamseteCommandFromTrajectory(oneBallGatekeepRightTrajectory), 
+      drive, launcher, limelight, collector);
+
+    oneBallGatekeepHubLeftCommandGroup = new OneBallGatekeepHubLeftAutoGroup(
+      oneBallGatekeepLeftTrajectory, 
+      () -> generateRamseteCommandFromTrajectory(oneBallGatekeepLeftTrajectory), 
       drive, launcher, limelight, collector);
     
     oneBallGatekeepHangerLeftCommandGroup = new OneBallGatekeepHangarLeftAutoGroup(
-      oneBallAutoTrajectory, 
-      () -> generateRamseteCommandFromTrajectory(oneBallAutoTrajectory), 
+      oneBallGatekeepRightTrajectory, 
+      () -> generateRamseteCommandFromTrajectory(oneBallGatekeepRightTrajectory), 
       drive, launcher, limelight, collector
     );
 
     oneBallGatekeepHangerRightCommandGroup = new OneBallGatekeepHangarRightAutoGroup(
-      oneBallAutoTrajectory, 
-      () -> generateRamseteCommandFromTrajectory(oneBallAutoTrajectory), 
+      oneBallGatekeepRightTrajectory, 
+      () -> generateRamseteCommandFromTrajectory(oneBallGatekeepRightTrajectory), 
       drive, launcher, limelight, collector
     );
 
@@ -477,7 +489,8 @@ public class RobotContainer {
     config);
 
     try {
-      oneBallAutoTrajectory = generateTrajectoryFromJSON(buildTrajectoryPathString(oneBallGatekeepPath));
+      oneBallGatekeepRightTrajectory = generateTrajectoryFromJSON(buildTrajectoryPathString(oneBallGatekeepPathRight));
+      oneBallGatekeepLeftTrajectory = generateTrajectoryFromJSON(buildTrajectoryPathString(oneBallGatekeepPathLeft));
       manualTrajectory1 = generateTrajectoryFromJSON(manualPath1);
       twoBallAutoTrajectory1 = generateTrajectoryFromJSON(buildTrajectoryPathString(twoBallAutoPath1));
       fourBallAutoTrajectory1 = generateTrajectoryFromJSON(fourBallAutoPath1);

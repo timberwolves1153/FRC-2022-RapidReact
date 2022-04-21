@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 
@@ -70,6 +71,9 @@ public class Climber extends SubsystemBase {
   public void config() {
     winchRight.configFactoryDefault();
     winchLeft.configFactoryDefault();
+
+    winchRight.setStatusFramePeriod(StatusFrame.Status_4_AinTempVbat, 250);
+    winchLeft.setStatusFramePeriod(StatusFrame.Status_4_AinTempVbat, 250);
 
     winchRight.setNeutralMode(NeutralMode.Brake);
     winchLeft.setNeutralMode(NeutralMode.Brake);

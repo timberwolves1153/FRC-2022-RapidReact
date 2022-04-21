@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.lib.ShooterPosition;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Limelight;
@@ -62,6 +63,7 @@ public class Shoot extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     launcher.pidOff();
+    System.out.println("Ending");
   }
 
   // Returns true when the command should end.

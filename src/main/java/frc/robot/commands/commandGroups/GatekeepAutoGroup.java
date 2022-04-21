@@ -69,20 +69,13 @@ public class GatekeepAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.singulatorOutake(), collector),
       new InstantCommand(() -> collector.moverReverse(), collector),
       new WaitCommand(0.25),
-      new TurnForDegrees(-50, drive),
-      //new InstantCommand(() -> drive.resetOdometry(gatekeepPathTrajectory3.getInitialPose())),
-      gatekeepRamseteCommand3.get(),
-      new WaitCommand(0.5),
-      new InstantCommand(() -> collector.collectOutake(), collector),
-      new InstantCommand(() -> collector.singulatorOutake(), collector),
-      new InstantCommand(() -> collector.moverReverse(), collector),
-      new WaitCommand(1),
       new InstantCommand(() -> launcher.setGainPreset(ShooterPosition.FENDER_HIGH), launcher),
-      new InstantCommand(() -> collector.collectIntake(), collector),
-      new InstantCommand(() -> launcher.stop(), launcher),
+      new InstantCommand(() -> collector.collectorStop(), collector),
+      new InstantCommand(() -> launcher.pidOff(), launcher),
       new InstantCommand(() -> collector.feederOff(), collector),
       new InstantCommand(() -> collector.moverOff(), collector),
-      new InstantCommand(() -> collector.singulatorOff(), collector)
+      new InstantCommand(() -> collector.singulatorOff(), collector),
+      new InstantCommand(() -> collector.setSolenoid(DoubleSolenoid.Value.kForward))
     );
   }
 }

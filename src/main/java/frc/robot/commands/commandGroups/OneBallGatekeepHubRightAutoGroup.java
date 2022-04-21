@@ -21,9 +21,9 @@ import frc.robot.subsystems.Limelight;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class OneBallGatekeepHubAutoGroup extends SequentialCommandGroup {
+public class OneBallGatekeepHubRightAutoGroup extends SequentialCommandGroup {
   /** Creates a new OneBallGatekeepHub. */
-  public OneBallGatekeepHubAutoGroup(
+  public OneBallGatekeepHubRightAutoGroup(
     Trajectory oneBallTrajectory, 
     Supplier<Command> oneBallRamseteCommand, 
     Drive drive, 
@@ -37,7 +37,7 @@ public class OneBallGatekeepHubAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new Shoot(1, launcher, limelight),
       new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(190, drive),
+      new TurnForDegrees(170, drive),
       new InstantCommand(() -> collector.setSolenoid(Value.kReverse), collector),
       new InstantCommand(() -> collector.collectIntake(), collector),
       oneBallRamseteCommand.get(),

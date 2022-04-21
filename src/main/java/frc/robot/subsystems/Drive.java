@@ -41,6 +41,8 @@ public class Drive extends SubsystemBase {
 
   private NeutralMode currentMode;
 
+  private double driveSide = 1;
+
   /** Creates a new Drive. */
   public Drive() {
     leftMaster = new WPI_TalonFX(0);
@@ -90,7 +92,7 @@ public class Drive extends SubsystemBase {
    * @param rotation rotation speed percentage
    */
   public void arcadeDrive(double speed, double rotation) {
-    differentialDrive.arcadeDrive(speed, -rotation);
+    differentialDrive.arcadeDrive(driveSide * speed, -rotation);
   }
 
   /**
@@ -135,6 +137,10 @@ public class Drive extends SubsystemBase {
    */
   public void resetImu() {
     imu.reset();
+  }
+
+  public void toggleDriveSide() {
+    driveSide = -driveSide;
   }
 
   /**

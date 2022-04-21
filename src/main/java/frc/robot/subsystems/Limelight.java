@@ -97,6 +97,10 @@ public class Limelight extends PIDSubsystem {
 		return distanceInches;
 	}
 
+	public void takeSnapshot() {
+		
+	}
+
     public void initDefaultCommand() {
     }
     
