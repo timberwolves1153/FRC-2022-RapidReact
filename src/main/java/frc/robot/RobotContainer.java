@@ -351,8 +351,14 @@ public class RobotContainer {
     opRightBumper.whenReleased(new InstantCommand(() -> collector.collectorStop(), collector));
 
     //change back to while held when smart shooting is being used.
-    opB.whenPressed(new InstantCommand(()-> collector.feederOn(), collector));
-    opB.whenReleased(new InstantCommand(()-> collector.feederOff(), collector));
+    opB.whenPressed(new InstantCommand(() -> {
+      collector.feederOn();
+      NetworkTableInstance.getDefault().getTable("limelight").getEntry("snapshot").setValue(1);
+    }, collector));
+    opB.whenReleased(new InstantCommand(() -> {
+      collector.feederOff();
+      NetworkTableInstance.getDefault().getTable("limelight").getEntry("snapshot").setValue(0);
+    }, collector));
   }
 
   private void generateCommandGroups() {

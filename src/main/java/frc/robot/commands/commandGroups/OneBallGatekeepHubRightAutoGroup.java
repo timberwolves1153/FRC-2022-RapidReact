@@ -37,7 +37,7 @@ public class OneBallGatekeepHubRightAutoGroup extends SequentialCommandGroup {
       new InstantCommand(() -> collector.singulatorIntake(), collector),
       new Shoot(1, launcher, limelight),
       new InstantCommand(() -> collector.feederOff(), collector),
-      new TurnForDegrees(170, drive),
+      new TurnForDegrees(150, drive),
       new InstantCommand(() -> collector.setSolenoid(Value.kReverse), collector),
       new InstantCommand(() -> collector.collectIntake(), collector),
       oneBallRamseteCommand.get(),

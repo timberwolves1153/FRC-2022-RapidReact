@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Limelight;
@@ -37,6 +38,8 @@ public class TurnWithLimelightV2 extends CommandBase {
     startingDegrees = drive.getHeading();
 
     startTime = System.currentTimeMillis();
+
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("snapshot").setValue(1);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -74,6 +77,7 @@ public class TurnWithLimelightV2 extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     drive.arcadeDrive(0, 0);
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("snapshot").setValue(0);
   }
 
   // Returns true when the command should end.

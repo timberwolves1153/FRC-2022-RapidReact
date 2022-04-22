@@ -25,13 +25,14 @@ public class DriveForTime extends CommandBase {
   @Override
   public void initialize() {
     initialTime = System.currentTimeMillis();
-    System.out.println("Running");
+    System.out.println("Initializing");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     drive.arcadeDrive(-direction * 0.7, 0);
+    System.out.println("Running");
   }
 
   // Called once the command ends or is interrupted.
