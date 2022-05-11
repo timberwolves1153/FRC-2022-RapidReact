@@ -12,14 +12,17 @@ import frc.robot.subsystems.Drive;
 public class DefaultDrive extends CommandBase {
   private DoubleSupplier speed;
   private DoubleSupplier rotation;
+  private DoubleSupplier rightTrigger;
 
   private Drive drive;
 
   /** Creates a new DefaultDrive. */
-  public DefaultDrive(DoubleSupplier speed, DoubleSupplier rotation, Drive drive) {
+  public DefaultDrive(DoubleSupplier speed, DoubleSupplier rotation, DoubleSupplier rightTrigger, Drive drive) {
     this.speed = speed;
     this.rotation = rotation;
+    this.rightTrigger = rightTrigger;
     this.drive = drive;
+    
 
     addRequirements(drive);
   }
@@ -31,9 +34,12 @@ public class DefaultDrive extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    //Drives the robot using the input taken from the joysticks; note the 0.8, which reduces the magnitude of the speed or
-    //rotation to 80% of its original value to reduce the sensitivity of driving
-    drive.arcadeDrive(speed.getAsDouble(), 0.7 * rotation.getAsDouble());
+
+    if(rightTrigger.getAsDouble() != 0) {
+      drive.arcadeDrive(0 ,0);
+    } else {
+      drive.arcadeDrive(speed.getAsDouble(), 0.7 * rotation.getAsDouble());
+    }
   }
 
   // Called once the command ends or is interrupted.

@@ -7,6 +7,7 @@ package frc.robot;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
@@ -21,6 +22,7 @@ import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstrai
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -73,6 +75,7 @@ public class RobotContainer {
   //instantiates a new drive joystick with the XboxController class
   private XboxController driveStick;
   private XboxController opStick;
+  private XboxController overrideStick;
 
   private JoystickButton driveB;
   private JoystickButton driveLeftBumper;
@@ -97,10 +100,14 @@ public class RobotContainer {
   private JoystickButton opRightBumper;
   private JoystickButton opStart;
 
+  private JoystickButton overrideStickA;
+
   private ClimbForDistance climbForDistance;
   private WinchDown winchDownCommand;
   private TurnWithLimelightV2 turnWithLimeLight;
   private Shoot shoot;
+  private DoubleSupplier speed;
+  private DoubleSupplier rotation;
   
   //Instantiates all subsystems
   private Drive drive;
@@ -179,6 +186,7 @@ public class RobotContainer {
     //declares the drive joystick as an XboxController in port 0 on the Driver Station
     driveStick = new XboxController(0);
     opStick = new XboxController(1);
+    overrideStick = new XboxController(2);
 
     //declares all subsystems
     drive = new Drive();
@@ -223,6 +231,7 @@ public class RobotContainer {
     drive.setDefaultCommand(new DefaultDrive(
       () -> driveStick.getLeftY(),
       () -> driveStick.getRightX(), 
+      () -> overrideStick.getRightTriggerAxis(),
       drive));
 
     launcher.setDefaultCommand(new DefaultLauncher(
@@ -331,6 +340,8 @@ public class RobotContainer {
       collector.collectorStop();
       collector.setSolenoid(DoubleSolenoid.Value.kForward);
     }, collector));
+
+    
 
     // opB.whenPressed(new InstantCommand(() -> collector.feederOn()));
     // opB.whileHeld(new InstantCommand(() -> {
